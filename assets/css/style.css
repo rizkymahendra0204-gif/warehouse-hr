@@ -418,3 +418,48 @@ body {
 .btn-proses:hover {
     background-color: #19fa52 !important; /* Warna merah yang sedikit lebih gelap */
 }
+
+/* --- TRANSAKSI REQUEST STYLES --- */
+
+/* Styling khusus untuk halaman ini menyerupai wireframe */
+        .box-kuning {
+            background-color: #e6f05b;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-weight: 700;
+            color: #4b5563;
+            display: inline-block;
+            min-width: 150px;
+            text-align: center;
+        }
+        
+        .input-abu {
+            background-color: #d1d5db; /* Warna abu-abu solid */
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            width: 100%;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .input-abu:focus {
+            background-color: #cbd5e1;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .btn-merah {
+            background-color: #cc5c5c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 32px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-merah:hover {
+            background-color: #a84747;
+            color: white;
+        }

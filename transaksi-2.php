@@ -67,8 +67,8 @@
                 <!-- Kolom Kanan: Aksi & Bukti -->
                 <div class="col-md-5">
                     <div class="section-box">
-                        <div class="d-flex align-items-center mb-4" style="background-color: #b91c1c; color: white; border-radius: 4px;">
-                            <div class="px-3 py-2 fw-bold" style="background-color: #991b1b;">B</div>
+                        <div class="d-flex align-items-center mb-4" style="background-color: #5145cd; color: white; border-radius: 4px;">
+                            <div class="px-3 py-2 fw-bold" style="background-color: #3e35a1;">B</div>
                             <div class="px-3 fw-bold">KONFIRMASI</div>
                         </div>
 
