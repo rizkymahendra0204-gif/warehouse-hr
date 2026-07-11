@@ -17,7 +17,7 @@
 
 <div class="app-container">
     <!-- MAIN CONTENT -->
-    <div class="main-wrapper" style="background-color: #e5e7eb;">
+    <div class="main-wrapper" style="background-color: #6c6c6d;">
 
         <!-- CONTENT AREA -->
             
@@ -35,15 +35,15 @@
                 <div class="col-md-5 pe-md-4">
                         
                 <!-- Box: Keterangan -->
-                <div class="section-box d-flex align-items-center" style="height: 220px;">
+                <div class="section-box d-flex align-items-center" style="min-height: 220px; height: auto;">
                     <div style="margin-top: 14px;">
                         <h4 class="fw-bold mb-3">Tatacara Pengisian Form</h4>
-                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 5px;">1. Lengkapi data perusahaan, alamat, brand, dan tanggal.</p>
-                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 5px;">2. Pilih jenis seragam, ukuran, dan jumlah.</p>
-                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 5px;">3. Pilih metode pembayaran dan unggah bukti pembayaran.</p>
-                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 5px;">4. Klik tombol "Submit" untuk mengirimkan request.</p><br>
-                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 5px;">Mohon untuk memberitahu SA untuk memberikan Nomor Request </p>
-                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 5px;">Jika ada pertanyaan, silakan hubungi kami (ESC) </p>
+                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">1. Lengkapi data perusahaan, alamat, brand, dan tanggal.</p>
+                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">2. Pilih jenis seragam, ukuran, dan jumlah.</p>
+                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">3. Pilih metode pembayaran dan unggah bukti pembayaran.</p>
+                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">4. Klik tombol "Submit" untuk mengirimkan request.</p><br><br>
+                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">Mohon untuk memberitahu SA untuk memberikan Nomor Request </p>
+                        <p class="text-secondary" style="font-size: 14px; margin-bottom: 8px;">Jika ada pertanyaan, silakan hubungi kami (ESC) </p>
                     </div>
                 </div>
 
@@ -58,25 +58,25 @@
                     <form action="proses_request.php" method="POST">
                         <!-- Field Perusahaan -->
                         <div class="mb-2">
-                            <label class="form-label mb-1" style="font-size: 11px; font-weight: 700; color: #4b5563;">Perusahaan</label>
+                            <label class="form-label mb-1" style="font-size: 14px; font-weight: 900; color: #4b5563;">Perusahaan</label>
                             <input type="text" class="form-control form-control-sm rounded-pill" name="perusahaan" placeholder="Perusahaan" required>
                         </div>
 
                         <!-- Field Alamat -->
                         <div class="mb-2">
-                            <label class="form-label mb-1" style="font-size: 11px; font-weight: 700; color: #4b5563;">Alamat</label>
+                            <label class="form-label mb-1" style="font-size: 14px; font-weight: 900; color: #4b5563;">Alamat</label>
                             <input type="text" class="form-control form-control-sm rounded-pill" name="alamat" placeholder="Alamat" required>
                         </div>
 
                         <!-- Field Brand -->
                         <div class="mb-2">
-                            <label class="form-label mb-1" style="font-size: 11px; font-weight: 700; color: #4b5563;">Brand</label>
+                            <label class="form-label mb-1" style="font-size: 14px; font-weight: 900; color: #4b5563;">Brand</label>
                             <input type="text" class="form-control form-control-sm rounded-pill" name="brand" placeholder="Brand" required>
                         </div>
 
                         <!-- Field Tanggal -->
                         <div class="mb-2">
-                            <label class="form-label mb-1" style="font-size: 11px; font-weight: 700; color: #4b5563;">Tanggal</label>
+                            <label class="form-label mb-1" style="font-size: 14px; font-weight: 900; color: #4b5563;">Tanggal</label>
                             <input type="date" class="form-control form-control-sm rounded-pill" name="tanggal" required>
                         </div>
                     </form>
