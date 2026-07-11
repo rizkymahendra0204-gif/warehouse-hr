@@ -15,9 +15,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="bi bi-bar-chart-line-fill"></i>
             <span>Dashboard</span>
         </a>
-        <a href="request.php" class="nav-link <?= ($current_page == 'request.php') ? 'active' : '' ?>">
+        <a href="pending.php" class="nav-link <?= ($current_page == 'pending.php') ? 'active' : '' ?>">
             <i class="bi bi-cart3"></i>
-            <span>Request</span>
+            <span>Pending</span>
         </a>
         <a href="transaksi.php" class="nav-link <?= ($current_page == 'transaksi.php') ? 'active' : '' ?>">
             <i class="bi bi-file-earmark-text"></i>

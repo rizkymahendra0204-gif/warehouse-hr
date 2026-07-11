@@ -84,6 +84,48 @@
             <div class="page-title">Dashboard</div>
             
             <div class="container-fluid px-0">
+                <div class="row row-gap">
+                <div class="col-md-4">
+                    <div class="card p-3 shadow-sm border-0">
+                        <div class="text-secondary fw-bold" style="font-size: 12px;">PENDING</div>
+                        <h2 class="mt-2 text-warning">15</h2>
+                    </div>
+                </div>    
+                <div class="col-md-4">
+                    <div class="card p-3 shadow-sm border-0">
+                        <div class="text-secondary fw-bold" style="font-size: 12px;">TOTAL TRANSAKSI</div>
+                        <h2 class="mt-2">124</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-3 shadow-sm border-0">
+                        <div class="text-secondary fw-bold" style="font-size: 12px;">TOTAL RETURN</div>
+                        <h2 class="mt-2 text-danger">8</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <!-- Kolom Kiri -->
+                <div class="col-md-6">
+                    <div class="card p-4 shadow-sm border-0" style="min-height: 300px;">
+                        <div class="fw-bold mb-3">Stok Warehouse Active</div>
+                        <div class="mockup-placeholder" style="height: 250px; background-color: #f3f4f6;">
+                            <!-- Chart Kiri -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolom Kanan -->
+                <div class="col-md-6">
+                    <div class="card p-4 shadow-sm border-0" style="min-height: 300px;">
+                        <div class="fw-bold mb-3">Stok Warehouse Inactive</div>
+                        <div class="mockup-placeholder" style="height: 250px; background-color: #f3f4f6;">
+                            <!-- Chart Kanan -->
+                        </div>
+                    </div>
+                </div>
+            </div>
                 
             </div>
         </main>
