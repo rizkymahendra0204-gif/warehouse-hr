@@ -16,9 +16,6 @@
 
 <div class="app-container">
 
-    <!-- MAIN CONTENT -->
-    <div class="main-wrapper" style="background-color: #6c6c6d;">
-
         <!-- CONTENT AREA -->
         <main class="content-area p-4">
             
@@ -105,7 +102,7 @@
 
                             <!-- Baris Item 1: Top (Ditambahkan class price & qty untuk perhitungan JS) -->
                             <div class="row align-items-center mb-3 calc-row">
-                                <div class="col-1 text-center"><img src="assets/img/Baju.png" width="60"></div>
+                                <div class="col-1 text-center"><img src="assets/img/Baju.png" width="50"></div>
                                 <div class="col-4">
                                     <label class="form-label mb-1 fw-bold" style="font-size: 11px;">Ukuran Top:</label>
                                     <select class="form-select form-select-sm">
@@ -129,7 +126,7 @@
 
                             <!-- Baris Item 2: Bottom -->
                             <div class="row align-items-center mb-3 calc-row">
-                                <div class="col-1 text-center"><img src="assets/img/Celana.png" width="60"></div>
+                                <div class="col-1 text-center"><img src="assets/img/Celana.png" width="50"></div>
                                 <div class="col-4">
                                     <label class="form-label mb-1 fw-bold" style="font-size: 11px;">Ukuran Bottom:</label>
                                     <select class="form-select form-select-sm">

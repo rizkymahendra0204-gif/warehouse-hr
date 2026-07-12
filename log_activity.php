@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - HR Warehouse</title>
+    <title>Log Activity - HR Warehouse</title>
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,95 +11,196 @@
     
     <!-- Memanggil file CSS Anda -->
     <link rel="stylesheet" href="assets/css/style.css">
-    
+
 </head>
 <body>
 
 <div class="app-container">
 
-<!-- Memanggil file Sidebar -->
+    <!-- Memanggil file Sidebar -->
     <?php include 'includes/sidebar.php'; ?>
 
-    <!-- MAIN CONTENT -->
     <div class="main-wrapper">
         
-
-        <!-- TOPBAR -->
-        <header class="topbar" style="justify-content: space-between;">
-            <!-- Tombol Tutup/Buka Sidebar -->
-            <button id="sidebarToggle" class="btn btn-light d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <i class="bi bi-list fs-5 text-secondary"></i>
-            </button>
-
-            <div class="profile-section">
-                <!-- 1. Notification Dropdown -->
-                <div class="dropdown">
-                    <div class="notification" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bell-fill"></i>
-                        <div class="notification-dot"></div>
-                    </div>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
-                        <li class="notification-header">Pending Requests</li>
-                        
-                        <!-- Contoh Data Dummy Request -->
-                        <li>
-                            <a class="dropdown-item notification-item" href="request.php">
-                                <span class="notif-title">Andi (IT Dept)</span>
-                                <span class="notif-desc">Meminta: Seragam Batik - Size L</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item notification-item" href="request.php">
-                                <span class="notif-title">Budi (Marketing)</span>
-                                <span class="notif-desc">Meminta: Polo Shirt - Size M</span>
-                            </a>
-                        </li>
-                        
-                        <li><hr class="dropdown-divider m-0"></li>
-                        <li><a class="dropdown-item text-center py-3" href="request.php" style="color: #556ee6; font-weight: 600;">Lihat Semua Request</a></li>
-                    </ul>
-                </div>
-
-                <!-- 2. User Profile Dropdown -->
-                <div class="dropdown">
-                    <div class="user-info" data-bs-toggle="dropdown" aria-expanded="false">
-                        <div class="avatar">🍔</div>
-                        <span class="user-name">Delicious Burger <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i></span>
-                    </div>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </header>
-    
+        <!-- Memanggil file Topbar -->
+        <?php include 'includes/topbar.php'; ?>
 
         <!-- MAIN CONTENT AREA -->
-
-        <main class="content-area">
-            <div class="page-title">Log Activity</div>
+        <main class="content-area p-4">
             
-            <div class="container-fluid px-0">
-                
+            <!-- Header Halaman & Tombol Aksi -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold m-0" style="color: #1e293b;">Log Activity</h4>
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Riwayat aktivitas dan transaksi sistem</p>
+                </div>
+                <div class="d-flex gap-3">
+                    <button class="btn fw-bold text-success" style="background-color: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px;">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+                    </button>
+                </div>
             </div>
-        </main>
 
-        <!-- END CONTENT AREA -->
-        
+            <!-- Area Filter dan Pencarian -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                
+                <!-- Filter Tanggal (Date Range) -->
+                <div class="date-filter-group shadow-sm">
+                    <i class="bi bi-calendar3 text-secondary me-2"></i>
+                    <input type="date" title="Mulai Tanggal">
+                    <span class="date-separator">-</span>
+                    <input type="date" title="Sampai Tanggal">
+                    <button class="btn btn-light border-0 ms-2 text-primary fw-bold"><i class="bi bi-funnel-fill"></i></button>
+                </div>
+                
+                <!-- Pencarian -->
+                <div class="input-group shadow-sm" style="width: 300px; border-radius: 8px; overflow: hidden;">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Cari aktivitas atau nama...">
+                </div>
+            </div>
+            
+            <!-- Table Container (Card) -->
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col" width="18%">Waktu</th>
+                                <th scope="col" width="22%">Pengguna</th>
+                                <th scope="col" width="45%">Aktivitas</th>
+                                <th scope="col" width="15%" class="text-center">Modul</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            <!-- Baris Data 1 (Transaksi) -->
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 14px;">12 Jul 2026</div>
+                                    <div class="text-secondary" style="font-size: 12px;">15:42 WIB</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar" style="width: 28px; height: 28px; font-size: 12px;">🍔</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 13px;">Delicious Burger</div>
+                                            <div class="text-secondary" style="font-size: 11px;">Admin HR</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="activity-icon icon-transaksi"><i class="bi bi-check2-circle"></i></div>
+                                        <div>
+                                            <span class="fw-bold text-dark" style="font-size: 14px;">Approve Request & Transaksi</span>
+                                            <p class="text-secondary m-0 mt-1" style="font-size: 13px;">Menyetujui dan memproses Request ID <a href="#" class="text-decoration-none fw-bold">#FR-110726</a> (PT. CENTRAL JAYA)</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="module-badge">Transaksi</span>
+                                </td>
+                            </tr>
+
+                            <!-- Baris Data 2 (Inventory) -->
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 14px;">12 Jul 2026</div>
+                                    <div class="text-secondary" style="font-size: 12px;">10:15 WIB</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar" style="width: 28px; height: 28px; font-size: 12px;">🍔</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 13px;">Delicious Burger</div>
+                                            <div class="text-secondary" style="font-size: 11px;">Admin HR</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="activity-icon icon-inventory"><i class="bi bi-box-seam"></i></div>
+                                        <div>
+                                            <span class="fw-bold text-dark" style="font-size: 14px;">Penambahan Stok Baru</span>
+                                            <p class="text-secondary m-0 mt-1" style="font-size: 13px;">Menambahkan 50 Pcs item <span class="fw-bold text-dark">Kemeja SA Pria</span> (Barcode: SRG-AT-001)</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="module-badge">Inventory</span>
+                                </td>
+                            </tr>
+
+                            <!-- Baris Data 3 (Return) -->
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 14px;">11 Jul 2026</div>
+                                    <div class="text-secondary" style="font-size: 12px;">16:30 WIB</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar" style="width: 28px; height: 28px; font-size: 12px;">🍔</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 13px;">Delicious Burger</div>
+                                            <div class="text-secondary" style="font-size: 11px;">Admin HR</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="activity-icon icon-return"><i class="bi bi-arrow-counterclockwise"></i></div>
+                                        <div>
+                                            <span class="fw-bold text-dark" style="font-size: 14px;">Proses Return Barang</span>
+                                            <p class="text-secondary m-0 mt-1" style="font-size: 13px;">Menerima return item <span class="fw-bold text-dark">Celana SA Pria</span> karena cacat produksi.</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="module-badge">Return</span>
+                                </td>
+                            </tr>
+
+                            <!-- Baris Data 4 (System/Login) -->
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 14px;">11 Jul 2026</div>
+                                    <div class="text-secondary" style="font-size: 12px;">08:00 WIB</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar" style="width: 28px; height: 28px; font-size: 12px;">🍔</div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 13px;">Delicious Burger</div>
+                                            <div class="text-secondary" style="font-size: 11px;">Admin HR</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="activity-icon icon-system"><i class="bi bi-shield-lock"></i></div>
+                                        <div>
+                                            <span class="fw-bold text-dark" style="font-size: 14px;">Login Sistem</span>
+                                            <p class="text-secondary m-0 mt-1" style="font-size: 13px;">Berhasil login ke dalam Dashboard HR Warehouse via IP 192.168.1.5</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="module-badge">Sistem</span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
     </div>
 </div>
 
-<!-- Scripts dari Bootstrap dan file JS Anda -->
-<!-- 1. JQuery (Wajib paling atas di antara script lainnya) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- 2. Bootstrap Bundle (Untuk Dropdown) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="assets/js/scripts.js"></script>
 </body>
 </html>
