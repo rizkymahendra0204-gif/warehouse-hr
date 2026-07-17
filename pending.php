@@ -29,9 +29,7 @@
         <main class="content-area p-4">
             
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title">Pending Request
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Manajemen inventaris seragam dan kelengkapan</p>
-                </div>
+                <div class="page-title">Pending Request</div>
                 
                 <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
@@ -81,89 +79,100 @@
 </div>
 
 <!-- ================= MODAL REVIEW REQUEST ================= -->
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            
-            <!-- Modal Header -->
-            <div class="modal-header border-0 pb-0 pt-4 px-4 align-items-center">
-                <h4 class="modal-title fw-bold m-0" id="reviewModalLabel" style="color: #4b5563;">Detail Transaksi #FR-110726</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            
-            <!-- Modal Body -->
-            <div class="modal-body p-4">
-                <div class="row g-4">
+        <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
                     
-                    <!-- Kolom Kiri: Ringkasan (SECTION A) -->
-                    <div class="col-lg-7">
-                        <div class="panel-card">
-                            
-                            <!-- Header Section A -->
-                            <div class="section-header-box">
-                                <div class="section-icon bg-red-dark">A</div>
-                                <div class="section-title bg-red-main">RINGKASAN PESANAN</div>
-                            </div>
-                            
-                            <table class="table table-borderless summary-table m-0">
-                                <tr>
-                                    <th class="ps-0">Perusahaan</th>
-                                    <td>: PT. CENTRAL JAYA</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-0">Alamat</th>
-                                    <td>: Jl. Jend. Sudirman No. 1</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-0">Item</th>
-                                    <td>: Baju SA Pria (Size M)</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-0">Item</th>
-                                    <td>: Celana SA Pria (Size 32)</td>
-                                </tr>
-                                <tr>
-                                    <th class="ps-0 border-0 pb-0">Jumlah</th>
-                                    <td class="border-0 pb-0">: 2 Pcs</td>
-                                </tr>
-                            </table>
-                        </div>
+                    <!-- Modal Header -->
+                    <div class="modal-header border-0 pb-0 pt-4 px-4 align-items-center">
+                        <h4 class="modal-title fw-bold m-0" id="reviewModalLabel" style="color: #4b5563;">Detail Transaksi #FR-110726</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-                    <!-- Kolom Kanan: Konfirmasi (SECTION B) -->
-                    <div class="col-lg-5">
-                        <div class="panel-card">
+                    
+                    <!-- Modal Body -->
+                    <div class="modal-body p-4">
+                        <div class="row g-4">
                             
-                            <!-- Header Section B -->
-                            <div class="section-header-box">
-                                <div class="section-icon bg-blue-dark">B</div>
-                                <div class="section-title bg-blue-main">KONFIRMASI</div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <p class="fw-bold mb-2" style="font-size: 14px; color: #1f2937;">Bukti Pembayaran:</p>
-                                <div class="bukti-box">
-                                    <i class="bi bi-file-earmark-image mb-2 d-block" style="font-size: 48px; color: #9ca3af;"></i>
-                                    <p class="text-secondary mb-3" style="font-size: 13px;">bukti_transfer.jpg</p>
-                                    <button class="btn btn-sm text-white fw-bold px-3 py-2" style="background-color: #556ee6; border-radius: 6px;">
-                                        Lihat Gambar
-                                    </button>
+                            <!-- Kolom Kiri: Ringkasan (SECTION A) -->
+                            <div class="col-lg-7">
+                                <div class="panel-card">
+                                    
+                                    <!-- Header Section A (Desain Baru Gambar 2) -->
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="icon-box-square">A</div>
+                                        <h6 class="fw-bold m-0" style="color: #b91c1c; letter-spacing: 0.5px;">RINGKASAN PESANAN</h6>
+                                    </div>
+                                    
+                                    <!-- Tabel Struktur Lama (Gambar 1) -->
+                                    <table class="table table-borderless summary-table m-0">
+                                        <tr>
+                                            <th class="ps-0">Perusahaan</th>
+                                            <td>: PT. CENTRAL JAYA</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="ps-0">Alamat</th>
+                                            <td>: Jl. Jend. Sudirman No. 1</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="ps-0">Item</th>
+                                            <td>: Baju SA Pria (Size M)</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="ps-0">Item</th>
+                                            <td>: Celana SA Pria (Size 32)</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="ps-0 border-0 pb-0">Jumlah</th>
+                                            <td class="border-0 pb-0">: 2 Pcs</td>
+                                        </tr>
+                                    </table>
                                 </div>
                             </div>
 
-                            <div class="d-grid gap-2 mt-auto">
-                                <!-- Tombol Approve -->
-                                <a href="transaksi.php?id=FR-110726&pt=PT.+CENTRAL+JAYA" class="btn text-white fw-bold py-2" style="background-color: #556ee6; border-radius: 6px;">
-                                    Approve Request
-                                </a>
-                                <!-- Tombol Reject -->
-                                <button type="button" class="btn fw-bold py-2" style="background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; border-radius: 6px; transition: 0.2s;" onmouseover="this.style.backgroundColor='#fee2e2'; this.style.color='#b91c1c'; this.style.borderColor='#f87171';" onmouseout="this.style.backgroundColor='#f1f5f9'; this.style.color='#64748b'; this.style.borderColor='#cbd5e1';">
-                                    Reject Request
-                                </button>
+                            <!-- Kolom Kanan: Konfirmasi (SECTION B) -->
+                            <div class="col-lg-5">
+                                <div class="panel-card d-flex flex-column">
+                                    
+                                    <!-- Header Section B (Desain Baru Gambar 2) -->
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="icon-box-square">B</div>
+                                        <h6 class="fw-bold m-0" style="color: #b91c1c; letter-spacing: 0.5px;">KONFIRMASI</h6>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <p class="fw-bold mb-2" style="font-size: 14px; color: #1f2937;">Bukti Pembayaran:</p>
+                                        <div class="bukti-box">
+                                            <i class="bi bi-file-earmark-image mb-2 d-block" style="font-size: 48px; color: #9ca3af;"></i>
+                                            <p class="text-secondary mb-3" style="font-size: 13px;">bukti_transfer.jpg</p>
+                                            
+                                            <!-- Tombol Merah (Sesuai Gambar 1) -->
+                                            <button class="btn btn-sm text-white fw-bold px-4 py-2" style="background-color: #b91c1c; border-radius: 6px;">
+                                                Lihat Gambar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2 mt-auto">
+                                        <!-- Tombol Approve Hijau Gelap (Sesuai Gambar 1) -->
+                                        <a href="transaksi.php?id=FR-110726&pt=PT.+CENTRAL+JAYA" class="btn text-white fw-bold py-2" style="background-color: #15803d; border-radius: 6px;">
+                                            Approve Request
+                                        </a>
+                                        
+                                        <!-- Tombol Reject Abu-abu Terang (Sesuai Gambar 1) -->
+                                        <button type="button" class="btn fw-bold py-2" style="background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                            Reject Request
+                                        </button>
+                                    </div>
+                                    
+                                </div>
                             </div>
-                            
+
                         </div>
                     </div>
+                    
+                </div>
+            </div>
+        </div>
 
                 </div>
             </div>

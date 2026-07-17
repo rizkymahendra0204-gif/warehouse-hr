@@ -586,90 +586,65 @@ body {
 
 /* ================= MODAL STYLES ================= */
 .modal-content {
-  border-radius: 12px;
-  border: none;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  background-color: #f9fafb;
-}
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background-color: #f9fafb;
+        }
 
-/* Card dalam Modal */
-.panel-card {
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 24px;
-  height: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-}
+        /* Card Panel Putih */
+        .panel-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 32px 24px;
+            height: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+        }
 
-/* Header Section A & B */
-.section-header-box {
-  display: flex;
-  align-items: center;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-.section-icon {
-  padding: 12px 20px;
-  font-weight: 800;
-  color: #ffffff;
-  font-size: 15px;
-}
-.section-title {
-  padding: 12px 16px;
-  font-weight: 700;
-  font-size: 13px;
-  color: #ffffff;
-  flex-grow: 1;
-  letter-spacing: 0.5px;
-}
+        /* Ikon Huruf A & B (Gaya Baru seperti Gambar 2) */
+        .icon-box-square {
+            background-color: #b91c1c; /* Warna merah */
+            color: #ffffff;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px; /* Sudut melengkung */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            margin-right: 12px;
+        }
 
-/* Tema Warna Section */
-.bg-red-dark {
-  background-color: #991b1b;
-}
-.bg-red-main {
-  background-color: #b91c1c;
-}
-.bg-blue-dark {
-  background-color: #4338ca;
-}
-.bg-blue-main {
-  background-color: #556ee6;
-}
+        /* Tabel Ringkasan (Struktur Gambar 1) */
+        .summary-table th {
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+            width: 35%;
+        }
+        .summary-table td {
+            color: #1f2937;
+            font-size: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
 
-/* Tabel Ringkasan */
-.summary-table th {
-  color: #4b5563;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f3f4f6;
-  width: 35%;
-}
-.summary-table td {
-  color: #1f2937;
-  font-size: 14px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-/* Box Upload Bukti */
-.bukti-box {
-  border: 1px solid #e5e7eb;
-  background-color: #f8fafc;
-  border-radius: 8px;
-  padding: 32px 20px;
-  text-align: center;
-}
-
-/* Memastikan Modal Cukup Lebar */
-#reviewModal .modal-dialog {
-  max-width: 950px !important;
-}
+        /* Box Upload Bukti */
+        .bukti-box {
+            border: 1px solid #e5e7eb;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 32px 20px;
+            text-align: center;
+        }
+        
+        #reviewModal .modal-dialog {
+            max-width: 950px !important;
+        }
 
 /* ==========================================================================
    8. PAGE: TRANSAKSI

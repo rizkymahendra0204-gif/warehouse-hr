@@ -30,10 +30,7 @@
             
             <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h4 class="fw-bold m-0" style="color: #1e293b;">Dashboard Overview</h4>
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Ringkasan performa dan metrik gudang hari ini</p>
-                </div>
+                <div class="page-title">Dashboard</div>
                 <div class="d-flex gap-2">
                     <button class="btn fw-bold text-white shadow-sm" style="background-color: #556ee6; border-radius: 8px; font-size: 14px;">
                         <i class="bi bi-arrow-clockwise me-2"></i>Refresh

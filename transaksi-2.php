@@ -8,92 +8,173 @@
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Memanggil file CSS Anda -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
 <div class="app-container">
+
+    <!-- Memanggil file Sidebar -->
     <?php include 'includes/sidebar.php'; ?>
 
+    <!-- MAIN CONTENT -->
     <div class="main-wrapper">
-        <!-- TOPBAR -->
-        <header class="topbar" style="justify-content: space-between;">
-            <button id="sidebarToggle" class="btn btn-light d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <i class="bi bi-list fs-5 text-secondary"></i>
-            </button>
-            <div class="user-info">
-                <div class="avatar">🍔</div>
-                <span class="user-name">Delicious Burger</span>
-            </div>
-        </header>
+        
+        <?php include 'includes/topbar.php'; ?>
 
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
-            <div class="d-flex align-items-center mb-4">
-                <a href="pending.php" class="btn btn-outline-secondary btn-sm me-3"><i class="bi bi-arrow-left"></i> Kembali</a>
-                <h4 class="fw-bold m-0" style="color: #4b5563;">Detail Transaksi #FR-110726</h4>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold m-0" style="color: #1e293b;">Proses Transaksi</h4>
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Pemindaian barcode dan penyelesaian request barang</p>
+                </div>
             </div>
             
-            <div class="row">
-                <!-- Kolom Kiri: Detail Permintaan -->
-                <div class="col-md-7">
-                    <div class="section-box">
-                        <div class="d-flex align-items-center mb-4" style="background-color: #b91c1c; color: white; border-radius: 4px;">
-                            <div class="px-3 py-2 fw-bold" style="background-color: #991b1b;">A</div>
-                            <div class="px-3 fw-bold">RINGKASAN PESANAN</div>
+            <div class="container-fluid px-0">
+                
+                <?php
+                    // Menangkap data otomatis dari URL
+                    $auto_id_request = isset($_GET['id']) ? $_GET['id'] : '';
+                    $auto_perusahaan = isset($_GET['pt']) ? $_GET['pt'] : '';
+                    $auto_brand      = isset($_GET['brand']) ? $_GET['brand'] : '';
+                    $auto_nama       = isset($_GET['nama']) ? $_GET['nama'] : '';
+                    $auto_alamat     = isset($_GET['alamat']) ? $_GET['alamat'] : '';
+
+                    // LOGIKA PINTAR: Cek apakah ini transaksi otomatis atau manual
+                    $is_auto = !empty($auto_id_request); 
+                    
+                    // Jika otomatis, tambahkan atribut readonly dan class bg-light. Jika tidak, kosongkan.
+                    $readonly_attr = $is_auto ? 'readonly' : '';
+                    $bg_class      = $is_auto ? 'bg-light' : '';
+                ?>
+                
+                <form action="proses_transaksi.php" method="POST">
+                    
+                    <!-- SECTION 1: ID Info -->
+                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
+                        <h6 class="fw-bold mb-4" style="color: #4b5563;"><i class="bi bi-ticket-detailed me-2"></i>Informasi Tiket</h6>
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Request</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="id_request" value="<?php echo $auto_id_request; ?>" placeholder="Contoh: FR-110726" <?php echo $readonly_attr; ?>>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Sales</label>
+                                <input type="text" class="form-control" name="id_sales" placeholder="Masukkan ID Sales">
+                            </div>
                         </div>
-                        
-                        <table class="table table-borderless">
-                            <tr>
-                                <th width="40%">Perusahaan</th>
-                                <td>: PT. CENTRAL JAYA</td>
-                            </tr>
-                            <tr>
-                                <th>Alamat</th>
-                                <td>: Jl. Jend. Sudirman No. 1</td>
-                            </tr>
-                            <tr>
-                                <th>Item</th>
-                                <td>: Seragam SA Pria (Size M)</td>
-                            </tr>
-                            <tr>
-                                <th>Jumlah</th>
-                                <td>: 2 Pcs</td>
-                            </tr>
-                        </table>
                     </div>
-                </div>
 
-                <!-- Kolom Kanan: Aksi & Bukti -->
-                <div class="col-md-5">
-                    <div class="section-box">
-                        <div class="d-flex align-items-center mb-4" style="background-color: #5145cd; color: white; border-radius: 4px;">
-                            <div class="px-3 py-2 fw-bold" style="background-color: #3e35a1;">B</div>
-                            <div class="px-3 fw-bold">KONFIRMASI</div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="fw-bold mb-2">Bukti Pembayaran:</label>
-                            <div class="p-3 border rounded text-center" style="background-color: #f9fafb;">
-                                <i class="bi bi-file-earmark-image fs-1 text-secondary"></i>
-                                <p class="small text-muted mt-1">bukti_transfer.jpg</p>
-                                <a href="#" class="btn btn-sm btn-outline-primary">Lihat Gambar</a>
+                    <!-- SECTION 2: Detail Data -->
+                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
+                        <h6 class="fw-bold mb-4" style="color: #4b5563;"><i class="bi bi-person-badge me-2"></i>Detail Penerima</h6>
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Perusahaan</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="perusahaan" value="<?php echo $auto_perusahaan; ?>" placeholder="Nama Perusahaan" <?php echo $readonly_attr; ?>>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Brand</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="brand" value="<?php echo $auto_brand; ?>" placeholder="Brand" <?php echo $readonly_attr; ?>>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Nama Lengkap</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama Lengkap" <?php echo $readonly_attr; ?>>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Alamat</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="alamat" value="<?php echo $auto_alamat; ?>" placeholder="Alamat" <?php echo $readonly_attr; ?>>
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success py-2 fw-bold">Approve Request</button>
-                            <button class="btn btn-danger py-2 fw-bold">Reject Request</button>
+                        <hr style="border-color: #e5e7eb; margin: 32px 0;">
+
+                        <h6 class="fw-bold mb-4" style="color: #4b5563;"><i class="bi bi-upc-scan me-2"></i>Pemindaian Item</h6>
+
+                        <!-- SECTION 3: CONTAINER ITEM DINAMIS (REVISI UI) -->
+                        <div id="dynamic-item-container">
+                            
+                            <!-- Item Row Default (Akan di-clone) -->
+                            <div class="item-row bg-white border rounded-3 p-4 mb-3" style="box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <span class="fw-bold item-number" style="color: #556ee6; font-size: 14px;">
+                                        <i class="bi bi-box-seam me-2"></i>Item #1
+                                    </span>
+                                    <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" style="display: none; background-color: #fee2e2;">
+                                        <i class="bi bi-trash3 me-1"></i>Hapus
+                                    </button>
+                                </div>
+                                
+                                <div class="row g-4">
+                                    <!-- Blok Kiri: Atasan -->
+                                    <div class="col-lg-6">
+                                        <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Atasan</label>
+                                        <div class="row g-2">
+                                            <!-- Input Scan -->
+                                            <div class="col-sm-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
+                                                    <input type="text" class="form-control" name="barcode_atasan[]" placeholder="Scan Barcode">
+                                                </div>
+                                            </div>
+                                            <!-- Textarea Detail (Readonly) -->
+                                            <div class="col-sm-7">
+                                                <textarea class="form-control bg-light" name="detail_atasan[]" rows="3" placeholder="*Detail Info Barcode" readonly style="resize: none; font-size: 13px;"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Blok Kanan: Bawahan -->
+                                    <div class="col-lg-6">
+                                        <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Bawahan</label>
+                                        <div class="row g-2">
+                                            <!-- Input Scan -->
+                                            <div class="col-sm-5">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
+                                                    <input type="text" class="form-control" name="barcode_bawahan[]" placeholder="Scan Barcode">
+                                                </div>
+                                            </div>
+                                            <!-- Textarea Detail (Readonly) -->
+                                            <div class="col-sm-7">
+                                                <textarea class="form-control bg-light" name="detail_bawahan[]" rows="3" placeholder="*Detail Info Barcode" readonly style="resize: none; font-size: 13px;"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Akhir Item Row Default -->
+                            
                         </div>
+
+                        <!-- Tombol Tambah Item -->
+                        <button type="button" id="btn-tambah-item" class="btn fw-bold mt-2 px-3 py-2" style="background-color: #f1f5f9; color: #475569; border: 1px dashed #cbd5e1; border-radius: 6px;">
+                            <i class="bi bi-plus-circle me-2"></i>Tambah Baris Item
+                        </button>
                     </div>
-                </div>
+
+                    <!-- Tombol Aksi Bawah -->
+                    <div class="d-flex justify-content-end gap-3 mt-2 mb-5">
+                        <button type="reset" class="btn btn-light border fw-bold px-4 text-secondary">Batal</button>
+                        <button type="submit" class="btn fw-bold text-white px-5" style="background-color: #556ee6;">Simpan Transaksi</button>
+                    </div>
+                </form>
+                
             </div>
         </main>
+        
     </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
+
 </body>
 </html>
