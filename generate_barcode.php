@@ -1,44 +1,5 @@
 <?php
-// generate_barcode.php
-// Tetap panggil db.php jika sidebar/topbar Anda membutuhkannya untuk session/koneksi umum
-require_once 'includes/db.php'; 
-
-$success_msg = "";
-$error_msg = "";
-$generated_barcodes = [];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_range') {
-    $tipe        = isset($_POST['tipe']) ? trim($_POST['tipe']) : '';
-    $gender      = isset($_POST['gender']) ? trim($_POST['gender']) : '';
-    $ukuran      = isset($_POST['ukuran']) ? trim($_POST['ukuran']) : '';
-    $range_awal  = isset($_POST['range_awal']) ? (int)$_POST['range_awal'] : 1;
-    $range_akhir = isset($_POST['range_akhir']) ? (int)$_POST['range_akhir'] : 1;
-
-    // Pemetaan Singkatan SKU
-    $tipe_code = '';
-    if ($tipe === 'Baju') $tipe_code = '1';
-    elseif ($tipe === 'Celana') $tipe_code = '2';
-
-    $gender_code = ($gender === 'Pria') ? '01' : '02';
-
-    if (empty($tipe) || empty($gender) || empty($ukuran)) {
-        $error_msg = "Semua parameter SKU wajib diisi!";
-    } elseif ($range_awal > $range_akhir) {
-        $error_msg = "Range awal tidak boleh lebih besar dari range akhir!";
-    } elseif (($range_akhir - $range_awal) > 300) {
-        $error_msg = "Batasi pembuatan maksimal 300 barcode per sesi cetak.";
-    } else {
-        // Murni me-looping dan membuat kode stiker tanpa beban ke database
-        for ($i = $range_awal; $i <= $range_akhir; $i++) {
-            $running_number = sprintf("%04d", $i);
-            // Menghasilkan format SKU (Contoh: BJ-P-S-0001)
-            $barcode_comb = $tipe_code . $gender_code . $ukuran . $running_number;
-            
-            $generated_barcodes[] = $barcode_comb;
-        }
-        $success_msg = "Berhasil membuat <strong>" . count($generated_barcodes) . "</strong> label barcode siap cetak!";
-    }
-}
+include 'controllers/proses_generate.php';
 ?>
 
 <!DOCTYPE html>
@@ -79,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
             <div class="row g-4">
                 <!-- FORM SETUP PARAMETER BATCH -->
-                <div class="col-md-5 card-form-left">
+                <div class="col-12 mb-4">
                     <div class="card shadow-sm border-0 p-4" style="border-radius: 12px;">
                         <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-sliders me-2 text-primary"></i>Barcode Prefik</h5>
                         
@@ -136,13 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </div>
 
                 <!-- PREVIEW & TOMBOL PRINT -->
-                <div class="col-md-7">
+                <div class="col-12">
                     <div class="card shadow-sm border-0 p-4" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold m-0" style="color: #1e293b;"><i class="bi bi-layout-three-columns me-2 text-success"></i>Lembar Cetak</h5>
                             <?php if (!empty($generated_barcodes)): ?>
-                                <button type="button" onclick="window.print();" class="btn btn-success btn-sm fw-bold px-3 btn-print-trigger">
-                                    <i class="bi bi-printer-fill me-1"></i> Cetak ke Kertas Stiker
+                                <button type="button" onclick="exportExcel();" class="btn btn-success btn-sm fw-bold px-3 btn-print-trigger">
+                                        <i class="bi bi-file-earmark-excel-fill me-1"></i> Export ke Excel
                                 </button>
                             <?php endif; ?>
                         </div>
@@ -173,20 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-<script>
-$(document).ready(function() {
-    $('.barcode-element').each(function() {
-        const valueCode = $(this).data('value');
-        JsBarcode(this, valueCode, {
-            format: "CODE128",
-            width: 1.3,
-            height: 38,
-            displayValue: true,
-            fontSize: 10,
-            margin: 2
-        });
-    });
-});
-</script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="assets/js/scripts.js"></script>
+
 </body>
 </html>

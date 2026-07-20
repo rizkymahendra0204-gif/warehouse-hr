@@ -1,15 +1,5 @@
 <?php
-// 1. Panggil koneksi database
-require_once 'includes/db.php';
-$conn = new mysqli($host, $user, $pass, $db);
-
-if ($conn->connect_error) {
-    die("Koneksi Database Gagal: " . $conn->connect_error);
-}
-
-// 2. Ambil data dari tabel master_item
-$sql = "SELECT * FROM master_item ORDER BY barcode DESC";
-$result = $conn->query($sql);
+include 'controllers/query_stokbarang.php';
 ?>
 
 <!DOCTYPE html>
@@ -56,17 +46,24 @@ $result = $conn->query($sql);
 
             <!-- Area Filter dan Pencarian -->
             <div class="d-flex justify-content-between align-items-center mb-4">
+                <!-- Tab Filter (Mempertahankan text pencarian saat tab diklik) -->
                 <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm">
-                    <a href="#" class="filter-tab active">Semua</a>
-                    <a href="#" class="filter-tab">Tersedia</a>
-                    <a href="#" class="filter-tab">Terdistribusi</a>
-                    <a href="#" class="filter-tab">Nonaktif</a>
+                    <a href="?tab=semua&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'semua' ? 'active' : '' ?>">Semua</a>
+                    <a href="?tab=available&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'active' : '' ?>">Available</a>
+                    <a href="?tab=soldout&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'sold out' ? 'active' : '' ?>">Sold Out</a>
+                    <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'inactive' ? 'active' : '' ?>">Inactive</a>
                 </div>
                 
-                <div class="input-group shadow-sm" style="width: 300px; border-radius: 8px; overflow: hidden;">
+                <!-- Form Pencarian (Otomatis submit saat menekan tombol Enter) -->
+                <form method="GET" action="" class="input-group shadow-sm" style="width: 300px; border-radius: 8px; overflow: hidden;">
+                    <!-- Menyimpan state tab aktif saat user mengetik pencarian baru -->
+                    <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
+                    
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari SKU atau Nama Barang...">
-                </div>
+                    <input type="text" name="search" id="searchInput" class="form-control border-start-0 ps-0" 
+                        placeholder="Cari ..." 
+                        value="<?= htmlspecialchars($search) ?>">
+                </form>
             </div>
             
             <!-- Table Container (Card) -->
@@ -91,11 +88,11 @@ $result = $conn->query($sql);
                                 $status_tx   = $row['status_transaksi']; 
                                 $status_brg  = $row['status_barang'];
                                 
-                                $badge_class = 'status-tersedia';
+                                $badge_class = 'status-available';
                                 $icon_class   = 'bi-check-circle-fill';
                                 
                                 if (strtolower($status_tx) !== 'available' || strtolower($status_brg) !== 'active') {
-                                    $badge_class = 'status-nonaktif';
+                                    $badge_class = 'status-inactive';
                                     $icon_class  = 'bi-x-circle-fill';
                                 }
                             ?>
@@ -146,53 +143,75 @@ $result = $conn->query($sql);
     </div>
 </div>
 
-<!-- MODAL WINDOW FORM TAMBAH BARANG (MODE SCAN FISIK) -->
+<!-- MODAL WINDOW FORM TAMBAH BARANG (FIXED-WIDTH DIGIT PARSE MODE) -->
 <div class="modal fade" id="modalTambahBarang" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius: 12px;">
             <div class="modal-header border-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-upc-scan me-2" style="color: #556ee6;"></i>Scan Barang Baru</h5>
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-upc-scan me-2" style="color: #556ee6;"></i>Tambah / Registrasi Stok</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="controllers/proses_tambah_item.php" method="POST">
+            
+            <form action="controllers/proses_tambah_item.php" method="POST" id="formTambahStok">
                 <div class="modal-body px-4 pb-4">
                     <div class="row g-3">
-                        <!-- Kolom Scan Barcode Baru -->
+                        
+                        <!-- Input Barcode Utama -->
                         <div class="col-md-12">
-                            <label class="form-label fw-semibold small text-secondary">Barcode Item (Scan di Sini)</label>
+                            <label class="form-label fw-semibold small text-secondary">Barcode Item (9 Digit Angka)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
-                                <input type="text" class="form-control" name="barcode" placeholder="Klik di sini lalu tembak barcode barang..." autofocus required>
+                                <input type="text" class="form-control form-control-lg fw-bold" name="barcode" id="scanBarcodeInput" placeholder="Tembak barcode 9-digit..." maxlength="9" autofocus required autocomplete="off">
                             </div>
                         </div>
+
+                        <!-- Indikator Hasil Analisis Karakter & Status Database -->
                         <div class="col-md-12">
-                            <label class="form-label fw-semibold small text-secondary">Gender</label>
-                            <select class="form-select" name="gender" required>
-                                <option value="Pria">Pria</option>
-                                <option value="Wanita">Wanita</option>
-                            </select>
+                            <div id="parsingAlertBox" class="p-3 border rounded bg-light text-center small text-secondary" style="border-style: dashed !important; transition: all 0.2s ease;">
+                                <i class="bi bi-arrow-left-right d-block mb-1 text-muted fs-5"></i>
+                                <span>Silakan scan barcode untuk ekstraksi digit otomatis.</span>
+                            </div>
                         </div>
+
+                        <!-- Preview Form Dropdown -->
                         <div class="col-md-12">
-                            <label class="form-label fw-semibold small text-secondary">Tipe (Kategori)</label>
-                            <select class="form-select" name="tipe" required>
-                                <option value="Baju">Baju</option>
-                                <option value="Celana">Celana</option>
-                            </select>
+                            <div class="row g-2">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold small text-secondary">Gender</label>
+                                    <select class="form-select fw-bold text-dark" name="gender" id="inputGender" required>
+                                        <option value="">-- Terdeteksi Otomatis --</option>
+                                        <option value="Pria">Pria</option>
+                                        <option value="Wanita">Wanita</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold small text-secondary">Tipe (Kategori)</label>
+                                    <select class="form-select fw-bold text-dark" name="tipe" id="inputTipe" required>
+                                        <option value="">-- Terdeteksi Otomatis --</option>
+                                        <option value="Baju">Baju</option>
+                                        <option value="Celana">Celana</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold small text-secondary">Size (Ukuran)</label>
+                                    <select class="form-select fw-bold text-dark" name="size" id="inputSize" required>
+                                        <option value="">-- Terdeteksi Otomatis --</option>
+                                        <option value="S">S</option>
+                                        <option value="M">M</option>
+                                        <option value="L">L</option>
+                                        <option value="XL">XL</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold small text-secondary">Size (Ukuran)</label>
-                            <select class="form-select" name="size" required>
-                                <option value="S">S</option>
-                                <option value="M">M</option>
-                                <option value="L">L</option>
-                                <option value="XL">XL</option>
-                            </select>
-                        </div>
+
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4 pt-0">
                     <button type="button" class="btn btn-light border text-secondary fw-semibold" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn text-white fw-bold px-4" style="background-color: #556ee6;">Simpan Barang</button>
+                    <button type="submit" id="btnSimpanStok" class="btn text-white fw-bold px-4" style="background-color: #556ee6;" disabled>
+                        <i class="bi bi-check-lg me-1"></i> Simpan Barang
+                    </button>
                 </div>
             </form>
         </div>
