@@ -32,6 +32,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="bi bi-gear"></i>
             <span>Stok Barang</span>
         </a>
+        <a href="generate_barcode.php" class="nav-link <?= ($current_page == 'generate_barcode.php') ? 'active' : '' ?>">
+            <i class="bi bi-upc-scan"></i>
+            <span>Generate Barcode</span>
+        </a>
 
         <div class="menu-category">OTHERS</div>
         <a href="log_activity.php" class="nav-link <?= ($current_page == 'log_activity.php') ? 'active' : '' ?>">

@@ -1,3 +1,47 @@
+<?php
+// Panggil koneksi database
+require_once 'includes/db.php';
+$conn = new mysqli($host, $user, $pass, $db);
+
+// Menangkap ID otomatis dari URL
+$auto_id_request = isset($_GET['id']) ? $_GET['id'] : '';
+$is_auto = !empty($auto_id_request); 
+
+$readonly_attr = $is_auto ? 'readonly' : '';
+$bg_class      = $is_auto ? 'bg-light' : '';
+
+// Inisialisasi variabel kosong
+$brand = ''; 
+$nama_sa = ''; 
+$gender_txt = '';
+$qty_top = 0; 
+$size_top = '';
+$qty_bottoms = 0; 
+$size_bottoms = '';
+$total_qty = 0;
+
+// Jika ID ada di URL, ambil data lengkapnya dari database
+if ($is_auto && !$conn->connect_error) {
+    $sql = "SELECT * FROM request_form WHERE request_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $auto_id_request);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        $brand        = $row['perusahaan']; // Menggunakan 'perusahaan' sebagai Brand
+        $nama_sa      = $row['nama_sa'];
+        $gender_txt   = ($row['gender'] === 'male') ? 'SA Pria' : 'SA Wanita';
+        $qty_top      = $row['qty_top'];
+        $size_top     = $row['size_top'];
+        $qty_bottoms  = $row['qty_bottoms'];
+        $size_bottoms = $row['size_bottoms'];
+        $total_qty    = $qty_top + $qty_bottoms;
+    }
+    $stmt->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -31,21 +75,7 @@
             
             <div class="container-fluid px-0">
                 
-                <?php
-                    // Menangkap data otomatis dari URL
-                    $auto_id_request = isset($_GET['id']) ? $_GET['id'] : '';
-                    $auto_perusahaan = isset($_GET['pt']) ? $_GET['pt'] : '';
-                    $auto_brand      = isset($_GET['brand']) ? $_GET['brand'] : '';
-                    $auto_nama       = isset($_GET['nama']) ? $_GET['nama'] : '';
-                    
-                    // LOGIKA PINTAR: Cek apakah ini transaksi otomatis atau manual
-                    $is_auto = !empty($auto_id_request); 
-                    
-                    $readonly_attr = $is_auto ? 'readonly' : '';
-                    $bg_class      = $is_auto ? 'bg-light' : '';
-                ?>
-                
-                <form action="proses_transaksi.php" method="POST">
+                <form action="controllers/proses_transaksi.php" method="POST">
                     
                     <!-- SECTION 1: Informasi Tiket -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
@@ -53,19 +83,21 @@
                         <div class="row g-4">
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Request</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="id_request" name="id_request" value="<?php echo $auto_id_request; ?>" placeholder="Contoh: FR-110726" <?php echo $readonly_attr; ?>>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="id_request" name="id_request" value="<?php echo htmlspecialchars($auto_id_request); ?>" placeholder="Contoh: FR-110726" <?php echo $readonly_attr; ?>>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Brand</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="nama" value="<?php echo $auto_brand; ?>" placeholder="Brand" <?php echo $readonly_attr; ?>>
+                                <!-- Perbaikan name="brand" dan value dinamis -->
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="brand" value="<?php echo htmlspecialchars($brand); ?>" placeholder="Brand" <?php echo $readonly_attr; ?>>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Nama SA</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama    " <?php echo $readonly_attr; ?>>
+                                <!-- Perbaikan name="nama_sa" dan value dinamis -->
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="nama_sa" value="<?php echo htmlspecialchars($nama_sa); ?>" placeholder="Nama SA" <?php echo $readonly_attr; ?>>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Sales</label>
-                                <input type="text" class="form-control" name="id_sales" placeholder="Masukkan ID Sales">
+                                <input type="text" class="form-control" name="id_sales" placeholder="Masukkan ID Sales" required>
                             </div>
                         </div>
                     </div>
@@ -78,19 +110,30 @@
                         <div class="border-top pt-2">
                             <table class="table table-borderless m-0" style="font-size: 14px;">
                                 <tbody id="rincian-item-list">
-                                    <?php if ($is_auto): ?>
+                                    <?php if ($is_auto && $total_qty > 0): ?>
+                                        
+                                        <!-- Cek & Tampilkan Atasan jika ada -->
+                                        <?php if ($qty_top > 0): ?>
                                         <tr style="border-bottom: 1px solid #f1f5f9;">
-                                            <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Item</td>
-                                            <td class="py-3 text-dark">: Baju SA Pria (Size M)</td>
+                                            <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Item Atasan</td>
+                                            <td class="py-3 text-dark">: Baju <?php echo $gender_txt; ?> (Size <?php echo htmlspecialchars($size_top); ?>) - <?php echo $qty_top; ?> Pcs</td>
                                         </tr>
+                                        <?php endif; ?>
+
+                                        <!-- Cek & Tampilkan Bawahan jika ada -->
+                                        <?php if ($qty_bottoms > 0): ?>
                                         <tr style="border-bottom: 1px solid #f1f5f9;">
-                                            <td class="fw-bold py-3 ps-0 text-secondary">Item</td>
-                                            <td class="py-3 text-dark">: Celana SA Pria (Size 32)</td>
+                                            <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Item Bawahan</td>
+                                            <td class="py-3 text-dark">: Celana <?php echo $gender_txt; ?> (Size <?php echo htmlspecialchars($size_bottoms); ?>) - <?php echo $qty_bottoms; ?> Pcs</td>
                                         </tr>
+                                        <?php endif; ?>
+
+                                        <!-- Total Jumlah -->
                                         <tr>
-                                            <td class="fw-bold py-3 ps-0 text-secondary">Jumlah</td>
-                                            <td class="py-3 text-dark">: 2 Pcs</td>
+                                            <td class="fw-bold py-3 ps-0 text-secondary">Total Jumlah</td>
+                                            <td class="py-3 text-dark fw-bold">: <?php echo $total_qty; ?> Pcs</td>
                                         </tr>
+                                        
                                     <?php else: ?>
                                         <tr>
                                             <td colspan="2" class="text-center text-muted py-4" style="font-size: 13px; font-style: italic;">
@@ -142,8 +185,7 @@
                                     </div>
                                     
                                 </div>
-                            </div>
-                            
+                            </div>                            
                         </div>
 
                         <!-- Group Tombol Aksi Kiri & Kanan (Setara di Bawah) -->
@@ -153,7 +195,7 @@
                             </button>
                             
                             <!-- Tombol Validate Baru Setara dengan Tambah Item -->
-                            <button type="button" id="btn-validate-all" class="btn text-white fw-bold px-4 py-2" style="background-color: #556ee6; border-radius: 6px; font-size: 14px;">
+                            <button type="button" id="btn-validate" class="btn text-white fw-bold px-4 py-2" style="background-color: #556ee6; border-radius: 6px; font-size: 14px;">
                                 <i class="bi bi-check2-circle me-2"></i>Validate Items
                             </button>
                         </div>
@@ -179,3 +221,8 @@
 
 </body>
 </html>
+<?php 
+if(isset($conn)){
+    $conn->close();
+}
+?>

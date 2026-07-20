@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 /* ==========================================================================
-   1. GLOBAL & LAYOUT (Kunci agar Topbar tidak bergeser)
+   1. GLOBAL & LAYOUT
    ========================================================================== */
 html,
 body {
@@ -9,27 +9,27 @@ body {
   background-color: #f9fafb;
   margin: 0;
   height: 100%;
-  overflow: hidden; /* KUNCI 1: Mematikan scrollbar utama browser */
+  overflow: hidden; 
 }
 
 .app-container {
   display: flex;
   height: 100vh;
-  width: 100%; /* DIPERBAIKI: Sebelumnya salah ketik 'weight: 100%' */
+  width: 100%; 
 }
 
 .main-wrapper {
   flex-grow: 1;
   display: flex;
-  flex-direction: column; /* Mengatur Topbar di atas, Konten di bawah */
+  flex-direction: column; 
   min-height: 100vh;
   background-color: #f9fafb;
-  overflow: hidden; /* KUNCI 2: Mencegah wrapper membesar sendiri */
+  overflow: hidden; 
 }
 
 .content-area {
   flex-grow: 1;
-  overflow-y: auto; /* KUNCI 3: Scrollbar HANYA muncul di area konten ini */
+  overflow-y: auto; 
   padding: 24px;
 }
 
@@ -37,14 +37,14 @@ body {
    2. TOPBAR STYLES
    ========================================================================== */
 .topbar {
-  height: 70px !important; /* Ukuran tetap mutlak */
+  height: 70px !important; 
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  flex-shrink: 0; /* Mencegah Topbar menyusut */
+  flex-shrink: 0; 
   z-index: 1000;
 }
 
@@ -330,8 +330,6 @@ body {
 /* ==========================================================================
    5. PAGE : DASHBOARD
    ========================================================================== */
-
-/* Styling Khusus Dashboard (Selaras dengan Laporan) */
 .kpi-card {
   background-color: #ffffff;
   border-radius: 12px;
@@ -361,21 +359,10 @@ body {
   flex-shrink: 0;
 }
 
-/* Varian Warna KPI */
-.kpi-pending {
-  background-color: #fef08a;
-  color: #854d0e;
-}
-.kpi-success {
-  background-color: #dcfce7;
-  color: #166534;
-}
-.kpi-danger {
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
+.kpi-pending { background-color: #fef08a; color: #854d0e; }
+.kpi-success { background-color: #dcfce7; color: #166534; }
+.kpi-danger { background-color: #fee2e2; color: #b91c1c; }
 
-/* Area Grafik */
 .chart-container {
   background-color: #ffffff;
   border-radius: 12px;
@@ -388,35 +375,28 @@ body {
 }
 
 .chart-placeholder {
-  flex-grow: 1;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 39px,
-    #f8fafc 39px,
-    #f8fafc 40px
-  );
   display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  padding-top: 40px;
-  border-bottom: 1px solid #e2e8f0;
+    justify-content: space-around;
+    align-items: flex-end; /* Membuat batang tumbuh dari bawah ke atas */
+    height: 200px;         /* Tinggi area grafik */
+    padding: 10px 0;
+    position: relative;
+    border-bottom: 2px solid #e2e8f0;
+    /* Membuat garis horizontal samar di latar belakang */
+    background-image: linear-gradient(to top, #f8fafc 1px, transparent 1px);
+    background-size: 100% 40px;
 }
 
-/* Chart Active (Biru) */
 .bar-active {
-  width: 45px;
-  background-color: #556ee6;
-  border-radius: 4px 4px 0 0;
-  opacity: 0.85;
-  transition: 0.3s;
-}
-.bar-active:hover {
-  opacity: 1;
-  transform: scaleY(1.02);
+  width: 35px;
+  background-color: #556ee6; 
+  border-radius: 6px 6px 0 0;
+  transition: height 0.5s ease-in-out;
+  min-height: 0px;
 }
 
-/* Chart Inactive (Abu/Merah) */
+.bar-active:hover { opacity: 1; transform: scaleY(1.02); }
+
 .bar-inactive {
   width: 45px;
   background-color: #94a3b8;
@@ -424,10 +404,7 @@ body {
   opacity: 0.85;
   transition: 0.3s;
 }
-.bar-inactive:hover {
-  opacity: 1;
-  background-color: #ef4444;
-}
+.bar-inactive:hover { opacity: 1; background-color: #ef4444; }
 
 /* ==========================================================================
    6. PAGE: FORM REQUEST
@@ -463,16 +440,12 @@ body {
 }
 
 .upload-area:hover {
-  border-color: #556ee6; /* Warna hover diseragamkan dengan warna utama aplikasi */
+  border-color: #556ee6; 
   background-color: #eef2ff;
 }
 
-.upload-area i {
-  transition: 0.2s;
-}
-.upload-area:hover i {
-  color: #556ee6 !important;
-}
+.upload-area i { transition: 0.2s; }
+.upload-area:hover i { color: #556ee6 !important; }
 
 .btn-submit {
   background-color: #b91c1c;
@@ -484,9 +457,7 @@ body {
   transition: background-color 0.2s;
 }
 
-.btn-submit:hover {
-  background-color: #991b1b;
-}
+.btn-submit:hover { background-color: #991b1b; }
 
 .success-icon {
   font-size: 80px;
@@ -496,16 +467,6 @@ body {
   display: inline-block;
   border-radius: 50%;
   line-height: 1;
-}
-
-/* Khusus untuk Modal Review Transaksi agar lebar dan muat 2 kolom */
-#reviewModal .modal-dialog {
-  max-width: 900px !important; /* Anda bisa menyesuaikan angkanya (misal: 1000px) jika kurang lebar */
-}
-
-/* Jika Anda punya modal "Sukses" kecil di halaman lain, gunakan class khusus ini nanti */
-.modal-sm-custom {
-  max-width: 400px !important;
 }
 
 /* ==========================================================================
@@ -540,9 +501,7 @@ body {
   border-bottom: 1px solid #f1f5f9;
 }
 
-.table tbody tr:hover {
-  background-color: #f8fafc;
-}
+.table tbody tr:hover { background-color: #f8fafc; }
 
 .req-badge {
   background-color: #fef08a;
@@ -584,319 +543,189 @@ body {
   box-shadow: 0 4px 6px -1px rgba(204, 92, 92, 0.3);
 }
 
-/* ================= MODAL STYLES ================= */
+/* ================= POPUP STYLES ================= */
 .modal-content {
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            background-color: #f9fafb;
-        }
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    background-color: #f9fafb;
+}
 
-        /* Card Panel Putih */
-        .panel-card {
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 32px 24px;
-            height: 100%;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
-        }
+/* Card Panel Putih */
+.panel-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 32px 24px;
+    height: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+}
 
-        /* Ikon Huruf A & B (Gaya Baru seperti Gambar 2) */
-        .icon-box-square {
-            background-color: #b91c1c; /* Warna merah */
-            color: #ffffff;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px; /* Sudut melengkung */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 16px;
-            margin-right: 12px;
-        }
+.icon-box-square {
+    background-color: #b91c1c; 
+    color: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    margin-right: 12px;
+}
 
-        /* Tabel Ringkasan (Struktur Gambar 1) */
-        .summary-table th {
-            color: #4b5563;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 16px 0;
-            border-bottom: 1px solid #f3f4f6;
-            width: 35%;
-        }
-        .summary-table td {
-            color: #1f2937;
-            font-size: 14px;
-            padding: 16px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
+.summary-table th {
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f3f4f6;
+    width: 35%;
+}
+.summary-table td {
+    color: #1f2937;
+    font-size: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
 
-        /* Box Upload Bukti */
-        .bukti-box {
-            border: 1px solid #e5e7eb;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            padding: 32px 20px;
-            text-align: center;
-        }
-        
-        #reviewModal .modal-dialog {
-            max-width: 950px !important;
-        }
+.bukti-box {
+    border: 1px solid #e5e7eb;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+/* Lebar Popup */
+[id^="reviewPopup"] .modal-dialog {
+    max-width: 950px !important;
+}
 
 /* ==========================================================================
    8. PAGE: TRANSAKSI
    ========================================================================== */
-.form-section {
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  padding: 24px;
-  margin-bottom: 24px;
-  border: 1px solid #e9ecef;
-}
-
-.form-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 6px;
-}
-
-.form-control {
-  border-radius: 6px;
-  border: 1px solid #ced4da;
-  padding: 10px 14px;
-  font-size: 14px;
-  background-color: #ffffff;
-  transition: all 0.2s ease-in-out;
-}
-
-.form-control:focus {
-  border-color: #cc5c5c;
-  box-shadow: 0 0 0 0.2rem rgba(204, 92, 92, 0.25);
-}
-
-.input-group-text {
-  background-color: #ffffff;
-  border: 1px solid #ced4da;
-  color: #6c757d;
-}
-
-.btn-action {
-  padding: 10px 32px;
-  font-weight: 600;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.item-row {
-  padding: 16px;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  transition: 0.3s;
-}
+.form-section { background-color: #f8f9fa; border-radius: 10px; padding: 24px; margin-bottom: 24px; border: 1px solid #e9ecef; }
+.form-label { font-size: 13px; font-weight: 600; color: #495057; margin-bottom: 6px; }
+.form-control { border-radius: 6px; border: 1px solid #ced4da; padding: 10px 14px; font-size: 14px; background-color: #ffffff; transition: all 0.2s ease-in-out; }
+.form-control:focus { border-color: #cc5c5c; box-shadow: 0 0 0 0.2rem rgba(204, 92, 92, 0.25); }
+.input-group-text { background-color: #ffffff; border: 1px solid #ced4da; color: #6c757d; }
+.btn-action { padding: 10px 32px; font-weight: 600; border-radius: 6px; font-size: 14px; }
+.item-row { padding: 16px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; transition: 0.3s; }
 
 /* ===========================================================================
    9. PAGE: STOK BARANG
    ========================================================================== */
+.badge-status { padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+.status-tersedia { background-color: #dcfce7; color: #166534; }
+.status-sold { background-color: #fef08a; color: #854d0e; }
+.status-nonaktif { background-color: #f1f5f9; color: #475569; }
+.barcode-badge { background-color: #e0e7ff; color: #4f46e5; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.btn-action-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; transition: all 0.2s ease; text-decoration: none; background-color: transparent; }
+.btn-action-icon:hover { background-color: #e5e7eb; }
+.btn-detail { color: #6b7280; } 
+.btn-edit { color: #556ee6; } 
 
-.badge-status {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.status-tersedia {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.status-sold {
-  background-color: #fef08a;
-  color: #854d0e;
-}
-
-.status-nonaktif {
-  background-color: #f1f5f9;
-  color: #475569;
-}
-
-.barcode-badge {
-  background-color: #e0e7ff;
-  color: #4f46e5;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Styling Ikon Aksi Minimalis */
-.btn-action-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  background-color: transparent;
-}
-
-.btn-action-icon:hover {
-  background-color: #e5e7eb; /* Abu-abu lembut saat di-hover */
-}
-
-/* Warna spesifik untuk ikon */
-.btn-detail {
-  color: #6b7280;
-} /* Abu-abu untuk detail */
-.btn-edit {
-  color: #556ee6;
-} /* Biru untuk edit */
-
-/* Filter Tabs */
-.filter-tab {
-  color: #64748b;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-.filter-tab.active {
-  background-color: #f1f5f9;
-  color: #0f172a;
-}
-.filter-tab:hover:not(.active) {
-  color: #0f172a;
-  background-color: #f8fafc;
-}
+.filter-tab { color: #64748b; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 8px; text-decoration: none; transition: all 0.2s; }
+.filter-tab.active { background-color: #f1f5f9; color: #0f172a; }
+.filter-tab:hover:not(.active) { color: #0f172a; background-color: #f8fafc; }
 
 /* ===========================================================================
    10. PAGE: LOG ACTIVITY
    ========================================================================== */
+.activity-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.icon-transaksi { background-color: #e0e7ff; color: #4f46e5; }
+.icon-inventory { background-color: #dcfce7; color: #166534; }
+.icon-system { background-color: #f3f4f6; color: #4b5563; }
+.icon-return { background-color: #fef08a; color: #854d0e; }
+.module-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 8px; border-radius: 4px; background-color: #f1f5f9; color: #64748b; }
 
-/* Ikon Modul Aktivitas */
-.activity-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.icon-transaksi {
-  background-color: #e0e7ff;
-  color: #4f46e5;
-}
-.icon-inventory {
-  background-color: #dcfce7;
-  color: #166534;
-}
-.icon-system {
-  background-color: #f3f4f6;
-  color: #4b5563;
-}
-.icon-return {
-  background-color: #fef08a;
-  color: #854d0e;
-}
-
-/* Label Modul */
-.module-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background-color: #f1f5f9;
-  color: #64748b;
-}
-
-/* Filter Tanggal Custom */
-.date-filter-group {
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 4px 12px;
-}
-.date-filter-group input {
-  border: none;
-  outline: none;
-  font-size: 13px;
-  color: #4b5563;
-  background: transparent;
-}
-.date-filter-group input:focus {
-  box-shadow: none;
-}
-.date-separator {
-  color: #9ca3af;
-  margin: 0 8px;
-}
+.date-filter-group { display: flex; align-items: center; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 4px 12px; }
+.date-filter-group input { border: none; outline: none; font-size: 13px; color: #4b5563; background: transparent; }
+.date-filter-group input:focus { box-shadow: none; }
+.date-separator { color: #9ca3af; margin: 0 8px; }
 
 /* ===========================================================================
    11. PAGE: RETURN
    ========================================================================== */
+.return-badge { background-color: #f3f4f6; color: #4b5563; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 13px; display: inline-block; border: 1px solid #e5e7eb; }
+.status-menunggu { background-color: #fef08a; color: #854d0e; }
+.status-selesai { background-color: #dcfce7; color: #166534; }
+.status-ditolak { background-color: #fee2e2; color: #b91c1c; }
+.btn-process { color: #556ee6; }
 
-/* Badge Khusus No Return */
-.return-badge {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 13px;
-  display: inline-block;
-  border: 1px solid #e5e7eb;
-}
+/* ===========================================================================
+   12. PAGE: GENERATE BARCODE
+   ========================================================================== */
+   
+.barcode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+        .barcode-print-card {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+        
+        /* ==============================
+           OPTIMASI CETAK TINGKAT LANJUT (PRINTER & PDF)
+           ============================== */
+        @media print {
+            /* 1. Mengatur Ukuran Kertas dan Menghapus Header/Footer Otomatis Browser */
+            @page {
+                size: A4;      
+                margin: 0mm;    
+            }
 
-.status-menunggu {
-  background-color: #fef08a;
-  color: #854d0e;
-}
-.status-selesai {
-  background-color: #dcfce7;
-  color: #166534;
-}
-.status-ditolak {
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
+            body {
+                margin: 15mm;    
+                background: #fff;
+            }
 
-/* Filter Tabs */
-.filter-tab {
-  color: #64748b;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s;
-}
+            /* 2. Sembunyikan elemen aplikasi web */
+            .sidebar, .topbar, .card-form-left, .btn-print-trigger, .page-title, .alert { 
+                display: none !important; 
+            }
+            
+            /* 3. Bersihkan pembungkus grid Bootstrap */
+            .app-container, .main-wrapper, .content-area, .row, .col-md-7, .card {
+                display: block !important;
+                position: static !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                width: 100% !important;
+            }
 
-.btn-detail {
-  color: #64748b;
-}
-.btn-process {
-  color: #556ee6;
-}
+            /* 4. Tampilan Grid Stiker Barcode */
+            .barcode-grid { 
+                display: grid !important; 
+                grid-template-columns: repeat(3, 1fr) !important; /* 3 Kolom stiker per baris */
+                gap: 15px !important; 
+                overflow: visible !important; 
+                max-height: none !important; 
+                border: none !important; 
+                background: transparent !important; 
+            }
+            
+            /* 5. Styling Kotak Stiker Fisik */
+            .barcode-print-card { 
+                border: 1px solid #000 !important; 
+                padding: 12px 8px !important;
+                background: #fff !important;
+                -webkit-print-color-adjust: exact; /* Pastikan warna/garis tercetak sempurna */
+                print-color-adjust: exact;
+            }
+        }
