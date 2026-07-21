@@ -1,6 +1,6 @@
 <?php
 // 1. Panggil koneksi database di baris pertama
-include 'include/db.php';
+include 'includes/db.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
 
@@ -27,13 +27,7 @@ $bg_class      = $is_auto ? 'bg-light' : '';
     
     <!-- Memanggil file CSS Anda -->
     <link rel="stylesheet" href="assets/css/style.css">
-    
-    <style>
-        .badge-trx { background-color: #f1dd66; color: #333; font-weight: 700; font-size: 0.85rem; padding: 6px 12px; border-radius: 6px; }
-        .btn-action-process { background-color: #b91c1c; color: #fff; border: none; font-weight: 500; border-radius: 6px; font-size: 0.9rem; }
-        .btn-action-process:hover { background-color: #991b1b; color: #fff; }
-        .scan-input-main:focus { border-color: #b91c1c; box-shadow: 0 0 0 0.25rem rgba(185, 28, 28, 0.25); }
-    </style>
+
 </head>
 <body>
 
@@ -70,9 +64,9 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                         <table class="table table-borderless align-middle m-0" id="tableTrx">
                             <thead class="text-secondary small fw-bold border-bottom">
                                 <tr>
-                                    <th style="width: 20%;">NO. TRANSAKSI</th>
-                                    <th style="width: 45%;">DETAIL ITEM TRANSAKSI</th>
-                                    <th style="width: 15%;">STATUS</th>
+                                    <th style="width: 10%; text-align: center;">NO. TRANSAKSI</th>
+                                    <th style="width: 40%;">DETAIL ITEM TRANSAKSI</th>
+                                    <th style="width: 18%; text-align: center;">STATUS</th>
                                     <th style="width: 20%; text-align: center;">AKSI</th>
                                 </tr>
                             </thead>
@@ -103,13 +97,32 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                                 if ($query && mysqli_num_rows($query) > 0) {
                                     while ($row = mysqli_fetch_assoc($query)) {
                                         // Format No. Transaksi
-                                        $no_trx = "TRX-" . str_pad($row['transaction_id'], 6, '0', STR_PAD_LEFT);
+                                        $no_trx = "" . str_pad($row['transaction_id'], 6, '0', STR_PAD_LEFT);
                                         
                                         // Detail item transaksi dari barcode
-                                        $detail_item = "Request Seragam " . $row['brand'] . " (" . $row['tipe'] . " " . $row['gender'] . " - Size " . $row['size'] . ")";
+                                        $detail_item = "Request Seragam " . "(" . $row['tipe'] . " " . $row['gender'] . " - Size " . $row['size'] . ")";
                                         
                                         // Tgl Transaksi
                                         $tgl_trx = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
+
+                                        // LOGIKA STATUS: Ambil & Gabungkan Teks Status
+                                        $status_tx  = $row['status_transaksi'] ?? ''; 
+                                        $status_brg = $row['status_barang'] ?? '';
+
+                                        if (!empty($status_brg) && !empty($status_tx)) {
+                                            $status_display = "{$status_brg} ({$status_tx})";
+                                        } else {
+                                            $status_display = $status_brg ?: ($status_tx ?: '-');
+                                        }
+
+                                        // LOGIKA WARNA & IKON DINAMIS
+                                        if (strtolower($status_tx) === 'available' && strtolower($status_brg) === 'active') {
+                                            $text_color = '#16a34a'; // Hijau jika Available Active
+                                            $icon_class = 'bi-check-circle-fill';
+                                        } else {
+                                            $text_color = '#334155'; // Dark Slate (sesuai Gambar 2)
+                                            $icon_class = 'bi-x-circle-fill';
+                                        }
                                 ?>
                                         <tr class="border-bottom">
                                             <!-- No. Transaksi dari transaction_id -->
@@ -117,32 +130,32 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                                             
                                             <!-- Detail Item Transaksi -->
                                             <td>
-                                                <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?></div>
+                                                <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?>&nbsp(<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
                                                 <div class="text-muted small">
                                                     <i class="bi bi-box-seam me-1"></i> <?php echo htmlspecialchars($detail_item); ?> &nbsp;|&nbsp; 
                                                     <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
                                                 </div>
                                             </td>
                                             
-                                            <!-- Status dari status_transaksi & status_barang master_item -->
+                                            <!-- Status dengan Ikon & Teks Bersih -->
                                             <td>
-                                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
-                                                    <?php echo !empty($row['status_barang']) ? htmlspecialchars($row['status_barang']) : htmlspecialchars($row['status_transaksi']); ?>
-                                                </span>
+                                                <div class="d-flex align-items-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.7rem; white-space: nowrap;">
+                                                    <i class="bi <?php echo $icon_class; ?> style=font-size: 0.95rem;"></i>
+                                                    <span><?php echo htmlspecialchars($status_display); ?></span>
+                                                </div>
                                             </td>
                                             
-                                            <!-- Tombol Akses Form Return -->
                                             <td class="text-center">
-                                                <button class="btn btn-action-process px-3 py-2" 
-                                                        onclick="openProcessPage(
-                                                            '<?php echo $no_trx; ?>', 
-                                                            '<?php echo htmlspecialchars($row['id_sales']); ?>', 
-                                                            '<?php echo addslashes($row['nama_sa']); ?>', 
-                                                            '<?php echo addslashes($detail_item); ?>'
-                                                        )">
-                                                    Proses Return <i class="bi bi-arrow-right-short ms-1"></i>
-                                                </button>
-                                            </td>
+                                            <button class="btn btn-proses-custom" 
+                                                    onclick="openProcessPage(
+                                                        '<?php echo $no_trx; ?>', 
+                                                        '<?php echo htmlspecialchars($row['id_sales']); ?>', 
+                                                        '<?php echo addslashes($row['nama_sa']); ?>', 
+                                                        '<?php echo addslashes($detail_item); ?>'
+                                                    )">
+                                                Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
+                                            </button>
+                                        </td>
                                         </tr>
                                 <?php 
                                     }

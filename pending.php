@@ -47,9 +47,9 @@ include 'controllers/query_pending.php';
                         <thead>
                             <tr>
                                 <th scope="col" width="15%">No. Request</th>
-                                <th scope="col" width="45%">Detail Karyawan & Item</th>
+                                <th scope="col" width="40%">Detail Karyawan & Item</th>
                                 <th scope="col" width="15%" class="text-center">Status</th>
-                                <th scope="col" width="25%" class="text-center">Aksi</th>
+                                <th scope="col" width="20%" class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
