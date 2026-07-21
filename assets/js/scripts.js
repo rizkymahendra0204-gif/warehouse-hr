@@ -365,9 +365,23 @@ function exportExcel() {
     const rowHeader = chunk.map(() => "Seragam SA");
     excelData.push(rowHeader);
 
-    // Baris 2: Barcode Area
-    // (Ditambahkan tanda bintang * di awal & akhir agar bisa dibaca oleh scanner jika pakai Font Code 39)
-    const rowBarcode = chunk.map((sku) => `*${sku}*`);
+    // Baris 2: Barcode Area dengan Auto-Styling Font Code 39
+    const rowBarcode = chunk.map((sku) => {
+        return {
+            v: `*${sku}*`, // Nilai teks (Value)
+            t: 's',        // Tipe data String (Type)
+            s: {           // Styling
+                font: { 
+                    name: 'Code39', // Sesuaikan dengan nama font di Excel Anda persis
+                    sz: 36          // Ukuran font, diperbesar agar mudah di-scan
+                },
+                alignment: {
+                    horizontal: 'center',
+                    vertical: 'center'
+                }
+            }
+        };
+    });
     excelData.push(rowBarcode);
 
     // Baris 3: Teks SKU di bawah barcode

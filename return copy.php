@@ -27,22 +27,27 @@
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <!-- Header Halaman -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h4 class="fw-bold m-0" style="color: #1e293b;">Proses Return Barang</h4>
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Pemindaian barcode untuk barang yang dikembalikan</p>
-                </div>
+        <!-- Header Halaman -->
+            <div class="d-flex justify-content-between align-items-center mb-0">
+                <div class="page-title">Return</div>
             </div>
             
             <div class="container-fluid px-0">
                 
                 <?php
                     // Simulasi penangkapan data jika diarahkan dari tabel lain
-                    $auto_no_return = isset($_GET['rt']) ? $_GET['rt'] : '';
-                    $auto_id_request = isset($_GET['req']) ? $_GET['req'] : '';
+                    $auto_no_return  = isset($_GET['rt']) ? $_GET['rt'] : '';
+                    $auto_id_transaksi = isset($_GET['req']) ? $_GET['req'] : '';
                     $auto_perusahaan = isset($_GET['pt']) ? $_GET['pt'] : '';
-                    $auto_nama = isset($_GET['nama']) ? $_GET['nama'] : '';
+                    $auto_brand      = isset($_GET['brand']) ? $_GET['brand'] : '';
+                    $auto_nama       = isset($_GET['nama']) ? $_GET['nama'] : '';
+
+                    // LOGIKA PINTAR: Mendefinisikan status otomatis/manual berdasarkan input ID Transaksi
+                    $is_auto = !empty($auto_id_transaksi); 
+                    
+                    // Mengatur atribut form berdasarkan asal akses data
+                    $readonly_attr = $is_auto ? 'readonly' : '';
+                    $bg_class      = $is_auto ? 'bg-light' : '';
                 ?>
                 
                 <form action="proses_return.php" method="POST">
@@ -52,12 +57,16 @@
                         <h6 class="fw-bold mb-4" style="color: #4b5563;"><i class="bi bi-arrow-counterclockwise me-2"></i>Informasi Tiket Return</h6>
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
-                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Request</label>
-                                <input type="text" class="form-control bg-light" name="no_return" value="<?php echo $auto_id_request; ?>" placeholder="Contoh: RF-110726" readonly>
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Transaksi</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="no_return" value="<?php echo $auto_id_transaksi; ?>" placeholder="Contoh: TRX-110726" <?php echo $readonly_attr; ?>>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Sales</label>
                                 <input type="text" class="form-control" name="id_request_awal" placeholder="Masukkan ID Sales">
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Nama SA</label>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama SA" <?php echo $readonly_attr; ?>>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Tanggal Return</label>
@@ -66,23 +75,38 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 2: Detail Karyawan -->
+                    <!-- SECTION 2: Detail Pesanan (Revisi Total Menyesuaikan Halaman Transaksi) -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
-                        <h6 class="fw-bold mb-4" style="color: #4b5563;"><i class="bi bi-person-badge me-2"></i>Data Karyawan</h6>
-                        
-                        <div class="row g-4">
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Perusahaan</label>
-                                <input type="text" class="form-control bg-light" name="perusahaan" value="<?php echo $auto_perusahaan; ?>" placeholder="Nama Perusahaan" readonly>
-                            </div>
-                            <div class="col-md-6 col-lg-4">
-                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Nama Karyawan</label>
-                                <input type="text" class="form-control bg-light" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama Lengkap" readonly>
-                            </div>
-                            <div class="col-md-12 col-lg-4">
-                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Catatan Umum</label>
-                                <input type="text" class="form-control" name="catatan_umum" placeholder="Opsional">
-                            </div>
+                        <h6 class="fw-bold mb-4" style="color: #4b5563;"><i class="bi bi-cart-check me-2"></i>Detail Pesanan</h6>
+
+                        <!-- AREA RINCIAN ITEM BERGARIS -->
+                        <div class="border-top pt-2">
+                            <table class="table table-borderless m-0" style="font-size: 14px;">
+                                <tbody id="rincian-item-list">
+                                    <?php if ($is_auto): ?>
+                                        <!-- Baris ini otomatis muncul & terisi jika diakses dari Pending Request / Ada Parameter ID -->
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Item</td>
+                                            <td class="py-3 text-dark">: Baju SA Pria (Size M)</td>
+                                        </tr>
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td class="fw-bold py-3 ps-0 text-secondary">Item</td>
+                                            <td class="py-3 text-dark">: Celana SA Pria (Size 32)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold py-3 ps-0 text-secondary">Jumlah</td>
+                                            <td class="py-3 text-dark">: 2 Pcs</td>
+                                        </tr>
+                                    <?php else: ?>
+                                        <!-- Tampilan default saat halaman dibuka secara manual / Kosong -->
+                                        <tr>
+                                            <td colspan="2" class="text-center text-muted py-4" style="font-size: 13px; font-style: italic;">
+                                                <i class="bi bi-info-circle me-1"></i> Rincian item request akan muncul secara otomatis.
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -97,7 +121,7 @@
                             <div class="item-row bg-white border rounded-3 p-3 mb-3" style="box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="fw-bold item-number" style="color: #b91c1c; font-size: 14px;"><i class="bi bi-box-seam me-2"></i>Barang #1</span>
-                                    <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" style="display: none; background-color: #fee2e2;"><i class="bi bi-trash3 me-1"></i>Hapus</button>
+                                    <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" style="display: none; background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;"><i class="bi bi-trash3 me-1"></i>Hapus</button>
                                 </div>
                                 
                                 <div class="row g-4">
@@ -129,16 +153,14 @@
                     </div>
 
                     <!-- SECTION 4: Tombol Aksi Bawah -->
-                    <div class="d-flex justify-content-end gap-3 mt-2 mb-5">
-                        <button type="reset" class="btn btn-light border fw-bold px-4 text-secondary">Batal</button>
-                        <button type="submit" class="btn fw-bold text-white px-5" style="background-color: #b91c1c;">Proses Return</button>
+                    <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
+                        <button type="reset" class="btn btn-light border fw-bold px-4 text-secondary" style="border-radius: 6px;">Batal</button>
+                        <button type="submit" class="btn fw-bold text-white px-5" style="background-color: #b91c1c; border-radius: 6px;">Proses Return</button>
                     </div>
                 </form>
                 
             </div>
         </main>
-
-        <!-- END CONTENT AREA -->
         
     </div>
 </div>
@@ -147,7 +169,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
-
 
 </body>
 </html>

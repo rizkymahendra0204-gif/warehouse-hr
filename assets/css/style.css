@@ -870,73 +870,90 @@ body {
   CETAK 
 ============================== */
 @media print {
-  /* 1. Mengatur Ukuran Kertas */
-  @page {
-    size: A4;
-    margin: 0mm;
-  }
+    /* 1. Atur Ukuran Kertas A4 & Margin Cetak */
+    @page {
+        size: A4 portrait;      
+        margin: 8mm;
+    }
 
-  /* 2. Sembunyikan secara total seluruh elemen di layar */
-  body {
-    visibility: hidden;
-    background: #fff;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+    body, html {
+        background: #fff !important;
+        margin: 0 !important; 
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
 
-  /* 3. Tampilkan KEMBALI secara eksklusif hanya area lembar cetak dan anaknya */
-  #print-area-wrapper,
-  #print-area-wrapper * {
-    visibility: visible;
-  }
+    /* 2. Sembunyikan elemen navigasi, form, dan judul "Lembar Cetak" agar area cetak bersih */
+    .sidebar, 
+    .topbar, 
+    .card-form-left, 
+    .btn-print-trigger, 
+    .page-title, 
+    .alert, 
+    form, 
+    .d-print-none,
+    h1, h2, h3, h4, h5, .card-header { 
+        display: none !important; 
+    }
+    
+    /* 3. NETRALKAN CONTAINER: Hapus Max-Height & Scrollbar */
+    .app-container, 
+    .main-wrapper, 
+    .content-area, 
+    .row, 
+    .col-md-7, 
+    .col-md-5, 
+    .card, 
+    .card-body,
+    .container, 
+    .container-fluid,
+    div {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;          /* Paksa tinggi mengikuti isi */
+        max-height: none !important;     /* Matikan batasan tinggi */
+        overflow: visible !important;     /* Hilangkan scrollbar! */
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
 
-  /* 4. Paksa area cetak pindah ke posisi paling atas kertas (mengeliminasi space form) */
-  #print-area-wrapper {
-    position: absolute !important;
-    top: 15mm; /* Batas margin atas kertas stiker */
-    left: 15mm; /* Batas margin kiri kertas stiker */
-    right: 15mm; /* Batas margin kanan kertas stiker */
-    width: calc(100% - 30mm) !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    display: block !important;
-  }
+    /* 4. GRID 3 KOLOM */
+    .barcode-grid { 
+        display: grid !important; 
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;     /* Memastikan grid tidak scrollable */
+        background: transparent !important; 
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* 5. STIKER BARCODE */
+    .barcode-print-card { 
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        
+        border: 1px solid #000 !important; 
+        padding: 8px 4px !important;
+        background: #fff !important;
+        text-align: center !important;
 
-  /* 5. Tampilan Grid Stiker Barcode */
-  .barcode-grid {
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
 
-  /* 6. Styling Kotak Stiker Fisik (3 Kolom Presisi) */
-  .barcode-print-card {
-    display: inline-block !important;
-    vertical-align: top !important;
-
-    /* Lebar stiker didistribusikan merata di ruang absolute */
-    width: 30% !important;
-    margin: 8px 1.5% !important;
-    box-sizing: border-box !important;
-
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    padding: 12px 8px !important;
-    background: #fff !important;
-
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-
-    /* Proteksi mutlak anti-terpotong */
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
+        /* Mengunci agar kartu tidak terpotong garis kertas */
+        break-inside: avoid-page !important;
+        page-break-inside: avoid !important;
+    }
 }
 
 /* ===========================================================================
