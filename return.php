@@ -64,32 +64,29 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                         <table class="table table-borderless align-middle m-0" id="tableTrx">
                             <thead class="text-secondary small fw-bold border-bottom">
                                 <tr>
-                                    <th style="width: 10%; text-align: center;">NO. TRANSAKSI</th>
-                                    <th style="width: 40%;">DETAIL ITEM TRANSAKSI</th>
-                                    <th style="width: 18%; text-align: center;">STATUS</th>
+                                    <th style="width: 15%; text-align: center;">NO. TRANSAKSI</th>
+                                    <th style="width: 45%;">DETAIL ITEM TRANSAKSI</th>
+                                    <th style="width: 20%; text-align: center;">STATUS</th>
                                     <th style="width: 20%; text-align: center;">AKSI</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                // Query Multi-JOIN untuk mengambil data asli dari Database
+                                // Query Multi-JOIN dengan GROUP BY agar 1 transaction_id tampil 1 baris konsisten
                                 $sql = "SELECT 
                                             t.transaction_id,
                                             t.request_id,
                                             t.id_sales,
                                             t.tgl_transaksi,
-                                            t.barcode,
                                             rf.perusahaan,
                                             rf.nama_sa,
-                                            rf.brand,
-                                            mi.tipe,
-                                            mi.gender,
-                                            mi.size,
+                                            GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ' & ') AS detail_item_concat,
                                             mi.status_transaksi,
                                             mi.status_barang
                                         FROM transaksi t
                                         INNER JOIN request_form rf ON t.request_id = rf.request_id
                                         INNER JOIN master_item mi ON t.barcode = mi.barcode
+                                        GROUP BY t.transaction_id
                                         ORDER BY t.transaction_id DESC";
 
                                 $query = mysqli_query($conn, $sql);
@@ -97,65 +94,66 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                                 if ($query && mysqli_num_rows($query) > 0) {
                                     while ($row = mysqli_fetch_assoc($query)) {
                                         // Format No. Transaksi
-                                        $no_trx = "" . str_pad($row['transaction_id'], 6, '0', STR_PAD_LEFT);
+                                        $no_trx = htmlspecialchars($row['transaction_id']);
                                         
-                                        // Detail item transaksi dari barcode
-                                        $detail_item = "Request Seragam " . "(" . $row['tipe'] . " " . $row['gender'] . " - Size " . $row['size'] . ")";
+                                        // Detail item transaksi hasil concat
+                                        $detail_item = "Request Seragam (" . $row['detail_item_concat'] . ")";
                                         
                                         // Tgl Transaksi
                                         $tgl_trx = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
 
-                                        // LOGIKA STATUS: Ambil & Gabungkan Teks Status
+                                        // LOGIKA STATUS
                                         $status_tx  = $row['status_transaksi'] ?? ''; 
                                         $status_brg = $row['status_barang'] ?? '';
 
                                         if (!empty($status_brg) && !empty($status_tx)) {
-                                            $status_display = "{$status_brg} ({$status_tx})";
+                                            $status_display = $status_brg . " (" . $status_tx . ")";
                                         } else {
                                             $status_display = $status_brg ?: ($status_tx ?: '-');
                                         }
 
-                                        // LOGIKA WARNA & IKON DINAMIS
-                                        if (strtolower($status_tx) === 'available' && strtolower($status_brg) === 'active') {
-                                            $text_color = '#16a34a'; // Hijau jika Available Active
+                                        // LOGIKA WARNA & IKON
+                                        if (strtolower($status_tx) === 'soldout' && strtolower($status_brg) === 'active') {
+                                            $text_color = '#16a34a';
                                             $icon_class = 'bi-check-circle-fill';
                                         } else {
-                                            $text_color = '#334155'; // Dark Slate (sesuai Gambar 2)
+                                            $text_color = '#334155';
                                             $icon_class = 'bi-x-circle-fill';
                                         }
                                 ?>
                                         <tr class="border-bottom">
-                                            <!-- No. Transaksi dari transaction_id -->
-                                            <td><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
+                                            <!-- No. Transaksi -->
+                                            <td class="text-center"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
                                             
                                             <!-- Detail Item Transaksi -->
                                             <td>
-                                                <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?>&nbsp(<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
+                                                <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
                                                 <div class="text-muted small">
                                                     <i class="bi bi-box-seam me-1"></i> <?php echo htmlspecialchars($detail_item); ?> &nbsp;|&nbsp; 
                                                     <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
                                                 </div>
                                             </td>
                                             
-                                            <!-- Status dengan Ikon & Teks Bersih -->
+                                            <!-- Status dengan Ikon -->
                                             <td>
-                                                <div class="d-flex align-items-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.7rem; white-space: nowrap;">
-                                                    <i class="bi <?php echo $icon_class; ?> style=font-size: 0.95rem;"></i>
+                                                <div class="d-flex align-items-center justify-content-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.75rem; white-space: nowrap;">
+                                                    <i class="bi <?php echo $icon_class; ?>" style="font-size: 0.95rem;"></i>
                                                     <span><?php echo htmlspecialchars($status_display); ?></span>
                                                 </div>
                                             </td>
                                             
+                                            <!-- Tombol Aksi -->
                                             <td class="text-center">
-                                            <button class="btn btn-proses-custom" 
-                                                    onclick="openProcessPage(
-                                                        '<?php echo $no_trx; ?>', 
-                                                        '<?php echo htmlspecialchars($row['id_sales']); ?>', 
-                                                        '<?php echo addslashes($row['nama_sa']); ?>', 
-                                                        '<?php echo addslashes($detail_item); ?>'
-                                                    )">
-                                                Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
-                                            </button>
-                                        </td>
+                                                <button type="button" class="btn btn-proses-custom" 
+                                                        onclick="openProcessPage(
+                                                            '<?php echo addslashes($no_trx); ?>', 
+                                                            '<?php echo addslashes($row['id_sales']); ?>', 
+                                                            '<?php echo addslashes($row['nama_sa']); ?>', 
+                                                            '<?php echo addslashes($detail_item); ?>'
+                                                        )">
+                                                    Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                 <?php 
                                     }

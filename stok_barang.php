@@ -200,6 +200,10 @@ include 'controllers/query_stokbarang.php';
                                         <option value="M">M</option>
                                         <option value="L">L</option>
                                         <option value="XL">XL</option>
+                                        <option value="28">28</option>
+                                        <option value="30">30</option>
+                                        <option value="32">32</option>
+                                        <option value="36">36</option>
                                     </select>
                                 </div>
                             </div>

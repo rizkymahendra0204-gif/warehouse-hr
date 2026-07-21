@@ -433,7 +433,16 @@ $(document).ready(function () {
         // 2. Kamus Pemetaan (Mapping Object) sesuai spesifikasi gudang
         var mapGender = { 1: "Pria", 2: "Wanita" };
         var mapTipe = { "01": "Baju", "02": "Celana" };
-        var mapSize = { "01": "S", "02": "M", "03": "L", "04": "XL" };
+        var mapSize = {
+          "01": "S",
+          "02": "M",
+          "03": "L",
+          "04": "XL",
+          28: "28",
+          30: "30",
+          32: "32",
+          36: "36",
+        };
 
         // 3. Terjemahkan kode angka menjadi nilai teks string
         var parsedGender = mapGender[genderCode] || null;
@@ -564,4 +573,3 @@ $(document).ready(function () {
       );
   }
 });
-

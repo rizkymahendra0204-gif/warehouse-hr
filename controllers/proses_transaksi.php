@@ -1,5 +1,5 @@
 <?php
-// proses_transaksi.php
+// processes_transaksi.php
 session_start();
 require_once '../includes/db.php';
 
@@ -22,14 +22,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Filter barcode yang tidak kosong
-    $valid_barcodes = array_filter($barcodes, function($value) {
+    $valid_barcodes = array_values(array_filter($barcodes, function($value) {
         return !empty(trim($value));
-    });
+    }));
 
     if (empty($valid_barcodes)) {
         echo "<script>alert('Error: Belum ada barcode item yang di-scan!'); window.history.back();</script>";
         exit();
     }
+
+    // ====================================================================
+    // GENERATE 1 TRANSACTION ID UNIK UNTUK SATU BATCH REQUEST/TRANSAKSI
+    // Contoh Format: TRX-260722-0001 (atau angka urut)
+    // ====================================================================
+    $prefix = "TRX-" . date('dMy') . "-";
+    $sql_max = "SELECT MAX(transaction_id) AS max_id FROM transaksi WHERE transaction_id LIKE '$prefix%'";
+    $res_max = $conn->query($sql_max);
+    $next_num = 1;
+
+    if ($res_max && $row_max = $res_max->fetch_assoc()) {
+        if (!empty($row_max['max_id'])) {
+            $last_num = (int) substr($row_max['max_id'], -4);
+            $next_num = $last_num + 1;
+        }
+    }
+    
+    // 1 ID Transaksi ini dipakai bersama oleh semua barcode di bawah
+    $transaction_id = $prefix . sprintf("%04d", $next_num);
+
 
     // ==========================================
     // PROSES DATABASE DENGAN TRANSACTION SYSTEM
@@ -37,11 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn->begin_transaction();
 
     try {
-        // Siapkan kueri untuk validasi master_item, insert transaksi, dan update status
-        $sql_check_item  = "SELECT status_transaksi FROM master_item WHERE barcode = ?";
-        // Kueri di bawah menggunakan nama tabel 'transaksi', silakan ubah jika nama tabel Anda berbeda
-        $sql_insert_tx   = "INSERT INTO transaksi (request_id, barcode, id_sales) VALUES (?, ?, ?)";
-        $sql_update_stok = "UPDATE master_item SET status_transaksi = 'Sold Out' WHERE barcode = ?";
+        $sql_check_item  = "SELECT status_transaksi, status_barang FROM master_item WHERE barcode = ?";
+        
+        // Kueri Insert menyertakan transaction_id yang SAMA untuk seluruh barcode
+        $sql_insert_tx   = "INSERT INTO transaksi (transaction_id, request_id, barcode, id_sales, tgl_transaksi) VALUES (?, ?, ?, ?, NOW())";
+        
+        // Update status master_item menjadi Sold Out & Active
+        $sql_update_stok = "UPDATE master_item SET status_transaksi = 'Sold Out', status_barang = 'Active' WHERE barcode = ?";
 
         $stmt_check  = $conn->prepare($sql_check_item);
         $stmt_insert = $conn->prepare($sql_insert_tx);
@@ -60,19 +82,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $item_data = $res_check->fetch_assoc();
-            if ($item_data['status'] === 'Sold Out') {
+            $st_tx  = strtolower($item_data['status_transaksi'] ?? '');
+            $st_brg = strtolower($item_data['status_barang'] ?? '');
+
+            if ($st_tx === 'sold out') {
                 throw new Exception("Barcode " . $barcode_clean . " sudah berstatus SOLD OUT (Double Scan)!");
             }
-            if ($item_data['status'] === 'Nonaktif') {
+            if ($st_brg === 'inactive' || $st_brg === 'nonaktif') {
                 throw new Exception("Barcode " . $barcode_clean . " berstatus NONAKTIF!");
             }
 
-            // 2. Insert ke tabel transaksi sesuai struktur kolom Anda
-            // transaction_id (Auto Increment) dan tgl_transaksi (current_timestamp) terisi otomatis
-            $stmt_insert->bind_param("sss", $request_id, $barcode_clean, $id_sales);
+            // 2. Insert ke tabel transaksi ($transaction_id SAMA)
+            $stmt_insert->bind_param("ssss", $transaction_id, $request_id, $barcode_clean, $id_sales);
             $stmt_insert->execute();
 
-            // 3. Update status item di master_item menjadi SOLD OUT
+            // 3. Update status item di master_item
             $stmt_update->bind_param("s", $barcode_clean);
             $stmt_update->execute();
         }
@@ -81,16 +105,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_insert->close();
         $stmt_update->close();
 
-        // Jika semua loop berhasil tanpa error, commit data ke database
+        // Commit transaksi
         $conn->commit();
         
-        echo "<script>alert('Transaksi Berhasil Disimpan!'); window.location.href='stok_barang.php';</script>";
+        echo "<script>alert('Transaksi Berhasil Disimpan dengan No. Transaksi: " . $transaction_id . "'); window.location.href='../return.php';</script>";
         exit();
 
     } catch (Exception $e) {
-        // Jika ada satu saja yang gagal, batalkan semua data yang sempat masuk di commit ini
         $conn->rollback();
-        echo "<script>alert('TRANSAKSI GAGAL: " . $e->getMessage() . "'); window.history.back();</script>";
+        echo "<script>alert('TRANSAKSI GAGAL: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
         exit();
     }
 }
