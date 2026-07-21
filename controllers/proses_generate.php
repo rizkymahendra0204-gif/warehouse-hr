@@ -1,7 +1,7 @@
 <?php
 include 'includes/db.php'; 
 
-$conn = new mysqli("localhost", "root", "", "db_warehouse");
+$conn = new mysqli($host, $user, $pass, $db);
 
 $success_msg = "";
 $error_msg = "";
