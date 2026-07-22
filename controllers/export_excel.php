@@ -1,6 +1,15 @@
 <?php
 session_start();
+
+// 1. Load Autoloader Composer & Database
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../includes/db.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 // Penanganan nama variabel koneksi PDO
 if (!isset($conn) && isset($pdo)) {
@@ -11,13 +20,6 @@ if (!isset($conn) && isset($pdo)) {
 $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
 $end_date   = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
 
-// Set Header HTTP agar browser langsung mengunduh sebagai file Excel (.xls)
-$filename = "Laporan_" . date('d-m-Y', strtotime($start_date)) . "_sd_" . date('d-m-Y', strtotime($end_date)) . ".xls";
-
-header("Content-Type: application/vnd.ms-excel; charset=utf-8");
-header("Content-Disposition: attachment; filename=Laporan.xls");
-header("Pragma: no-cache");
-header("Expires: 0");
 try {
     // Query mengambil data transaksi keluar sesuai filter tanggal
     $sql_table = "SELECT 
@@ -44,50 +46,97 @@ try {
 } catch (PDOException $e) {
     die("Error Export: " . $e->getMessage());
 }
-?>
 
-<!-- Format Tabel Excel -->
-<table border="1">
-    <thead>
-        <tr style="background-color: #198754; color: #ffffff; font-weight: bold; text-align: center;">
-            <th>NO</th>
-            <th>TANGGAL</th>
-            <th>ID TRX</th>
-            <th>PERUSAHAAN</th>
-            <th>ITEM DIBERIKAN</th>
-            <th>TOTAL (PCS)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if (!empty($list_transaksi)): ?>
-            <?php 
-            $no = 1;
-            foreach ($list_transaksi as $row): 
-                $tgl = date('d/m/Y', strtotime($row['tgl_transaksi']));
-                
-                // Grouping nama item ("Celana Pria (1), Baju Pria (1)")
-                $raw_items_array = explode(',', $row['all_items']);
-                $item_counts = array_count_values($raw_items_array);
-                
-                $formatted_items = [];
-                foreach ($item_counts as $nama_item => $jumlah) {
-                    $formatted_items[] = trim($nama_item) . " ($jumlah)";
-                }
-                $string_item_diberikan = implode(', ', $formatted_items);
-            ?>
-                <tr>
-                    <td align="center"><?php echo $no++; ?></td>
-                    <td align="center"><?php echo $tgl; ?></td>
-                    <td>#<?php echo htmlspecialchars($row['transaction_id']); ?></td>
-                    <td><?php echo htmlspecialchars($row['perusahaan']); ?></td>
-                    <td><?php echo htmlspecialchars($string_item_diberikan); ?></td>
-                    <td align="center"><b><?php echo $row['qty_total']; ?></b></td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="6" align="center">Tidak ada transaksi pada periode tanggal ini.</td>
-            </tr>
-        <?php endif; ?>
-    </tbody>
-</table>
+// 2. Inisialisasi PhpSpreadsheet
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+$sheet->setTitle('Laporan Transaksi');
+
+// 3. Set Header Kolom
+$headers = ['NO', 'TANGGAL', 'ID TRX', 'PERUSAHAAN', 'ITEM DIBERIKAN', 'TOTAL (PCS)'];
+$sheet->fromArray($headers, NULL, 'A1');
+
+// Style Header (Warna Hijau #198754, Teks Putih Bold, Tengah)
+$headerStyle = [
+    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+    'fill' => [
+        'fillType' => Fill::FILL_SOLID,
+        'startColor' => ['rgb' => '198754'] // Hijau bawaan Bootstrap/Tabel kamu
+    ],
+    'alignment' => [
+        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'vertical' => Alignment::VERTICAL_CENTER
+    ]
+];
+$sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
+
+// 4. Isi Data ke Spreadsheet
+$rowNum = 2; // Data dimulai dari baris ke-2
+
+if (!empty($list_transaksi)) {
+    $no = 1;
+    foreach ($list_transaksi as $row) {
+        $tgl = date('d/m/Y', strtotime($row['tgl_transaksi']));
+
+        // Grouping nama item ("Celana Pria (1), Baju Pria (1)")
+        $raw_items_array = explode(',', $row['all_items']);
+        $item_counts = array_count_values($raw_items_array);
+
+        $formatted_items = [];
+        foreach ($item_counts as $nama_item => $jumlah) {
+            $formatted_items[] = trim($nama_item) . " ($jumlah)";
+        }
+        $string_item_diberikan = implode(', ', $formatted_items);
+
+        // Masukkan data ke cell
+        $sheet->setCellValue("A{$rowNum}", $no++);
+        $sheet->setCellValue("B{$rowNum}", $tgl);
+        $sheet->setCellValue("C{$rowNum}", '#' . $row['transaction_id']);
+        $sheet->setCellValue("D{$rowNum}", $row['perusahaan']);
+        $sheet->setCellValue("E{$rowNum}", $string_item_diberikan);
+        $sheet->setCellValue("F{$rowNum}", $row['qty_total']);
+
+        $rowNum++;
+    }
+
+    $lastRow = $rowNum - 1;
+
+    // Formatting alignment & style isi tabel
+    $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle("B2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle("F2:F{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle("F2:F{$lastRow}")->getFont()->setBold(true); // Total (PCS) tebal
+
+    // Tambahkan Border untuk seluruh tabel
+    $borderStyle = [
+        'borders' => [
+            'allBorders' => [
+                'borderStyle' => Border::BORDER_THIN,
+                'color' => ['rgb' => '000000']
+            ]
+        ]
+    ];
+    $sheet->getStyle("A1:F{$lastRow}")->applyFromArray($borderStyle);
+
+} else {
+    // Jika data kosong
+    $sheet->mergeCells('A2:F2');
+    $sheet->setCellValue('A2', 'Tidak ada transaksi pada periode tanggal ini.');
+    $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+}
+
+// 5. Auto-size Lebar Kolom
+foreach (range('A', 'F') as $col) {
+    $sheet->getColumnDimension($col)->setAutoSize(true);
+}
+
+// 6. Header Download File (.xlsx)
+$filename = "Laporan_" . date('d-m-Y', strtotime($start_date)) . "_sd_" . date('d-m-Y', strtotime($end_date)) . ".xlsx";
+
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="' . $filename . '"');
+header('Cache-Control: max-age=0');
+
+$writer = new Xlsx($spreadsheet);
+$writer->save('php://output');
+exit;
