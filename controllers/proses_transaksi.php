@@ -106,10 +106,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_insert->close();
         $stmt_update->close();
 
-        // Commit transaksi
+        // ====================================================================
+        // 4. UPDATE STATUS REQUEST MENJADI 'Done' (DITAMBAHKAN DI SINI)
+        // ====================================================================
+        if (!empty($request_id)) {
+            // Catatan: Sesuaikan nama tabel 'request' dan nama kolom 'no_request' 
+            // jika di database kamu menggunakan nama yang berbeda (misal: 'requests' / 'id_request')
+            $sql_update_request = "UPDATE request_form SET status = 'Done' WHERE request_id = ?";
+            $stmt_req = $conn->prepare($sql_update_request);
+            $stmt_req->bind_param("s", $request_id);
+            $stmt_req->execute();
+            $stmt_req->close();
+        }
+
+        // Commit seluruh transaksi database
         $conn->commit();
         
-        echo "<script>alert('Transaksi Berhasil Disimpan dengan No. Transaksi: " . $transaction_id . "'); window.location.href='../return.php';</script>";
+        echo "<script>alert('Transaksi Berhasil Disimpan dengan No. Transaksi: " . $transaction_id . "'); window.location.href='../pending.php';</script>";
         exit();
 
     } catch (Exception $e) {

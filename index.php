@@ -96,10 +96,10 @@ include 'controllers/query_dashboard.php';
                                 <div class="bar-active" style="height: <?php echo $h_active_cln_wnt; ?>%;" title="Bawahan Wanita: <?php echo $active_stock['cln_wnt']; ?> Pcs"></div>
                             </div>
                             <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                                <span>Kmj. Pria (<?php echo $active_stock['baju_pria']; ?>)</span>
+                                <span>Bj. Pria (<?php echo $active_stock['baju_pria']; ?>)</span>
                                 <span>Cln. Pria (<?php echo $active_stock['cln_pria']; ?>)</span>
-                                <span>Kmj. Wnt (<?php echo $active_stock['baju_wnt']; ?>)</span>
-                                <span>Bwn. Wnt (<?php echo $active_stock['cln_wnt']; ?>)</span>
+                                <span>Bj. Wnt (<?php echo $active_stock['baju_wnt']; ?>)</span>
+                                <span>Cln. Wnt (<?php echo $active_stock['cln_wnt']; ?>)</span>
                             </div>
                         </div>
                     </div>
@@ -120,10 +120,10 @@ include 'controllers/query_dashboard.php';
                                 <div class="bar-inactive" style="height: <?php echo $h_inactive_cln_wnt; ?>%;" title="Bawahan Wanita: <?php echo $inactive_stock['cln_wnt']; ?> Pcs"></div>
                             </div>
                             <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                                <span>Kmj. Pria (<?php echo $inactive_stock['baju_pria']; ?>)</span>
+                                <span>Bj. Pria (<?php echo $inactive_stock['baju_pria']; ?>)</span>
                                 <span>Cln. Pria (<?php echo $inactive_stock['cln_pria']; ?>)</span>
-                                <span>Kmj. Wnt (<?php echo $inactive_stock['baju_wnt']; ?>)</span>
-                                <span>Bwn. Wnt (<?php echo $inactive_stock['cln_wnt']; ?>)</span>
+                                <span>Bj. Wnt (<?php echo $inactive_stock['baju_wnt']; ?>)</span>
+                                <span>Cln. Wnt (<?php echo $inactive_stock['cln_wnt']; ?>)</span>
                             </div>
                         </div>
                     </div>

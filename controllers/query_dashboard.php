@@ -10,7 +10,7 @@ $conn = new mysqli("localhost", "root", "", "db_warehouse");
 
 // KPI 1: Pending Request (Menghitung baris di tabel request_form)
 $kpi_pending = 0;
-$res_pending = $conn->query("SELECT COUNT(*) as total FROM request_form");
+$res_pending = $conn->query("SELECT COUNT(*) as total FROM request_form WHERE status = 'Pending'");
 if ($res_pending) {
     $row = $res_pending->fetch_assoc();
     $kpi_pending = (int)$row['total'];
