@@ -1,6 +1,6 @@
 <?php
 // 1. Panggil koneksi database di baris pertama
-include 'include/db.php';
+include 'includes/db.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
 
