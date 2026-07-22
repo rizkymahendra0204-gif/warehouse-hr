@@ -64,7 +64,7 @@ if ($is_auto) {
 
             <div id="view-return-list" style="<?php echo $is_auto ? 'display: none;' : 'display: block;'; ?>">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="page-title fw-bold fs-4">Pengajuan Return Barang</div>
+                    <div class="page-title">Pengajuan</div>
                     <div style="width: 280px;">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -116,8 +116,8 @@ if ($is_auto) {
                                     $tgl_trx      = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
 
                                     // LOGIKA STATUS
-                                    $status_tx  = $row['status_transaksi'] ?? ''; 
-                                    $status_brg = $row['status_barang'] ?? '';
+                                    $status_tx  = $row['status_barang'] ?? ''; 
+                                    $status_brg = $row['status_transaksi'] ?? '';
 
                                     if (!empty($status_brg) && !empty($status_tx)) {
                                         $status_display = $status_brg . " (" . $status_tx . ")";
@@ -125,13 +125,25 @@ if ($is_auto) {
                                         $status_display = $status_brg ?: ($status_tx ?: '-');
                                     }
 
-                                    // LOGIKA WARNA & IKON
-                                    if (strtolower($status_tx) === 'soldout' && strtolower($status_brg) === 'active') {
-                                        $text_color = '#16a34a';
+                                    // FORMAT STRING UNTUK PENGECEKAN (Hilangkan spasi & ubah ke huruf kecil)
+                                    $check_tx  = str_replace(' ', '', strtolower(trim($status_tx)));  // "Sold Out" -> "soldout"
+                                    $check_brg = strtolower(trim($status_brg));                      // "Active"   -> "active"
+
+                                    // 3. Logika penentuan warna & ikon berdasarkan siklus barang
+                                    if ($check_tx === 'available' && $check_brg === 'active') {
+                                        // BARANG FRESH / READY
+                                        $text_color = '#16a34a'; // Hijau
                                         $icon_class = 'bi-check-circle-fill';
+
+                                    } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
+                                        // BARANG HASIL RETURN
+                                        $text_color = '#dc2626'; // Merah
+                                        $icon_class = 'bi-arrow-counterclockwise'; // Ikon Return / Refund
+
                                     } else {
-                                        $text_color = '#334155';
-                                        $icon_class = 'bi-x-circle-fill';
+                                        // SOLD OUT / LAINNYA
+                                        $text_color = '#16a34a'; // Hijau
+                                        $icon_class = 'bi-check-circle-fill';
                                     }
 
                                     // Membungkus single barcode ke JSON safe untuk dikirim ke openProcessPage
