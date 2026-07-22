@@ -1,18 +1,96 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
+/* ==========================================================================
+   1. GLOBAL & LAYOUT
+   ========================================================================== */
+html,
 body {
   font-family: "Inter", sans-serif;
-  background-color: #ffffff;
+  background-color: #f9fafb;
   margin: 0;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
 }
 
 .app-container {
   display: flex;
   height: 100vh;
+  width: 100%;
 }
 
-/* --- SIDEBAR STYLES --- */
+.main-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9fafb;
+  overflow: hidden;
+}
+
+.content-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ==========================================================================
+   2. TOPBAR STYLES
+   ========================================================================== */
+.topbar {
+  height: 70px !important;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  z-index: 1000;
+}
+
+.topbar-btn {
+  background-color: #f1efef;
+  color: white;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 600;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #fde68a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+/* ==========================================================================
+   3. SIDEBAR STYLES
+   ========================================================================== */
 .sidebar {
   width: 250px;
   background-color: #f4f5f8;
@@ -20,7 +98,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  transition: width 0.3s ease-in-out; /* Animasi transisi lebar */
+  transition: width 0.3s ease-in-out;
 }
 
 .sidebar-header {
@@ -104,7 +182,7 @@ body {
   color: #374151;
 }
 
-/* --- SIDEBAR MODE COLLAPSED (MINI SIDEBAR) --- */
+/* Sidebar Mode Collapsed */
 .sidebar.collapsed {
   width: 90px;
 }
@@ -140,76 +218,17 @@ body {
   line-height: 1.2;
 }
 
-/* --- MAIN CONTENT STYLES --- */
-.main-wrapper {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: #ffffff;
-}
-
-.topbar {
-  height: 70px;
-  background-color: #f4f5f8;
-  border-bottom: 1px solid #e3e3e3;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0 32px;
-}
-
-.profile-section {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  background-color: #fde68a;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-}
-
-.user-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: #4b5563;
-}
-
-.notification {
-  position: relative;
-  color: #9ca3af;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.notification-dot {
-  position: absolute;
-  top: 2px;
-  right: 1px;
-  width: 7px;
-  height: 7px;
-  background-color: #ef4444;
-  border-radius: 50%;
-  border: 1.5px solid #ffffff;
-}
-
-.content-area {
-  padding: 32px;
-  flex-grow: 1;
-  overflow-y: auto;
+/* ==========================================================================
+   4. COMPONENTS & UTILITIES
+   ========================================================================== */
+.btn {
+  background-color: #e3e3e3;
+  color: white;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-weight: 600;
+  border: none;
+  transition: background-color 0.2s;
 }
 
 .page-title {
@@ -228,16 +247,14 @@ body {
 .top-card {
   height: 130px;
 }
-
 .bottom-card {
   height: 420px;
 }
-
 .row-gap {
   row-gap: 24px;
 }
 
-/* --- DROPDOWN BOOTSTRAP STYLING --- */
+/* Dropdown */
 .dropdown-menu {
   border: 1px solid #e5e7eb;
   box-shadow:
@@ -260,12 +277,29 @@ body {
   color: #1f2937;
 }
 
-/* Styling Khusus Dropdown Notifikasi */
+/* Notifikasi */
+.notification {
+  position: relative;
+  color: #9ca3af;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 2px;
+  right: 1px;
+  width: 7px;
+  height: 7px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+}
+
 .notification-dropdown {
   width: 320px;
   padding: 0;
 }
-
 .notification-header {
   padding: 16px 20px;
   font-weight: 600;
@@ -273,117 +307,760 @@ body {
   border-bottom: 1px solid #e5e7eb;
   color: #111827;
 }
-
 .notification-item {
   padding: 12px 20px;
   border-bottom: 1px solid #f3f4f6;
   display: flex;
   flex-direction: column;
 }
-
 .notification-item:hover {
   background-color: #f9fafb;
 }
-
 .notif-title {
   font-size: 13px;
   font-weight: 600;
   color: #374151;
 }
-
 .notif-desc {
   font-size: 12px;
   color: #6b7280;
   margin-top: 4px;
 }
-/* --- REQUEST FORM --- */
 
-        .form-container {
-            background-color: #ffffff;
-            border-radius: 4px;
-            padding: 32px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        .form-header {
-            border-bottom: 1px solid #f3f4f6;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-        }
-        .logo-central {
-            font-family: Georgia, serif; /* Menggunakan font serif untuk logo CENTRAL */
-            color: #b91c1c; /* Merah gelap */
-            font-weight: 700;
-            font-size: 24px;
-            letter-spacing: 1.5px;
-            margin: 0;
-        }
-        .section-box {
-            background-color: #f4f5f8;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #000;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-        /* Style untuk Placeholder (Kotak Abu-abu) */
-        .ph-box { background-color: #d1d5db; border-radius: 8px; }
-        .ph-pill { background-color: #d1d5db; border-radius: 50rem; }
-        .ph-text { background-color: #d1d5db; border-radius: 4px; }
-        
-        .btn-submit {
-            background-color: #b91c1c;
-            color: white;
-            border-radius: 8px;
-            padding: 8px 32px;
-            font-weight: 600;
-            border: none;
-            transition: 0.2s;
-        }
-        .btn-submit:hover {
-            background-color: #991b1b;
-        }
+/* ==========================================================================
+   5. PAGE : DASHBOARD
+   ========================================================================== */
+.kpi-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  height: 100%;
+}
 
-/* Gaya untuk Area Upload */
+.kpi-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.kpi-pending {
+  background-color: #fef08a;
+  color: #854d0e;
+}
+.kpi-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.kpi-danger {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.chart-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.chart-placeholder {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end; /* Membuat batang tumbuh dari bawah ke atas */
+  height: 200px; /* Tinggi area grafik */
+  padding: 10px 0;
+  position: relative;
+  border-bottom: 2px solid #e2e8f0;
+  /* Membuat garis horizontal samar di latar belakang */
+  background-image: linear-gradient(to top, #f8fafc 1px, transparent 1px);
+  background-size: 100% 40px;
+}
+
+.bar-active {
+  width: 35px;
+  background-color: #556ee6;
+  border-radius: 6px 6px 0 0;
+  transition: height 0.5s ease-in-out;
+  min-height: 0px;
+}
+
+.bar-active:hover {
+  opacity: 1;
+  transform: scaleY(1.02);
+}
+
+.bar-inactive {
+  width: 45px;
+  background-color: #94a3b8;
+  border-radius: 4px 4px 0 0;
+  opacity: 0.85;
+  transition: 0.3s;
+}
+.bar-inactive:hover {
+  opacity: 1;
+  background-color: #ef4444;
+}
+
+/* ==========================================================================
+   6. PAGE: FORM REQUEST
+   ========================================================================== */
+.form-container {
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.logo-central {
+  font-family: Georgia, serif;
+  color: #b91c1c;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.section-box {
+  background-color: #f4f5f8;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
 
 .upload-area {
-    width: 100%;
-    height: 120px;
-    border: 2px dashed #d1d5db; /* Garis putus-putus abu-abu */
-    border-radius: 8px;
-    background-color: #f9fafb;
-    transition: 0.2s;
+  width: 100%;
+  height: 120px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  transition: 0.2s;
 }
 
 .upload-area:hover {
-    border-color: #556ee6; /* Berubah warna saat di-hover */
-    background-color: #eef2ff;
+  border-color: #556ee6;
+  background-color: #eef2ff;
 }
 
 .upload-area i {
-    transition: 0.2s;
+  transition: 0.2s;
 }
-
 .upload-area:hover i {
-    color: #556ee6 !important;
+  color: #556ee6 !important;
 }
 
-/* Gaya untuk Ikon Ceklis */
+.btn-submit {
+  background-color: #b91c1c;
+  color: white;
+  border-radius: 8px;
+  padding: 10px 40px;
+  font-weight: 600;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #991b1b;
+}
+
 .success-icon {
-    font-size: 80px;
-    color: #22c55e; /* Hijau cerah */
-    margin-top: -80px; /* Membuat ikon naik ke atas modal */
-    background: white;
-    display: inline-block;
-    border-radius: 50%;
-    line-height: 1;
+  font-size: 80px;
+  color: #22c55e;
+  margin-top: -80px;
+  background: white;
+  display: inline-block;
+  border-radius: 50%;
+  line-height: 1;
 }
 
-/* Memastikan modal tidak terlalu lebar */
-.modal-dialog {
-    max-width: 400px;
+/* ==========================================================================
+   7. PAGE: PENDING REQUEST
+   ========================================================================== */
+.table-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f3f4f6;
+  overflow: hidden;
+}
+
+.table thead th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 16px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table tbody td {
+  padding: 16px;
+  color: #334155;
+  font-size: 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.req-badge {
+  background-color: #fef08a;
+  color: #854d0e;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-block;
+}
+
+.status-badge {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.btn-proses {
+  background-color: #cc5c5c;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-proses:hover {
+  background-color: #a84747;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(204, 92, 92, 0.3);
+}
+
+/* ================= POPUP STYLES ================= */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background-color: #f9fafb;
+}
+
+/* Card Panel Putih */
+.panel-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 32px 24px;
+  height: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.icon-box-square {
+  background-color: #b91c1c;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  margin-right: 12px;
+}
+
+.summary-table th {
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+  width: 35%;
+}
+.summary-table td {
+  color: #1f2937;
+  font-size: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.bukti-box {
+  border: 1px solid #e5e7eb;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  padding: 32px 20px;
+  text-align: center;
+}
+
+/* Lebar Popup */
+[id^="reviewPopup"] .modal-dialog {
+  max-width: 950px !important;
+}
+
+/* ==========================================================================
+   8. PAGE: TRANSAKSI
+   ========================================================================== */
+.form-section {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e9ecef;
+}
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 6px;
+}
+.form-control {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  padding: 10px 14px;
+  font-size: 14px;
+  background-color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+.form-control:focus {
+  border-color: #cc5c5c;
+  box-shadow: 0 0 0 0.2rem rgba(204, 92, 92, 0.25);
+}
+.input-group-text {
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  color: #6c757d;
+}
+.btn-action {
+  padding: 10px 32px;
+  font-weight: 600;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.item-row {
+  padding: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  transition: 0.3s;
+}
+
+/* ===========================================================================
+   9. PAGE: STOK BARANG
+   ========================================================================== */
+.badge-status {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-tersedia {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.status-sold {
+  background-color: #fef08a;
+  color: #854d0e;
+}
+.status-nonaktif {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+.barcode-badge {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background-color: transparent;
+}
+.btn-action-icon:hover {
+  background-color: #e5e7eb;
+}
+.btn-detail {
+  color: #6b7280;
+}
+.btn-edit {
+  color: #556ee6;
+}
+
+.filter-tab {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.filter-tab.active {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+.filter-tab:hover:not(.active) {
+  color: #0f172a;
+  background-color: #f8fafc;
+}
+
+/* ===========================================================================
+   10. PAGE: LOG ACTIVITY
+   ========================================================================== */
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.icon-transaksi {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+}
+.icon-inventory {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.icon-system {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+.icon-return {
+  background-color: #fef08a;
+  color: #854d0e;
+}
+.module-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.date-filter-group {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 4px 12px;
+}
+.date-filter-group input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #4b5563;
+  background: transparent;
+}
+.date-filter-group input:focus {
+  box-shadow: none;
+}
+.date-separator {
+  color: #9ca3af;
+  margin: 0 8px;
+}
+
+/* ===========================================================================
+   11. PAGE: RETURN
+   ========================================================================== */
+.return-badge {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+}
+.status-menunggu {
+  background-color: #fef08a;
+  color: #854d0e;
+}
+.status-selesai {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.status-ditolak {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+.btn-process {
+  color: #556ee6;
+}
+
+/* ===========================================================================
+   12. PAGE: GENERATE BARCODE
+   ========================================================================== */
+
+.barcode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+}
+.barcode-print-card {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+/* ==============================
+  CETAK 
+============================== */
+@media print {
+    /* 1. Atur Ukuran Kertas A4 & Margin Cetak */
+    @page {
+        size: A4 portrait;      
+        margin: 8mm;
+    }
+
+    body, html {
+        background: #fff !important;
+        margin: 0 !important; 
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* 2. Sembunyikan elemen navigasi, form, dan judul "Lembar Cetak" agar area cetak bersih */
+    .sidebar, 
+    .topbar, 
+    .card-form-left, 
+    .btn-print-trigger, 
+    .page-title, 
+    .alert, 
+    form, 
+    .d-print-none,
+    h1, h2, h3, h4, h5, .card-header { 
+        display: none !important; 
+    }
+    
+    /* 3. NETRALKAN CONTAINER: Hapus Max-Height & Scrollbar */
+    .app-container, 
+    .main-wrapper, 
+    .content-area, 
+    .row, 
+    .col-md-7, 
+    .col-md-5, 
+    .card, 
+    .card-body,
+    .container, 
+    .container-fluid,
+    div {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;          /* Paksa tinggi mengikuti isi */
+        max-height: none !important;     /* Matikan batasan tinggi */
+        overflow: visible !important;     /* Hilangkan scrollbar! */
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 4. GRID 3 KOLOM */
+    .barcode-grid { 
+        display: grid !important; 
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;     /* Memastikan grid tidak scrollable */
+        background: transparent !important; 
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* 5. STIKER BARCODE */
+    .barcode-print-card { 
+        display: block !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 !important;
+        
+        border: 1px solid #000 !important; 
+        padding: 8px 4px !important;
+        background: #fff !important;
+        text-align: center !important;
+
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact;
+
+        /* Mengunci agar kartu tidak terpotong garis kertas */
+        break-inside: avoid-page !important;
+        page-break-inside: avoid !important;
+    }
+}
+
+/* ===========================================================================
+   13. PAGE: LAPORAN
+   ========================================================================== */
+
+/* Styling Khusus Halaman Laporan */
+.report-filter-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.kpi-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+/* Varian Warna KPI */
+.kpi-in {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.kpi-out {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+.kpi-return {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Area Grafik (Placeholder) */
+.chart-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 24px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-placeholder {
+  flex-grow: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 39px,
+    #f3f4f6 39px,
+    #f3f4f6 40px
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding-top: 40px;
+}
+
+.bar {
+  width: 40px;
+  background-color: #556ee6;
+  border-radius: 4px 4px 0 0;
+  opacity: 0.8;
+  transition: 0.3s;
+}
+
+.bar:hover {
+  opacity: 1;
+}
+
+/* Tombol Export Utama */
+.btn-excel {
+  background-color: #107c41; /* Warna hijau khas MS Excel */
+  color: white;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  border: none;
+  transition: background-color 0.2s;
+}
+.btn-excel:hover {
+  background-color: #0c5e31;
+  color: white;
 }

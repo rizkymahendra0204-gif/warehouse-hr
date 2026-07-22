@@ -1,4 +1,3 @@
-<!-- includes/sidebar.php -->
 <?php 
 $current_page = basename($_SERVER['PHP_SELF']); 
 ?>
@@ -15,9 +14,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="bi bi-bar-chart-line-fill"></i>
             <span>Dashboard</span>
         </a>
-        <a href="request.php" class="nav-link <?= ($current_page == 'request.php') ? 'active' : '' ?>">
+        <a href="pending.php" class="nav-link <?= ($current_page == 'pending.php') ? 'active' : '' ?>">
             <i class="bi bi-cart3"></i>
-            <span>Request</span>
+            <span>Pending</span>
         </a>
         <a href="transaksi.php" class="nav-link <?= ($current_page == 'transaksi.php') ? 'active' : '' ?>">
             <i class="bi bi-file-earmark-text"></i>
@@ -32,6 +31,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="stok_barang.php" class="nav-link <?= ($current_page == 'stok_barang.php') ? 'active' : '' ?>">
             <i class="bi bi-gear"></i>
             <span>Stok Barang</span>
+        </a>
+        <a href="generate_barcode.php" class="nav-link <?= ($current_page == 'generate_barcode.php') ? 'active' : '' ?>">
+            <i class="bi bi-upc-scan"></i>
+            <span>Generate Barcode</span>
         </a>
 
         <div class="menu-category">OTHERS</div>
