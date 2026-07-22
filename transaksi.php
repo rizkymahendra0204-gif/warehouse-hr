@@ -167,7 +167,7 @@ include 'controllers/query_transaksi.php';
     // Schema Barcode 9 Digit
     const GENDER_MAP = { '1': 'Pria', '2': 'Wanita' };
     const TYPE_MAP   = { '01': 'Baju', '02': 'Celana' };
-    const SIZE_MAP   = { '01': 'S', '02': 'M', '03': 'L', '04': 'XL' };
+    const SIZE_MAP   = { '01': 'S', '02': 'M', '03': 'L', '04': 'XL', '28': '28', '30': '30', '32': '32', '36': '36' };
 
     let itemCount = 0;
     let scannedBarcodes = new Set();

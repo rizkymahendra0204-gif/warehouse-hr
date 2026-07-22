@@ -13,6 +13,21 @@ $auto_detail       = isset($_GET['detail']) ? $_GET['detail'] : '';
 $is_auto       = !empty($auto_id_transaksi); 
 $readonly_attr = $is_auto ? 'readonly' : '';
 $bg_class      = $is_auto ? 'bg-light' : '';
+
+// Jika diakses via URL GET, ambil daftar barcode transaksi tersebut dari DB
+$auto_barcodes_json = '[]';
+if ($is_auto) {
+    $stmt_get_bc = $conn->prepare("SELECT barcode FROM transaksi WHERE transaction_id = ?");
+    $stmt_get_bc->bind_param("s", $auto_id_transaksi);
+    $stmt_get_bc->execute();
+    $res_bc = $stmt_get_bc->get_result();
+    $bc_list = [];
+    while ($row_bc = $res_bc->fetch_assoc()) {
+        $bc_list[] = $row_bc['barcode'];
+    }
+    $auto_barcodes_json = json_encode($bc_list);
+    $stmt_get_bc->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -25,15 +40,14 @@ $bg_class      = $is_auto ? 'bg-light' : '';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- Memanggil file CSS Anda -->
+    <!-- CSS File -->
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
 <body>
 
 <div class="app-container">
 
-    <!-- Memanggil file Sidebar -->
+    <!-- Sidebar -->
     <?php include 'includes/sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
@@ -45,7 +59,7 @@ $bg_class      = $is_auto ? 'bg-light' : '';
         <main class="content-area p-4">
 
             <!-- ======================================================= -->
-            <!-- VIEW 1: DAFTAR REQUEST PENDING RETURN                   -->
+            <!-- VIEW 1: DAFTAR REQUEST PENDING RETURN                  -->
             <!-- ======================================================= -->
 
             <div id="view-return-list" style="<?php echo $is_auto ? 'display: none;' : 'display: block;'; ?>">
@@ -72,20 +86,21 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                             </thead>
                             <tbody>
                                 <?php
-                                // Query Multi-JOIN dengan GROUP BY agar 1 transaction_id tampil 1 baris konsisten
-                                $sql = "SELECT 
+                                // Query Multi-JOIN dengan GROUP BY & GROUP_CONCAT barcode
+                                $sql = $sql = "SELECT 
                                             t.transaction_id,
                                             t.request_id,
                                             t.id_sales,
                                             t.tgl_transaksi,
                                             rf.perusahaan,
                                             rf.nama_sa,
+                                            GROUP_CONCAT(TRIM(t.barcode) SEPARATOR ',') AS all_barcodes,
                                             GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ' & ') AS detail_item_concat,
                                             mi.status_transaksi,
                                             mi.status_barang
                                         FROM transaksi t
                                         INNER JOIN request_form rf ON t.request_id = rf.request_id
-                                        INNER JOIN master_item mi ON t.barcode = mi.barcode
+                                        INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
                                         GROUP BY t.transaction_id
                                         ORDER BY t.transaction_id DESC";
 
@@ -93,14 +108,9 @@ $bg_class      = $is_auto ? 'bg-light' : '';
 
                                 if ($query && mysqli_num_rows($query) > 0) {
                                     while ($row = mysqli_fetch_assoc($query)) {
-                                        // Format No. Transaksi
-                                        $no_trx = htmlspecialchars($row['transaction_id']);
-                                        
-                                        // Detail item transaksi hasil concat
+                                        $no_trx      = htmlspecialchars($row['transaction_id']);
                                         $detail_item = "Request Seragam (" . $row['detail_item_concat'] . ")";
-                                        
-                                        // Tgl Transaksi
-                                        $tgl_trx = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
+                                        $tgl_trx     = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
 
                                         // LOGIKA STATUS
                                         $status_tx  = $row['status_transaksi'] ?? ''; 
@@ -120,6 +130,9 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                                             $text_color = '#334155';
                                             $icon_class = 'bi-x-circle-fill';
                                         }
+
+                                        // Persiapkan array barcode dalam bentuk JSON safe
+                                        $barcodes_json = htmlspecialchars(json_encode(explode(',', $row['all_barcodes'])), ENT_QUOTES, 'UTF-8');
                                 ?>
                                         <tr class="border-bottom">
                                             <!-- No. Transaksi -->
@@ -149,7 +162,8 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                                                             '<?php echo addslashes($no_trx); ?>', 
                                                             '<?php echo addslashes($row['id_sales']); ?>', 
                                                             '<?php echo addslashes($row['nama_sa']); ?>', 
-                                                            '<?php echo addslashes($detail_item); ?>'
+                                                            '<?php echo addslashes($detail_item); ?>',
+                                                            <?php echo $barcodes_json; ?>
                                                         )">
                                                     Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
                                                 </button>
@@ -176,7 +190,7 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                 
                 <!-- Header Halaman -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="page-title fs-4 fw-bold">Return</div>
+                    <div class="page-title fs-4 fw-bold">Return Item Transaksi</div>
                 </div>
 
                 <!-- Alert Container Flash Message -->
@@ -192,15 +206,15 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Transaksi</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_no_return" name="no_return" value="<?php echo $auto_id_transaksi; ?>" placeholder="Contoh: TRX-000001" <?php echo $readonly_attr; ?>>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_no_return" name="no_return" value="<?php echo $auto_id_transaksi; ?>" placeholder="Contoh: TRX-000001" readonly>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Sales</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_id_sales" name="id_request_awal" value="<?php echo $auto_sales_id; ?>" placeholder="Masukkan ID Sales" <?php echo $readonly_attr; ?>>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_id_sales" name="id_request_awal" value="<?php echo $auto_sales_id; ?>" placeholder="ID Sales" readonly>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Nama SA</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_nama" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama SA" <?php echo $readonly_attr; ?>>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_nama" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama SA" readonly>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Tanggal Return</label>
@@ -223,38 +237,22 @@ $bg_class      = $is_auto ? 'bg-light' : '';
                                             <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Info Order</td>
                                             <td class="py-3 text-dark">: <?php echo !empty($auto_detail) ? htmlspecialchars($auto_detail) : 'Detail Request Transaksi #' . htmlspecialchars($auto_id_transaksi); ?></td>
                                         </tr>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="2" class="text-center text-muted py-3" style="font-size: 13px; font-style: italic;">
-                                                <i class="bi bi-info-circle me-1"></i> Rincian item request akan muncul secara otomatis.
-                                            </td>
-                                        </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- SECTION 3: Pemindaian Item Return Dinamis & Auto-Scan -->
+                    <!-- SECTION 3: Daftar Item Barang yang Di-Return (Otomatis Terisi) -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
                         <h6 class="fw-bold mb-3" style="color: #b91c1c;">
-                            <i class="bi bi-upc-scan me-2"></i>Pemindaian Item Return
+                            <i class="bi bi-box-seam me-2"></i>Daftar Item Barang dalam Transaksi Ini
                         </h6>
-
-                        <!-- Fast Auto-Scan Input Barcode Scanner -->
-                        <div class="bg-light p-3 rounded-3 mb-4 border">
-                            <label class="form-label small fw-bold text-danger mb-1">
-                                <i class="bi bi-lightning-charge-fill me-1"></i> Mode Cepat Auto-Scan:
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white text-danger"><i class="bi bi-upc-scan"></i></span>
-                                <input type="text" id="mainBarcodeInput" class="form-control scan-input-main" placeholder="Scan barcode 9 digit di sini (Auto-Add)..." autocomplete="off" autofocus>
-                            </div>
-                        </div>
+                        <p class="text-muted small mb-3">Tentukan kondisi barang untuk setiap item yang dikembalikan di bawah ini:</p>
 
                         <!-- CONTAINER ITEM DINAMIS -->
                         <div id="dynamic-item-container">
-                            <!-- Item row akan dirender dinamis lewat JS -->
+                            <!-- Barcode items akan dirender otomatis di sini lewat JavaScript -->
                         </div>
                     </div>
 
@@ -272,12 +270,12 @@ $bg_class      = $is_auto ? 'bg-light' : '';
     </div>
 </div>
 
-<!-- Scripts dari Bootstrap, jQuery, dan JS Custom -->
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 
-<!-- ENGINE JAVASCRIPT AUTO-SCAN & DOM MANIPULATION -->
+<!-- ENGINE JAVASCRIPT LOGIC -->
 <script>
     // Mapping barcode schema 9 digit
     const GENDER_MAP = { '1': 'Pria', '2': 'Wanita' };
@@ -285,14 +283,35 @@ $bg_class      = $is_auto ? 'bg-light' : '';
     const SIZE_MAP   = { '01': 'S', '02': 'M', '03': 'L', '04': 'XL' };
 
     let itemCount = 0;
-    let scannedBarcodes = new Set();
 
     $(document).ready(function() {
-        addItemRow();
+        <?php if ($is_auto): ?>
+            // Auto load jika dipanggil via GET parameter URL
+            const initialBarcodes = <?php echo $auto_barcodes_json; ?>;
+            loadTransactionItems(initialBarcodes);
+        <?php endif; ?>
     });
 
-    // --- SWITCH VIEW (LIST ke PROCESS) ---
-    function openProcessPage(trxId, salesId, saName, detailInfo) {
+    // --- PARSER BARCODE 9 DIGIT ---
+    function parseBarcode(rawCode) {
+        const clean = String(rawCode).replace(/\*/g, '').trim();
+        if (clean.length !== 9 || isNaN(clean)) {
+            return { raw: clean, text: `(Barcode: ${clean})` };
+        }
+
+        const gender = GENDER_MAP[clean.substring(0, 1)] || 'Unknown';
+        const type   = TYPE_MAP[clean.substring(1, 3)]   || 'Item';
+        const size   = SIZE_MAP[clean.substring(3, 5)]   || 'All Size';
+        const num    = clean.substring(5, 9);
+
+        return {
+            raw: clean,
+            text: `(${type} ${gender} - Ukuran ${size} - #${num})`
+        };
+    }
+
+    // --- SWITCH VIEW & LOAD DATA OTOMATIS ---
+    function openProcessPage(trxId, salesId, saName, detailInfo, barcodesArray) {
         document.getElementById('view-return-list').style.display = 'none';
         document.getElementById('view-return-process').style.display = 'block';
 
@@ -307,17 +326,79 @@ $bg_class      = $is_auto ? 'bg-light' : '';
             </tr>
         `;
 
-        // Reset Scan Container
-        itemCount = 0;
-        scannedBarcodes.clear();
-        document.getElementById('dynamic-item-container').innerHTML = '';
         document.getElementById('alertContainer').innerHTML = '';
 
-        addItemRow();
-        
-        setTimeout(() => {
-            document.getElementById('mainBarcodeInput').focus();
-        }, 100);
+        // Tampilkan otomatis semua barcode transaksi tersebut
+        loadTransactionItems(barcodesArray);
+    }
+
+    function loadTransactionItems(barcodesArray) {
+        const container = document.getElementById('dynamic-item-container');
+        container.innerHTML = '';
+        itemCount = 0;
+
+        if (!barcodesArray || barcodesArray.length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">Tidak ada barcode terdeteksi pada transaksi ini.</div>';
+            return;
+        }
+
+        barcodesArray.forEach((barcode) => {
+            addItemRow(barcode);
+        });
+    }
+
+    // --- TAMBAH BARIS ITEM OTOMATIS ---
+    function addItemRow(barcodeVal) {
+        itemCount++;
+        const container = document.getElementById('dynamic-item-container');
+        const id = itemCount;
+        const parsed = parseBarcode(barcodeVal);
+
+        const rowHtml = `
+            <div class="item-row bg-white border rounded-3 p-3 mb-3 shadow-sm" id="item-row-${id}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold item-number" style="color: #b91c1c; font-size: 14px;">
+                        <i class="bi bi-box-seam me-2"></i>Barang #${id}
+                        <small class="text-dark fw-normal ms-2">${parsed.text}</small>
+                    </span>
+                    <button type="button" class="btn btn-sm text-danger fw-bold" 
+                            style="background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
+                            onclick="removeItemRow(${id})">
+                        <i class="bi bi-trash3 me-1"></i>Hapus
+                    </button>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Barcode Barang</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-danger"><i class="bi bi-upc-scan"></i></span>
+                            <input type="text" 
+                                   class="form-control bg-light fw-bold" 
+                                   name="barcode_return[]" 
+                                   value="${parsed.raw}" 
+                                   readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Kondisi / Alasan Return</label>
+                        <select class="form-select" name="kondisi_return[]" required>
+                            <option value="Layak">Layak (Kembali ke Stok Warehouse)</option>
+                            <option value="Kebesaran">Tukar: Ukuran Kebesaran</option>
+                            <option value="Kekecilan">Tukar: Ukuran Kekecilan</option>
+                            <option value="Cacat Produksi">Rusak: Cacat Produksi / Baju Rusak</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', rowHtml);
+    }
+
+    function removeItemRow(id) {
+        const row = document.getElementById(`item-row-${id}`);
+        if (row) row.remove();
     }
 
     function cancelProcess() {
@@ -327,159 +408,6 @@ $bg_class      = $is_auto ? 'bg-light' : '';
             document.getElementById('view-return-process').style.display = 'none';
             document.getElementById('view-return-list').style.display = 'block';
         <?php endif; ?>
-    }
-
-    // --- PARSER BARCODE 9 DIGIT ---
-    function parseBarcode(rawCode) {
-        const clean = rawCode.replace(/\*/g, '').trim();
-        if (clean.length !== 9 || isNaN(clean)) return null;
-
-        const gender = GENDER_MAP[clean.substring(0, 1)] || 'Unknown';
-        const type   = TYPE_MAP[clean.substring(1, 3)]   || 'Item';
-        const size   = SIZE_MAP[clean.substring(3, 5)]   || 'All Size';
-        const num    = clean.substring(5, 9);
-
-        return {
-            raw: clean,
-            text: `(${type} ${gender} - Ukuran ${size} - #${num})`
-        };
-    }
-
-    // --- MAIN AUTO SCAN EVENT ---
-    document.getElementById('mainBarcodeInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const val = this.value.trim();
-            if (!val) return;
-
-            processBarcode(val);
-            this.value = '';
-            this.focus();
-        }
-    });
-
-    function processBarcode(barcodeVal) {
-        const parsed = parseBarcode(barcodeVal);
-
-        if (!parsed) {
-            showAlert('Format Barcode tidak valid! Harus berisi 9 digit angka.', 'danger');
-            return;
-        }
-
-        if (scannedBarcodes.has(parsed.raw)) {
-            showAlert(`Barcode <strong>${parsed.raw}</strong> sudah ada dalam daftar return!`, 'warning');
-            return;
-        }
-
-        const emptyInput = Array.from(document.querySelectorAll('.barcode-row-input')).find(input => !input.value.trim());
-
-        if (emptyInput) {
-            const rowId = emptyInput.dataset.id;
-            fillRowData(rowId, parsed);
-        } else {
-            addItemRow(parsed);
-        }
-
-        scannedBarcodes.add(parsed.raw);
-        showAlert(`Berhasil memindai <strong>${parsed.raw} ${parsed.text}</strong>`, 'success');
-    }
-
-    // --- TAMBAH BARIS ITEM DINAMIS ---
-    function addItemRow(prefilledData = null) {
-        itemCount++;
-        const container = document.getElementById('dynamic-item-container');
-        const id = itemCount;
-
-        const rowHtml = `
-            <div class="item-row bg-white border rounded-3 p-3 mb-3" id="item-row-${id}" style="box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="fw-bold item-number" style="color: #b91c1c; font-size: 14px;">
-                        <i class="bi bi-box-seam me-2"></i>Barang #${id}
-                        <small id="item-desc-${id}" class="text-dark fw-normal ms-2">${prefilledData ? prefilledData.text : ''}</small>
-                    </span>
-                    <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" 
-                            style="background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
-                            onclick="removeItemRow(${id})">
-                        <i class="bi bi-trash3 me-1"></i>Hapus
-                    </button>
-                </div>
-                
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Barcode Fisik</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-danger"><i class="bi bi-upc-scan"></i></span>
-                            <input type="text" 
-                                   class="form-control barcode-row-input ${prefilledData ? 'bg-light' : ''}" 
-                                   id="barcode-input-${id}"
-                                   data-id="${id}"
-                                   name="barcode_return[]" 
-                                   value="${prefilledData ? prefilledData.raw : ''}"
-                                   placeholder="Scan/Ketik Barcode"
-                                   ${prefilledData ? 'readonly' : ''}
-                                   onkeypress="handleRowKeyPress(event, ${id})">
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Kondisi Barang</label>
-                        <select class="form-select" id="kondisi-select-${id}" name="kondisi_return[]">
-                            <option value="" disabled ${!prefilledData ? 'selected' : ''}>Pilih Kondisi...</option>
-                            <option value="Layak" ${prefilledData ? 'selected' : ''}>Layak (Kembali ke Stok)</option>
-                            <option value="Kebesaran">Tukar: Kebesaran</option>
-                            <option value="Kekecilan">Tukar: Kekecilan</option>
-                            <option value="Cacat Produksi">Rusak: Cacat Produksi</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        container.insertAdjacentHTML('beforeend', rowHtml);
-
-        if (prefilledData) {
-            scannedBarcodes.add(prefilledData.raw);
-        }
-    }
-
-    function fillRowData(id, parsedData) {
-        const input = document.getElementById(`barcode-input-${id}`);
-        const desc  = document.getElementById(`item-desc-${id}`);
-        const select= document.getElementById(`kondisi-select-${id}`);
-
-        if (input) {
-            input.value = parsedData.raw;
-            input.readOnly = true;
-            input.classList.add('bg-light');
-        }
-        if (desc) desc.innerText = parsedData.text;
-        if (select) select.value = 'Layak';
-    }
-
-    function handleRowKeyPress(e, id) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const input = document.getElementById(`barcode-input-${id}`);
-            const val = input.value.trim();
-            if (val) processBarcode(val);
-        }
-    }
-
-    function removeItemRow(id) {
-        const input = document.getElementById(`barcode-input-${id}`);
-        if (input && input.value) {
-            scannedBarcodes.delete(input.value.trim());
-        }
-        const row = document.getElementById(`item-row-${id}`);
-        if (row) row.remove();
-    }
-
-    function showAlert(message, type) {
-        document.getElementById('alertContainer').innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show py-2 px-3 small mb-3" role="alert">
-                ${message}
-                <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
-            </div>
-        `;
     }
 
     function filterTable() {

@@ -10,6 +10,7 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     // 1. Tangkap data dari form transaksi
     $request_id = isset($_POST['id_request']) ? trim($_POST['id_request']) : '';
     $id_sales   = isset($_POST['id_sales']) ? trim($_POST['id_sales']) : '';
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // GENERATE 1 TRANSACTION ID UNIK UNTUK SATU BATCH REQUEST/TRANSAKSI
     // Contoh Format: TRX-260722-0001 (atau angka urut)
     // ====================================================================
-    $prefix = "TRX-" . date('dMy') . "-";
+    $prefix = "TRX-" . date('ymd') . "-";
     $sql_max = "SELECT MAX(transaction_id) AS max_id FROM transaksi WHERE transaction_id LIKE '$prefix%'";
     $res_max = $conn->query($sql_max);
     $next_num = 1;

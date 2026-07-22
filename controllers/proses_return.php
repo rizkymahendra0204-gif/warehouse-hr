@@ -1,58 +1,62 @@
 <?php
-include '../includes/db.php';
-$conn = new mysqli($host, $user, $pass, $db);
+// controllers/proses_return.php
+session_start();
+require_once __DIR__ . '/../includes/db.php';
+
+if (!isset($conn) || $conn->connect_error) {
+    die("Koneksi Database Gagal: " . ($conn->connect_error ?? 'Error Koneksi'));
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $no_return        = $_POST['no_return'] ?? '';
-    $id_request_awal  = $_POST['id_request_awal'] ?? '';
-    $nama             = $_POST['nama'] ?? '';
-    $tgl_return       = $_POST['tgl_return'] ?? date('Y-m-d');
-    
-    $barcodes         = $_POST['barcode_return'] ?? [];
-    $kondisi          = $_POST['kondisi_return'] ?? [];
+    $transaction_id = isset($_POST['no_return']) ? trim($_POST['no_return']) : '';
+    $barcodes       = $_POST['barcode_return'] ?? [];
+    $kondisi        = $_POST['kondisi_return'] ?? [];
 
-    if (!empty($barcodes)) {
-        // Mulai Transaksi Database
-        $conn->begin_transaction();
-
-        try {
-            for ($i = 0; $i < count($barcodes); $i++) {
-                $barcode_item = $conn->real_escape_string($barcodes[$i]);
-                $kondisi_item = $conn->real_escape_string($kondisi[$i] ?? 'Layak');
-
-                // 1. Tentukan Status Baru berdasarkan Kondisi Return
-                if ($kondisi_item === 'Layak') {
-                    $st_transaksi = 'Available';
-                    $st_barang    = 'Active';
-                } else {
-                    $st_transaksi = 'Sold Out';
-                    $st_barang    = 'Inactive';
-                }
-
-                // 2. Update Status di master_item
-                $sqlUpdate = "UPDATE master_item 
-                              SET status_transaksi = '$st_transaksi', 
-                                  status_barang = '$st_barang' 
-                              WHERE barcode = '$barcode_item'";
-                $conn->query($sqlUpdate);
-
-                // 3. (Opsional) Simpan/Catat History Log Return jika ada tabel log
-            }
-
-            // Commit perubahan jika semua query sukses
-            $conn->commit();
-
-            // Redirect kembali ke return.php dengan pesan sukses
-            header("Location: return.php?status=success_return");
-            exit;
-
-        } catch (Exception $e) {
-            $conn->rollback();
-            echo "Gagal memproses return: " . $e->getMessage();
-        }
-    } else {
-        header("Location: return.php?status=empty_items");
-        exit;
+    if (empty($transaction_id) || empty($barcodes)) {
+        echo "<script>alert('Error: ID Transaksi dan Barang Return tidak boleh kosong!'); window.history.back();</script>";
+        exit();
     }
+
+    // MULTI-ROW TRANSACTION COMMIT / ROLLBACK
+    $conn->begin_transaction();
+
+    try {
+        $stmt_insert_return = $conn->prepare("INSERT INTO return_items (transaction_id, barcode, alasan_return, kondisi_barang, tgl_return) VALUES (?, ?, ?, ?, NOW())");
+        $stmt_update_master = $conn->prepare("UPDATE master_item SET status_transaksi = 'Returned', status_barang = ? WHERE barcode = ?");
+
+        foreach ($barcodes as $index => $barcode) {
+            $barcode_clean = trim($barcode);
+            $alasan        = isset($kondisi[$index]) ? trim($kondisi[$index]) : 'Layak';
+            
+            // Penentuan kondisi fisik
+            $kondisi_fisik = (strpos(strtolower($alasan), 'cacat') !== false || strpos(strtolower($alasan), 'rusak') !== false) ? 'Rusak' : 'Bagus';
+
+            // 1. Insert ke return_items
+            $stmt_insert_return->bind_param("ssss", $transaction_id, $barcode_clean, $alasan, $kondisi_fisik);
+            $stmt_insert_return->execute();
+
+            // 2. Update status master_item menjadi 'Returned'
+            $stmt_update_master->bind_param("ss", $kondisi_fisik, $barcode_clean);
+            $stmt_update_master->execute();
+        }
+
+        $stmt_insert_return->close();
+        $stmt_update_master->close();
+
+        // Commit seluruh perubahan
+        $conn->commit();
+
+        echo "<script>alert('Proses Return Berhasil Disimpan!'); window.location.href='../return.php';</script>";
+        exit();
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo "<script>alert('PROSES RETURN GAGAL: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
+        exit();
+    }
+}
+
+if (isset($conn)) {
+    $conn->close();
 }
 ?>
