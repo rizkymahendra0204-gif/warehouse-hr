@@ -3,8 +3,9 @@
 session_start();
 require_once __DIR__ . '/../includes/db.php';
 
-if (!isset($conn) || $conn->connect_error) {
-    die("Koneksi Database Gagal: " . ($conn->connect_error ?? 'Error Koneksi'));
+// Cek apakah koneksi $pdo dari db.php berhasil dipanggil
+if (!isset($pdo)) {
+    die("Koneksi Database Gagal: Variabel \$pdo tidak ditemukan di db.php");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,12 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // MULTI-ROW TRANSACTION COMMIT / ROLLBACK
-    $conn->begin_transaction();
-
     try {
-        $stmt_insert_return = $conn->prepare("INSERT INTO return_items (transaction_id, barcode, alasan_return, kondisi_barang, tgl_return) VALUES (?, ?, ?, ?, NOW())");
-        $stmt_update_master = $conn->prepare("UPDATE master_item SET status_transaksi = 'Returned', status_barang = ? WHERE barcode = ?");
+        // Mulai Transaksi Multi-Row (PDO)
+        $pdo->beginTransaction();
+
+        $stmt_insert_return = $pdo->prepare("INSERT INTO return_items (transaction_id, barcode, alasan_return, kondisi_barang, tgl_return) VALUES (?, ?, ?, ?, NOW())");
+        $stmt_update_master = $pdo->prepare("UPDATE master_item SET status_transaksi = 'Inactive', status_barang = ? WHERE barcode = ?");
 
         foreach ($barcodes as $index => $barcode) {
             $barcode_clean = trim($barcode);
@@ -32,31 +33,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $kondisi_fisik = (strpos(strtolower($alasan), 'cacat') !== false || strpos(strtolower($alasan), 'rusak') !== false) ? 'Rusak' : 'Bagus';
 
             // 1. Insert ke return_items
-            $stmt_insert_return->bind_param("ssss", $transaction_id, $barcode_clean, $alasan, $kondisi_fisik);
-            $stmt_insert_return->execute();
+            $stmt_insert_return->execute([$transaction_id, $barcode_clean, $alasan, $kondisi_fisik]);
 
-            // 2. Update status master_item menjadi 'Returned'
-            $stmt_update_master->bind_param("ss", $kondisi_fisik, $barcode_clean);
-            $stmt_update_master->execute();
+            // 2. Update status master_item menjadi 'Inactive'
+            $stmt_update_master->execute([$kondisi_fisik, $barcode_clean]);
         }
 
-        $stmt_insert_return->close();
-        $stmt_update_master->close();
-
-        // Commit seluruh perubahan
-        $conn->commit();
+        // Commit seluruh perubahan ke database
+        $pdo->commit();
 
         echo "<script>alert('Proses Return Berhasil Disimpan!'); window.location.href='../return.php';</script>";
         exit();
 
     } catch (Exception $e) {
-        $conn->rollback();
+        // Rollback jika ada error saat eksekusi
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         echo "<script>alert('PROSES RETURN GAGAL: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
         exit();
     }
-}
-
-if (isset($conn)) {
-    $conn->close();
 }
 ?>

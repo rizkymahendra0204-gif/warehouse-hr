@@ -85,97 +85,101 @@ if ($is_auto) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                // Query Multi-JOIN dengan GROUP BY & GROUP_CONCAT barcode
-                                $sql = $sql = "SELECT 
-                                            t.transaction_id,
-                                            t.request_id,
-                                            t.id_sales,
-                                            t.tgl_transaksi,
-                                            rf.perusahaan,
-                                            rf.nama_sa,
-                                            GROUP_CONCAT(TRIM(t.barcode) SEPARATOR ',') AS all_barcodes,
-                                            GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ' & ') AS detail_item_concat,
-                                            mi.status_transaksi,
-                                            mi.status_barang
-                                        FROM transaksi t
-                                        INNER JOIN request_form rf ON t.request_id = rf.request_id
-                                        INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
-                                        GROUP BY t.transaction_id
-                                        ORDER BY t.transaction_id DESC";
+                            <tbody>
+                            <?php
+                            // Query tanpa GROUP BY agar setiap barcode pada TRX yang sama tampil di baris terpisah
+                            $sql = "SELECT 
+                                        t.transaction_id,
+                                        t.request_id,
+                                        t.id_sales,
+                                        t.tgl_transaksi,
+                                        TRIM(t.barcode) AS barcode_item,
+                                        rf.perusahaan,
+                                        rf.nama_sa,
+                                        mi.tipe,
+                                        mi.gender,
+                                        mi.size,
+                                        mi.status_transaksi,
+                                        mi.status_barang
+                                    FROM transaksi t
+                                    INNER JOIN request_form rf ON t.request_id = rf.request_id
+                                    INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
+                                    ORDER BY t.transaction_id DESC, t.barcode ASC";
 
-                                $query = mysqli_query($conn, $sql);
+                            $query = mysqli_query($conn, $sql);
 
-                                if ($query && mysqli_num_rows($query) > 0) {
-                                    while ($row = mysqli_fetch_assoc($query)) {
-                                        $no_trx      = htmlspecialchars($row['transaction_id']);
-                                        $detail_item = "Request Seragam (" . $row['detail_item_concat'] . ")";
-                                        $tgl_trx     = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
+                            if ($query && mysqli_num_rows($query) > 0) {
+                                while ($row = mysqli_fetch_assoc($query)) {
+                                    $no_trx       = htmlspecialchars($row['transaction_id']);
+                                    $barcode_item = htmlspecialchars($row['barcode_item']);
+                                    $detail_item  = htmlspecialchars($row['tipe'] . " " . $row['gender'] . " - Size " . $row['size']);
+                                    $tgl_trx      = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
 
-                                        // LOGIKA STATUS
-                                        $status_tx  = $row['status_transaksi'] ?? ''; 
-                                        $status_brg = $row['status_barang'] ?? '';
+                                    // LOGIKA STATUS
+                                    $status_tx  = $row['status_transaksi'] ?? ''; 
+                                    $status_brg = $row['status_barang'] ?? '';
 
-                                        if (!empty($status_brg) && !empty($status_tx)) {
-                                            $status_display = $status_brg . " (" . $status_tx . ")";
-                                        } else {
-                                            $status_display = $status_brg ?: ($status_tx ?: '-');
-                                        }
-
-                                        // LOGIKA WARNA & IKON
-                                        if (strtolower($status_tx) === 'soldout' && strtolower($status_brg) === 'active') {
-                                            $text_color = '#16a34a';
-                                            $icon_class = 'bi-check-circle-fill';
-                                        } else {
-                                            $text_color = '#334155';
-                                            $icon_class = 'bi-x-circle-fill';
-                                        }
-
-                                        // Persiapkan array barcode dalam bentuk JSON safe
-                                        $barcodes_json = htmlspecialchars(json_encode(explode(',', $row['all_barcodes'])), ENT_QUOTES, 'UTF-8');
-                                ?>
-                                        <tr class="border-bottom">
-                                            <!-- No. Transaksi -->
-                                            <td class="text-center"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
-                                            
-                                            <!-- Detail Item Transaksi -->
-                                            <td>
-                                                <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
-                                                <div class="text-muted small">
-                                                    <i class="bi bi-box-seam me-1"></i> <?php echo htmlspecialchars($detail_item); ?> &nbsp;|&nbsp; 
-                                                    <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
-                                                </div>
-                                            </td>
-                                            
-                                            <!-- Status dengan Ikon -->
-                                            <td>
-                                                <div class="d-flex align-items-center justify-content-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.75rem; white-space: nowrap;">
-                                                    <i class="bi <?php echo $icon_class; ?>" style="font-size: 0.95rem;"></i>
-                                                    <span><?php echo htmlspecialchars($status_display); ?></span>
-                                                </div>
-                                            </td>
-                                            
-                                            <!-- Tombol Aksi -->
-                                            <td class="text-center">
-                                                <button type="button" class="btn btn-proses-custom" 
-                                                        onclick="openProcessPage(
-                                                            '<?php echo addslashes($no_trx); ?>', 
-                                                            '<?php echo addslashes($row['id_sales']); ?>', 
-                                                            '<?php echo addslashes($row['nama_sa']); ?>', 
-                                                            '<?php echo addslashes($detail_item); ?>',
-                                                            <?php echo $barcodes_json; ?>
-                                                        )">
-                                                    Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                <?php 
+                                    if (!empty($status_brg) && !empty($status_tx)) {
+                                        $status_display = $status_brg . " (" . $status_tx . ")";
+                                    } else {
+                                        $status_display = $status_brg ?: ($status_tx ?: '-');
                                     }
-                                } else {
-                                    echo '<tr><td colspan="4" class="text-center py-4 text-muted"><i class="bi bi-inbox me-1"></i> Tidak ada data transaksi ditemukan.</td></tr>';
+
+                                    // LOGIKA WARNA & IKON
+                                    if (strtolower($status_tx) === 'soldout' && strtolower($status_brg) === 'active') {
+                                        $text_color = '#16a34a';
+                                        $icon_class = 'bi-check-circle-fill';
+                                    } else {
+                                        $text_color = '#334155';
+                                        $icon_class = 'bi-x-circle-fill';
+                                    }
+
+                                    // Membungkus single barcode ke JSON safe untuk dikirim ke openProcessPage
+                                    $single_barcode_json = htmlspecialchars(json_encode([$barcode_item]), ENT_QUOTES, 'UTF-8');
+                                    $detail_with_barcode = htmlspecialchars($detail_item . " (" . $barcode_item . ")", ENT_QUOTES, 'UTF-8');
+                            ?>
+                                    <tr class="border-bottom">
+                                        <!-- No. Transaksi -->
+                                        <td class="text-center"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
+                                        
+                                        <!-- Detail Item Transaksi -->
+                                        <td>
+                                            <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
+                                            <div class="text-muted small">
+                                                <i class="bi bi-box-seam me-1"></i> <b>[<?php echo $barcode_item; ?>]</b> <?php echo $detail_item; ?> &nbsp;|&nbsp; 
+                                                <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
+                                            </div>
+                                        </td>
+                                        
+                                        <!-- Status dengan Ikon -->
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.75rem; white-space: nowrap;">
+                                                <i class="bi <?php echo $icon_class; ?>" style="font-size: 0.95rem;"></i>
+                                                <span><?php echo htmlspecialchars($status_display); ?></span>
+                                            </div>
+                                        </td>
+                                        
+                                        <!-- Tombol Aksi -->
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-proses-custom" 
+                                                    onclick="openProcessPage(
+                                                        '<?php echo addslashes($no_trx); ?>', 
+                                                        '<?php echo addslashes($row['id_sales']); ?>', 
+                                                        '<?php echo addslashes($row['nama_sa']); ?>', 
+                                                        '<?php echo addslashes($detail_with_barcode); ?>',
+                                                        <?php echo $single_barcode_json; ?>
+                                                    )">
+                                                Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                            <?php 
                                 }
-                                ?>
-                            </tbody>
+                            } else {
+                                echo '<tr><td colspan="4" class="text-center py-4 text-muted"><i class="bi bi-inbox me-1"></i> Tidak ada data transaksi ditemukan.</td></tr>';
+                            }
+                            ?>
+                        </tbody>
                         </table>
                     </div>
                 </div>
