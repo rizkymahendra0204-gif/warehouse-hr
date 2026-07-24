@@ -72,6 +72,7 @@ include 'controllers/query_stokbarang.php';
                     <table class="table align-middle mb-0">
                         <thead>
                             <tr>
+                                <th scope="col" width="5%">No</th>
                                 <th scope="col" width="15%">Barcode</th>
                                 <th scope="col" width="35%">Detail Item</th>
                                 <th scope="col" width="15%">Kategori</th>
@@ -80,8 +81,9 @@ include 'controllers/query_stokbarang.php';
                         </thead>
                         <tbody>
                             
-
-                        <?php if ($result && $result->num_rows > 0): ?>
+                        <?php if ($result && $result->num_rows > 0):
+                            $no = 1; 
+                        ?>
                         <?php while ($row = $result->fetch_assoc()): 
                             // 1. Ambil data status dengan fallback string kosong jika null
                             $status_tx  = $row['status_barang'] ?? ''; 
@@ -109,6 +111,11 @@ include 'controllers/query_stokbarang.php';
                             }
                         ?>
                             <tr>
+                                <td>
+                                    <span class="fw-bold text-dark" style="font-size: 15px;">
+                                        <?= $no++ ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="barcode-badge">
                                         <i class="bi bi-upc-scan"></i> <?= htmlspecialchars($row['barcode'] ?? '') ?>

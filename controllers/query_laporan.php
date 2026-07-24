@@ -41,18 +41,29 @@ try {
 
     // 5. QUERY TABEL: Rincian Transaksi Keluar
     $sql_table = "SELECT 
-                    t.tgl_transaksi,
-                    t.transaction_id,
-                    rf.request_id,
-                    rf.perusahaan,
-                    GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender) SEPARATOR ',') AS all_items,
-                    COUNT(t.barcode) AS qty_total
-                FROM transaksi t
-                INNER JOIN request_form rf ON t.request_id = rf.request_id
-                INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
-                WHERE DATE(t.tgl_transaksi) BETWEEN :start_date AND :end_date
-                GROUP BY t.transaction_id
-                ORDER BY t.tgl_transaksi DESC";
+                t.tgl_transaksi,
+                t.transaction_id,
+                rf.request_id,
+                rf.perusahaan,
+                rf.nama_sa,
+                GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender) SEPARATOR ',') AS all_items,
+                (COUNT(t.barcode) - COALESCE(ret.qty_return, 0)) AS total_pcs,
+                ret.items_returned_raw
+            FROM transaksi t
+            INNER JOIN request_form rf ON t.request_id = rf.request_id
+            INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
+            LEFT JOIN (
+                SELECT 
+                    ri.transaction_id,
+                    GROUP_CONCAT(CONCAT(mir.tipe, ' ', mir.gender) SEPARATOR ',') AS items_returned_raw,
+                    COUNT(ri.barcode) AS qty_return
+                FROM return_items ri
+                INNER JOIN master_item mir ON TRIM(ri.barcode) = TRIM(mir.barcode)
+                GROUP BY ri.transaction_id
+            ) ret ON t.transaction_id = ret.transaction_id
+            WHERE DATE(t.tgl_transaksi) BETWEEN :start_date AND :end_date
+            GROUP BY t.transaction_id
+            ORDER BY t.tgl_transaksi DESC";
 
     $stmt_table = $conn->prepare($sql_table);
     $stmt_table->execute([

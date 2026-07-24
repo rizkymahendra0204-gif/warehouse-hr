@@ -26,7 +26,7 @@ include 'controllers/query_laporan.php';
             <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">Laporan & Analitik</h4>
+                    <h4 class="fw-bold mb-1">Laporan</h4>
                     <p class="text-muted small mb-0">Ringkasan pergerakan stok dan transaksi</p>
                 </div>
                 <div class="d-flex gap-2">
@@ -100,40 +100,59 @@ include 'controllers/query_laporan.php';
                                 <th class="py-3">TANGGAL</th>
                                 <th class="py-3">ID TRX</th>
                                 <th class="py-3">PERUSAHAAN</th>
+                                <th class="py-3">Nama SA</th>
                                 <th class="py-3">ITEM DIBERIKAN</th>
+                                <th class="py-3">ITEM RETURN</th>
                                 <th class="py-3 text-center">TOTAL (PCS)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (!empty($list_transaksi)): ?>
-                                <?php foreach ($list_transaksi as $row): ?>
-                                    <?php
-                                    $tgl = date('d/m/Y', strtotime($row['tgl_transaksi']));
-                                    
-                                    // Grouping nama item ("Kemeja Pria (2)")
-                                    $raw_items_array = explode(',', $row['all_items']);
-                                    $item_counts = array_count_values($raw_items_array);
-                                    
-                                    $formatted_items = [];
-                                    foreach ($item_counts as $nama_item => $jumlah) {
-                                        $formatted_items[] = htmlspecialchars(trim($nama_item)) . " ($jumlah)";
+                        <?php if (!empty($list_transaksi)): ?>
+                            <?php foreach ($list_transaksi as $row): ?>
+                                <?php
+                                $tgl = date('d/m/Y', strtotime($row['tgl_transaksi']));
+
+                                // Grouping Item Diberikan
+                                $raw_items_array = explode(',', $row['all_items']);
+                                $item_counts = array_count_values($raw_items_array);
+
+                                $formatted_items = [];
+                                foreach ($item_counts as $nama_item => $jumlah) {
+                                    $formatted_items[] = htmlspecialchars(trim($nama_item)) . " ($jumlah)";
+                                }
+                                $string_item_diberikan = implode(', ', $formatted_items);
+
+                                // Grouping Item Return
+                                if (!empty($row['items_returned_raw'])) {
+                                    $raw_returns = explode(',', $row['items_returned_raw']);
+                                    $return_counts = array_count_values($raw_returns);
+
+                                    $formatted_returns = [];
+                                    foreach ($return_counts as $nama => $jumlah) {
+                                        // Menambahkan htmlspecialchars agar aman dari XSS
+                                        $formatted_returns[] = htmlspecialchars(trim($nama)) . " ($jumlah)";
                                     }
-                                    $string_item_diberikan = implode(', ', $formatted_items);
-                                    ?>
-                                    <tr class="border-bottom">
-                                        <td class="fw-bold py-3"><?php echo $tgl; ?></td>
-                                        <td class="text-muted">#<?php echo htmlspecialchars($row['transaction_id']); ?></td>
-                                        <td class="text-muted"><?php echo htmlspecialchars($row['perusahaan']); ?></td>
-                                        <td class="text-muted"><?php echo $string_item_diberikan; ?></td>
-                                        <td class="text-center fw-bold text-primary"><?php echo $row['qty_total']; ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">Tidak ada transaksi pada periode tanggal ini.</td>
+                                    $string_item_direturn = implode(', ', $formatted_returns);
+                                } else {
+                                    $string_item_direturn = '-';
+                                }
+                                ?>
+                                <tr class="border-bottom">
+                                    <td class="fw-bold py-3"><?php echo $tgl; ?></td>
+                                    <td class="text-muted">#<?php echo htmlspecialchars($row['transaction_id']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($row['perusahaan']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($row['nama_sa']); ?></td>
+                                    <td class="text-muted"><?php echo $string_item_diberikan; ?></td>
+                                    <td><span class="text-danger"><?php echo $string_item_direturn; ?></span></td>
+                                    <td class="text-center fw-bold text-primary"><?php echo $row['total_pcs']; ?></td>
                                 </tr>
-                            <?php endif; ?>
-                        </tbody>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">Tidak ada transaksi pada periode tanggal ini.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
                     </table>
                 </div>
             </div>

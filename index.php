@@ -33,7 +33,9 @@ include 'controllers/query_dashboard.php';
             
             <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title">Dashboard</div>
+                <div class="page-title">Dashboard
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Melihat data statistik transaksi item</p>
+                </div>
                 <div class="d-flex gap-2">
                     <button onclick="window.location.reload();" class="btn fw-bold text-white shadow-sm" style="background-color: #556ee6; border-radius: 8px; font-size: 14px;">
                         <i class="bi bi-arrow-clockwise me-2"></i>Refresh

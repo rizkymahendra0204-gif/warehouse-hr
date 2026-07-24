@@ -64,7 +64,9 @@ if ($is_auto) {
 
             <div id="view-return-list" style="<?php echo $is_auto ? 'display: none;' : 'display: block;'; ?>">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="page-title">Pengajuan</div>
+                    <div class="page-title">Pengajuan Return
+                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Manajemen untuk pengajuan return</p>
+                    </div>
                     <div style="width: 280px;">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -84,7 +86,6 @@ if ($is_auto) {
                                     <th style="width: 20%; text-align: center;">AKSI</th>
                                 </tr>
                             </thead>
-                            <tbody>
                             <tbody>
                             <?php
                             // Query tanpa GROUP BY agar setiap barcode pada TRX yang sama tampil di baris terpisah
@@ -125,36 +126,29 @@ if ($is_auto) {
                                         $status_display = $status_brg ?: ($status_tx ?: '-');
                                     }
 
-                                    // FORMAT STRING UNTUK PENGECEKAN (Hilangkan spasi & ubah ke huruf kecil)
-                                    $check_tx  = str_replace(' ', '', strtolower(trim($status_tx)));  // "Sold Out" -> "soldout"
-                                    $check_brg = strtolower(trim($status_brg));                      // "Active"   -> "active"
+                                    // FORMAT STRING UNTUK PENGECEKAN
+                                    $check_tx  = str_replace(' ', '', strtolower(trim($status_tx)));
+                                    $check_brg = strtolower(trim($status_brg));
 
-                                    // 3. Logika penentuan warna & ikon berdasarkan siklus barang
+                                    // Logika penentuan warna & ikon
                                     if ($check_tx === 'available' && $check_brg === 'active') {
-                                        // BARANG FRESH / READY
                                         $text_color = '#16a34a'; // Hijau
                                         $icon_class = 'bi-check-circle-fill';
-
                                     } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
-                                        // BARANG HASIL RETURN
                                         $text_color = '#dc2626'; // Merah
-                                        $icon_class = 'bi-arrow-counterclockwise'; // Ikon Return / Refund
-
+                                        $icon_class = 'bi-arrow-counterclockwise';
                                     } else {
-                                        // SOLD OUT / LAINNYA
-                                        $text_color = '#16a34a'; // Hijau
+                                        $text_color = '#16a34a'; // Hijau default
                                         $icon_class = 'bi-check-circle-fill';
                                     }
 
-                                    // Membungkus single barcode ke JSON safe untuk dikirim ke openProcessPage
+                                    // Membungkus single barcode ke JSON safe
                                     $single_barcode_json = htmlspecialchars(json_encode([$barcode_item]), ENT_QUOTES, 'UTF-8');
                                     $detail_with_barcode = htmlspecialchars($detail_item . " (" . $barcode_item . ")", ENT_QUOTES, 'UTF-8');
                             ?>
                                     <tr class="border-bottom">
-                                        <!-- No. Transaksi -->
                                         <td class="text-center"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
                                         
-                                        <!-- Detail Item Transaksi -->
                                         <td>
                                             <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
                                             <div class="text-muted small">
@@ -163,7 +157,6 @@ if ($is_auto) {
                                             </div>
                                         </td>
                                         
-                                        <!-- Status dengan Ikon -->
                                         <td>
                                             <div class="d-flex align-items-center justify-content-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.75rem; white-space: nowrap;">
                                                 <i class="bi <?php echo $icon_class; ?>" style="font-size: 0.95rem;"></i>
@@ -171,7 +164,6 @@ if ($is_auto) {
                                             </div>
                                         </td>
                                         
-                                        <!-- Tombol Aksi -->
                                         <td class="text-center">
                                             <button type="button" class="btn btn-proses-custom" 
                                                     onclick="openProcessPage(
@@ -191,12 +183,11 @@ if ($is_auto) {
                                 echo '<tr><td colspan="4" class="text-center py-4 text-muted"><i class="bi bi-inbox me-1"></i> Tidak ada data transaksi ditemukan.</td></tr>';
                             }
                             ?>
-                        </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
 
             <!-- ======================================================= -->
             <!-- VIEW 2: FORM PROSES RETURN                              -->
@@ -204,7 +195,6 @@ if ($is_auto) {
 
             <div id="view-return-process" style="<?php echo $is_auto ? 'display: block;' : 'display: none;'; ?>">
                 
-                <!-- Header Halaman -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="page-title fs-4 fw-bold">Return Item Transaksi</div>
                 </div>
@@ -222,15 +212,15 @@ if ($is_auto) {
                         <div class="row g-4">
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Transaksi</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_no_return" name="no_return" value="<?php echo $auto_id_transaksi; ?>" placeholder="Contoh: TRX-000001" readonly>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_no_return" name="no_return" value="<?php echo htmlspecialchars($auto_id_transaksi); ?>" placeholder="Contoh: TRX-000001" readonly>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Sales</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_id_sales" name="id_request_awal" value="<?php echo $auto_sales_id; ?>" placeholder="ID Sales" readonly>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_id_sales" name="id_request_awal" value="<?php echo htmlspecialchars($auto_sales_id); ?>" placeholder="ID Sales" readonly>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Nama SA</label>
-                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_nama" name="nama" value="<?php echo $auto_nama; ?>" placeholder="Nama SA" readonly>
+                                <input type="text" class="form-control <?php echo $bg_class; ?>" id="input_nama" name="nama" value="<?php echo htmlspecialchars($auto_nama); ?>" placeholder="Nama SA" readonly>
                             </div>
                             <div class="col-md-6 col-lg-3">
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Tanggal Return</label>
@@ -244,7 +234,6 @@ if ($is_auto) {
                         <h6 class="fw-bold mb-4" style="color: #4b5563;">
                             <i class="bi bi-cart-check me-2"></i>Detail Pesanan
                         </h6>
-
                         <div class="border-top pt-2">
                             <table class="table table-borderless m-0" style="font-size: 14px;">
                                 <tbody id="rincian-item-list">
@@ -259,7 +248,7 @@ if ($is_auto) {
                         </div>
                     </div>
 
-                    <!-- SECTION 3: Daftar Item Barang yang Di-Return (Otomatis Terisi) -->
+                    <!-- SECTION 3: Daftar Item Barang -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
                         <h6 class="fw-bold mb-3" style="color: #b91c1c;">
                             <i class="bi bi-box-seam me-2"></i>Daftar Item Barang dalam Transaksi Ini
@@ -268,11 +257,11 @@ if ($is_auto) {
 
                         <!-- CONTAINER ITEM DINAMIS -->
                         <div id="dynamic-item-container">
-                            <!-- Barcode items akan dirender otomatis di sini lewat JavaScript -->
+                            <!-- Barcode items dirender otomatis via JS -->
                         </div>
                     </div>
 
-                    <!-- SECTION 4: Tombol Aksi Bawah -->
+                    <!-- SECTION 4: Tombol Aksi -->
                     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
                         <button type="button" class="btn btn-light border fw-bold px-4 text-secondary" style="border-radius: 6px;" onclick="cancelProcess()">Batal</button>
                         <button type="submit" class="btn fw-bold text-white px-5" style="background-color: #b91c1c; border-radius: 6px;">Proses Return</button>
@@ -286,154 +275,19 @@ if ($is_auto) {
     </div>
 </div>
 
-<!-- Scripts -->
+<!-- Scripts Utama (jQuery & Bootstrap) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/scripts.js"></script>
 
-<!-- ENGINE JAVASCRIPT LOGIC -->
+<!-- Jembatan PHP ke JS (Wajib di atas scripts.js) -->
 <script>
-    // Mapping barcode schema 9 digit
-    const GENDER_MAP = { '1': 'Pria', '2': 'Wanita' };
-    const TYPE_MAP   = { '01': 'Baju', '02': 'Celana' };
-    const SIZE_MAP   = { '01': 'S', '02': 'M', '03': 'L', '04': 'XL' };
-
-    let itemCount = 0;
-
-    $(document).ready(function() {
-        <?php if ($is_auto): ?>
-            // Auto load jika dipanggil via GET parameter URL
-            const initialBarcodes = <?php echo $auto_barcodes_json; ?>;
-            loadTransactionItems(initialBarcodes);
-        <?php endif; ?>
-    });
-
-    // --- PARSER BARCODE 9 DIGIT ---
-    function parseBarcode(rawCode) {
-        const clean = String(rawCode).replace(/\*/g, '').trim();
-        if (clean.length !== 9 || isNaN(clean)) {
-            return { raw: clean, text: `(Barcode: ${clean})` };
-        }
-
-        const gender = GENDER_MAP[clean.substring(0, 1)] || 'Unknown';
-        const type   = TYPE_MAP[clean.substring(1, 3)]   || 'Item';
-        const size   = SIZE_MAP[clean.substring(3, 5)]   || 'All Size';
-        const num    = clean.substring(5, 9);
-
-        return {
-            raw: clean,
-            text: `(${type} ${gender} - Ukuran ${size} - #${num})`
-        };
-    }
-
-    // --- SWITCH VIEW & LOAD DATA OTOMATIS ---
-    function openProcessPage(trxId, salesId, saName, detailInfo, barcodesArray) {
-        document.getElementById('view-return-list').style.display = 'none';
-        document.getElementById('view-return-process').style.display = 'block';
-
-        document.getElementById('input_no_return').value = trxId;
-        document.getElementById('input_id_sales').value = salesId;
-        document.getElementById('input_nama').value = saName;
-
-        document.getElementById('rincian-item-list').innerHTML = `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Info Order</td>
-                <td class="py-3 text-dark">: ${detailInfo}</td>
-            </tr>
-        `;
-
-        document.getElementById('alertContainer').innerHTML = '';
-
-        // Tampilkan otomatis semua barcode transaksi tersebut
-        loadTransactionItems(barcodesArray);
-    }
-
-    function loadTransactionItems(barcodesArray) {
-        const container = document.getElementById('dynamic-item-container');
-        container.innerHTML = '';
-        itemCount = 0;
-
-        if (!barcodesArray || barcodesArray.length === 0) {
-            container.innerHTML = '<div class="alert alert-warning">Tidak ada barcode terdeteksi pada transaksi ini.</div>';
-            return;
-        }
-
-        barcodesArray.forEach((barcode) => {
-            addItemRow(barcode);
-        });
-    }
-
-    // --- TAMBAH BARIS ITEM OTOMATIS ---
-    function addItemRow(barcodeVal) {
-        itemCount++;
-        const container = document.getElementById('dynamic-item-container');
-        const id = itemCount;
-        const parsed = parseBarcode(barcodeVal);
-
-        const rowHtml = `
-            <div class="item-row bg-white border rounded-3 p-3 mb-3 shadow-sm" id="item-row-${id}">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="fw-bold item-number" style="color: #b91c1c; font-size: 14px;">
-                        <i class="bi bi-box-seam me-2"></i>Barang #${id}
-                        <small class="text-dark fw-normal ms-2">${parsed.text}</small>
-                    </span>
-                    <button type="button" class="btn btn-sm text-danger fw-bold" 
-                            style="background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
-                            onclick="removeItemRow(${id})">
-                        <i class="bi bi-trash3 me-1"></i>Hapus
-                    </button>
-                </div>
-                
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Barcode Barang</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-danger"><i class="bi bi-upc-scan"></i></span>
-                            <input type="text" 
-                                   class="form-control bg-light fw-bold" 
-                                   name="barcode_return[]" 
-                                   value="${parsed.raw}" 
-                                   readonly>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Kondisi / Alasan Return</label>
-                        <select class="form-select" name="kondisi_return[]" required>
-                            <option value="Layak">Layak (Kembali ke Stok Warehouse)</option>
-                            <option value="Kebesaran">Tukar: Ukuran Kebesaran</option>
-                            <option value="Kekecilan">Tukar: Ukuran Kekecilan</option>
-                            <option value="Cacat Produksi">Rusak: Cacat Produksi / Baju Rusak</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        container.insertAdjacentHTML('beforeend', rowHtml);
-    }
-
-    function removeItemRow(id) {
-        const row = document.getElementById(`item-row-${id}`);
-        if (row) row.remove();
-    }
-
-    function cancelProcess() {
-        <?php if ($is_auto): ?>
-            window.location.href = 'return.php';
-        <?php else: ?>
-            document.getElementById('view-return-process').style.display = 'none';
-            document.getElementById('view-return-list').style.display = 'block';
-        <?php endif; ?>
-    }
-
-    function filterTable() {
-        const query = document.getElementById("searchTrx").value.toUpperCase();
-        const rows = document.querySelectorAll("#tableTrx tbody tr");
-        rows.forEach(row => {
-            row.style.display = row.innerText.toUpperCase().includes(query) ? "" : "none";
-        });
-    }
+    // Passing data PHP ke global window JavaScript
+    window.IS_AUTO_RETURN = <?php echo json_encode($is_auto); ?>;
+    window.AUTO_BARCODES  = <?php echo $auto_barcodes_json; ?>;
 </script>
+
+<!-- Panggil File Eksternal JS -->
+<script src="assets/js/scripts.js"></script>
 
 </body>
 </html>
