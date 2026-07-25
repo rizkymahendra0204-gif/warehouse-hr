@@ -33,7 +33,9 @@ include 'controllers/query_dashboard.php';
             
             <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title">Dashboard</div>
+                <div class="page-title">Dashboard
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Melihat data statistik transaksi item</p>
+                </div>
                 <div class="d-flex gap-2">
                     <button onclick="window.location.reload();" class="btn fw-bold text-white shadow-sm" style="background-color: #556ee6; border-radius: 8px; font-size: 14px;">
                         <i class="bi bi-arrow-clockwise me-2"></i>Refresh
@@ -96,10 +98,10 @@ include 'controllers/query_dashboard.php';
                                 <div class="bar-active" style="height: <?php echo $h_active_cln_wnt; ?>%;" title="Bawahan Wanita: <?php echo $active_stock['cln_wnt']; ?> Pcs"></div>
                             </div>
                             <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                                <span>Kmj. Pria (<?php echo $active_stock['baju_pria']; ?>)</span>
+                                <span>Bj. Pria (<?php echo $active_stock['baju_pria']; ?>)</span>
                                 <span>Cln. Pria (<?php echo $active_stock['cln_pria']; ?>)</span>
-                                <span>Kmj. Wnt (<?php echo $active_stock['baju_wnt']; ?>)</span>
-                                <span>Bwn. Wnt (<?php echo $active_stock['cln_wnt']; ?>)</span>
+                                <span>Bj. Wnt (<?php echo $active_stock['baju_wnt']; ?>)</span>
+                                <span>Cln. Wnt (<?php echo $active_stock['cln_wnt']; ?>)</span>
                             </div>
                         </div>
                     </div>
@@ -120,10 +122,10 @@ include 'controllers/query_dashboard.php';
                                 <div class="bar-inactive" style="height: <?php echo $h_inactive_cln_wnt; ?>%;" title="Bawahan Wanita: <?php echo $inactive_stock['cln_wnt']; ?> Pcs"></div>
                             </div>
                             <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                                <span>Kmj. Pria (<?php echo $inactive_stock['baju_pria']; ?>)</span>
+                                <span>Bj. Pria (<?php echo $inactive_stock['baju_pria']; ?>)</span>
                                 <span>Cln. Pria (<?php echo $inactive_stock['cln_pria']; ?>)</span>
-                                <span>Kmj. Wnt (<?php echo $inactive_stock['baju_wnt']; ?>)</span>
-                                <span>Bwn. Wnt (<?php echo $inactive_stock['cln_wnt']; ?>)</span>
+                                <span>Bj. Wnt (<?php echo $inactive_stock['baju_wnt']; ?>)</span>
+                                <span>Cln. Wnt (<?php echo $inactive_stock['cln_wnt']; ?>)</span>
                             </div>
                         </div>
                     </div>

@@ -72,56 +72,75 @@ include 'controllers/query_stokbarang.php';
                     <table class="table align-middle mb-0">
                         <thead>
                             <tr>
+                                <th scope="col" width="5%">No</th>
                                 <th scope="col" width="15%">Barcode</th>
                                 <th scope="col" width="35%">Detail Item</th>
                                 <th scope="col" width="15%">Kategori</th>
-                                <th scope="col" width="20%">Status</th>
-                                <th scope="col" width="15%" class="text-center">Aksi</th>
+                                <th scope="col" width="15%" class="text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             
+                        <?php if ($result && $result->num_rows > 0):
+                            $no = 1; 
+                        ?>
+                        <?php while ($row = $result->fetch_assoc()): 
+                            // 1. Ambil data status dengan fallback string kosong jika null
+                            $status_tx  = $row['status_barang'] ?? ''; 
+                            $status_brg = $row['status_transaksi'] ?? '';
+                            
+                            // 2. Normalisasi string (hapus spasi di awal/akhir & ubah ke huruf kecil)
+                            $check_tx  = strtolower(trim($status_tx));
+                            $check_brg = strtolower(trim($status_brg));
+                            
+                            // 3. Logika penentuan status badge & ikon
+                            if ($check_tx === 'available' && $check_brg === 'active') {
+                            // BARANG FRESH / READY
+                            $text_color = '#16a34a'; // Hijau
+                            $icon_class = 'bi-check-circle-fill';
 
-                        <?php if ($result && $result->num_rows > 0): ?>
-                            <?php while ($row = $result->fetch_assoc()): 
-                                // Cek status untuk menentukan warna badge
-                                $status_tx   = $row['status_transaksi']; 
-                                $status_brg  = $row['status_barang'];
-                                
-                                $badge_class = 'status-available';
-                                $icon_class   = 'bi-check-circle-fill';
-                                
-                                if (strtolower($status_tx) !== 'available' || strtolower($status_brg) !== 'active') {
-                                    $badge_class = 'status-inactive';
-                                    $icon_class  = 'bi-x-circle-fill';
-                                }
-                            ?>
-                                <tr>
-                                    <td>
-                                        <span class="barcode-badge"><i class="bi bi-upc-scan"></i> <?= htmlspecialchars($row['barcode']) ?></span>
-                                    </td>
-                                    <td>
-                                        <!-- Menggabungkan tipe, gender, dan size sebagai nama detail item -->
-                                        <div class="fw-bold text-dark" style="font-size: 15px;">
-                                            <?= htmlspecialchars($row['tipe']) ?> SA <?= htmlspecialchars($row['gender']) ?>
-                                        </div>
-                                        <div class="text-secondary mt-1" style="font-size: 13px;">
-                                            Ukuran: <?= htmlspecialchars($row['size']) ?>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="text-secondary fw-bold" style="font-size: 13px;"><?= htmlspecialchars($row['tipe']) ?></span>
-                                    </td>
-                                    <td>
-                                        <span class="badge-status <?= $badge_class ?>">
-                                            <i class="bi <?= $icon_class ?>"></i> <?= htmlspecialchars($status_tx) ?> (<?= htmlspecialchars($status_brg) ?>)
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-1">
-                                            <a href="#" class="btn-action-icon btn-detail" title="Detail Barang"><i class="bi bi-eye fs-5"></i></a>
-                                            <a href="#" class="btn-action-icon btn-edit" title="Edit Barang"><i class="bi bi-pencil-square fs-5"></i></a>
-                                        </div>
+                            } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
+                            // BARANG HASIL RETURN
+                            $text_color = '#dc2626'; // Merah
+                            $icon_class = 'bi-arrow-counterclockwise'; // Ikon Return / Refund
+
+                            } else {
+                            // SOLD OUT / LAINNYA
+                            $text_color = '#16a34a'; // Hijau
+                            $icon_class = 'bi-check-circle-fill';
+                            }
+                        ?>
+                            <tr>
+                                <td>
+                                    <span class="fw-bold text-dark" style="font-size: 15px;">
+                                        <?= $no++ ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="barcode-badge">
+                                        <i class="bi bi-upc-scan"></i> <?= htmlspecialchars($row['barcode'] ?? '') ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- Detail item -->
+                                    <div class="fw-bold text-dark" style="font-size: 15px;">
+                                        <?= htmlspecialchars($row['tipe'] ?? '') ?> SA <?= htmlspecialchars($row['gender'] ?? '') ?>
+                                    </div>
+                                    <div class="text-secondary mt-1" style="font-size: 13px;">
+                                        Ukuran: <?= htmlspecialchars($row['size'] ?? '') ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-secondary fw-bold" style="font-size: 13px;">
+                                        <?= htmlspecialchars($row['tipe'] ?? '') ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge-status" style="color: <?= $text_color ?>; font-weight: 600;">
+                                        <i class="bi <?= $icon_class ?>" style="font-size: 1.0rem;"></i> <?= htmlspecialchars($status_brg) ?> (<?= htmlspecialchars($status_tx) ?>)
+                                    </span>
+                                </td>
+                            </tr>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>

@@ -23,20 +23,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
 
         $stmt_insert_return = $pdo->prepare("INSERT INTO return_items (transaction_id, barcode, alasan_return, kondisi_barang, tgl_return) VALUES (?, ?, ?, ?, NOW())");
-        $stmt_update_master = $pdo->prepare("UPDATE master_item SET status_transaksi = 'Inactive', status_barang = ? WHERE barcode = ?");
+        $stmt_update_master = $pdo->prepare("UPDATE master_item SET status_transaksi = 'Available', status_barang = 'Inactive' WHERE barcode = ?");
 
         foreach ($barcodes as $index => $barcode) {
             $barcode_clean = trim($barcode);
             $alasan        = isset($kondisi[$index]) ? trim($kondisi[$index]) : 'Layak';
             
             // Penentuan kondisi fisik
-            $kondisi_fisik = (strpos(strtolower($alasan), 'cacat') !== false || strpos(strtolower($alasan), 'rusak') !== false) ? 'Rusak' : 'Bagus';
+            $kondisi_fisik = (strpos(strtolower($alasan), 'cacat') !== false || strpos(strtolower($alasan), 'available') !== false || strpos(strtolower($alasan), 'tukar') !== false) ? 'Rusak' : 'Bagus';
 
             // 1. Insert ke return_items
             $stmt_insert_return->execute([$transaction_id, $barcode_clean, $alasan, $kondisi_fisik]);
 
             // 2. Update status master_item menjadi 'Inactive'
-            $stmt_update_master->execute([$kondisi_fisik, $barcode_clean]);
+            $stmt_update_master->execute([$barcode_clean]);
         }
 
         // Commit seluruh perubahan ke database

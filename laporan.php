@@ -1,3 +1,7 @@
+<?php
+include 'controllers/query_laporan.php';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -5,184 +9,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan & Analitik - HR Warehouse</title>
     
-    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- Memanggil file CSS Anda -->
     <link rel="stylesheet" href="assets/css/style.css">
-
+    
 </head>
 <body>
 
 <div class="app-container">
-
-    <!-- Memanggil file Sidebar -->
     <?php include 'includes/sidebar.php'; ?>
-
+    
     <div class="main-wrapper">
-        
-        <!-- Memanggil file Topbar -->
         <?php include 'includes/topbar.php'; ?>
-
-        <!-- MAIN CONTENT AREA -->
+        
         <main class="content-area p-4">
-            
-            <!-- Header Halaman & Tombol Aksi -->
+            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="fw-bold m-0" style="color: #1e293b;">Laporan & Analitik</h4>
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Ringkasan pergerakan stok dan transaksi</p>
+                    <h4 class="fw-bold mb-1">Laporan</h4>
+                    <p class="text-muted small mb-0">Ringkasan pergerakan stok dan transaksi</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary fw-bold" style="border-radius: 8px;">
-                        <i class="bi bi-printer me-2"></i>Cetak
-                    </button>
-                    <!-- Tombol Export Excel ditonjolkan -->
-                    <button class="btn btn-excel shadow-sm">
-                        <i class="bi bi-file-earmark-excel-fill me-2"></i>Export ke Excel
-                    </button>
+                    <a href="controllers/export_excel.php?start_date=<?php echo $start_date; ?>&end_date=<?php echo $end_date; ?>" class="btn btn-success fw-bold">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Export ke Excel
+                    </a>
                 </div>
             </div>
 
-            <!-- Area Filter Laporan -->
-            <div class="report-filter-card shadow-sm">
-                <form class="row g-3 align-items-end">
-                    <!--<div class="col-md-3">
-                        <label class="form-label fw-bold" style="font-size: 13px; color: #4b5563;">Jenis Laporan</label>
-                        <select class="form-select shadow-sm" style="font-size: 14px;">
-                            <option value="transaksi">Laporan Transaksi Keluar</option>
-                            <option value="masuk">Laporan Barang Masuk</option>
-                            <option value="return">Laporan Return/Rusak</option>
-                            <option value="stok">Laporan Opname Stok</option>
-                        </select>
-                    </div> -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold" style="font-size: 13px; color: #4b5563;">Mulai Tanggal</label>
-                        <input type="date" class="form-control shadow-sm" style="font-size: 14px;" value="2026-07-01">
+            <!-- Filter Panel -->
+            <div class="bg-white border rounded-3 p-3 mb-4 shadow-sm">
+                <form method="GET" action="laporan.php" class="row align-items-end g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Mulai Tanggal</label>
+                        <input type="date" class="form-control" name="start_date" value="<?php echo $start_date; ?>">
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold" style="font-size: 13px; color: #4b5563;">Sampai Tanggal</label>
-                        <input type="date" class="form-control shadow-sm" style="font-size: 14px;" value="2026-07-31">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-secondary">Sampai Tanggal</label>
+                        <input type="date" class="form-control" name="end_date" value="<?php echo $end_date; ?>">
                     </div>
-                    <div class="col-md-3">
-                        <button type="button" class="btn text-white fw-bold w-100 shadow-sm" style="background-color: #556ee6;">
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #556ee6;">
                             <i class="bi bi-funnel me-2"></i>Tampilkan Data
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- Tiga Kartu KPI (Key Performance Indicator) -->
+            <!-- Cards -->
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
-                    <div class="kpi-card">
-                        <div class="kpi-icon kpi-in"><i class="bi bi-box-arrow-in-down"></i></div>
+                    <div class="report-card shadow-sm">
+                        <div class="icon-box icon-masuk"><i class="bi bi-download"></i></div>
                         <div>
-                            <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase;">Barang Masuk</div>
-                            <h3 class="fw-bold m-0 text-dark">450 <span style="font-size: 14px; color: #64748b; font-weight: 500;">Pcs</span></h3>
+                            <div class="text-muted small fw-bold mb-1">BARANG MASUK</div>
+                            <h3 class="fw-bold m-0"><?php echo number_format($total_masuk); ?> <span class="fs-6 text-muted fw-normal">Pcs</span></h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="kpi-card">
-                        <div class="kpi-icon kpi-out"><i class="bi bi-box-arrow-up"></i></div>
+                    <div class="report-card shadow-sm">
+                        <div class="icon-box icon-keluar"><i class="bi bi-upload"></i></div>
                         <div>
-                            <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase;">Barang Keluar</div>
-                            <h3 class="fw-bold m-0 text-dark">328 <span style="font-size: 14px; color: #64748b; font-weight: 500;">Pcs</span></h3>
+                            <div class="text-muted small fw-bold mb-1">TOTAL TRANSAKSI</div>
+                            <h3 class="fw-bold m-0"><?php echo number_format($total_trx); ?> <span class="fs-6 text-muted fw-normal">Trx</span></h3>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="kpi-card">
-                        <div class="kpi-icon kpi-return"><i class="bi bi-arrow-counterclockwise"></i></div>
+                    <div class="report-card shadow-sm">
+                        <div class="icon-box icon-return"><i class="bi bi-arrow-counterclockwise"></i></div>
                         <div>
-                            <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase;">Total Return</div>
-                            <h3 class="fw-bold m-0 text-dark">12 <span style="font-size: 14px; color: #64748b; font-weight: 500;">Pcs</span></h3>
+                            <div class="text-muted small fw-bold mb-1">TOTAL RETURN</div>
+                            <h3 class="fw-bold m-0"><?php echo number_format($total_return); ?> <span class="fs-6 text-muted fw-normal">Pcs</span></h3>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Area Chart/Grafik & Tabel Data -->
-            <!-- <div class="row g-4"> -->
+            <!-- Tabel Data -->
+            <div class="bg-white border rounded-3 p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">Rincian Transaksi Keluar</h6>
+                    <span class="badge bg-light text-secondary border">Periode: <?php echo date('d/m/Y', strtotime($start_date)) . " - " . date('d/m/Y', strtotime($end_date)); ?></span>
+                </div>
                 
-                <!-- Kolom Kiri: Chart (Contoh Visualisasi) 
-                <div class="col-lg-12">
-                    <div class="chart-container shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="fw-bold m-0" style="color: #1e293b;">Grafik Distribusi Seragam (Juli 2026)</h6>
-                        </div> -->
-                        
-                        <!-- Ini adalah Placeholder Grafik Menggunakan murni HTML/CSS 
-                        <div class="chart-placeholder">
-                            <div class="bar" style="height: 40%;" title="Minggu 1: 40 Pcs"></div>
-                            <div class="bar" style="height: 70%;" title="Minggu 2: 70 Pcs"></div>
-                            <div class="bar" style="height: 90%; background-color: #4338ca;" title="Minggu 3: 90 Pcs (Puncak)"></div>
-                            <div class="bar" style="height: 55%;" title="Minggu 4: 55 Pcs"></div>
-                        </div>
-                        <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                            <span>Minggu 1</span>
-                            <span>Minggu 2</span>
-                            <span>Minggu 3</span>
-                            <span>Minggu 4</span>
-                        </div>
-                    </div>
-                </div> -->
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle m-0" style="font-size: 14px;">
+                        <thead class="text-secondary small border-bottom">
+                            <tr>
+                                <th class="py-3">TANGGAL</th>
+                                <th class="py-3">ID TRX</th>
+                                <th class="py-3">PERUSAHAAN</th>
+                                <th class="py-3">Nama SA</th>
+                                <th class="py-3">ITEM DIBERIKAN</th>
+                                <th class="py-3">ITEM RETURN</th>
+                                <th class="py-3 text-center">TOTAL (PCS)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (!empty($list_transaksi)): ?>
+                            <?php foreach ($list_transaksi as $row): ?>
+                                <?php
+                                $tgl = date('d/m/Y', strtotime($row['tgl_transaksi']));
 
-                <!-- Kolom Bawah: Tabel Data Detail (Siap untuk diexport) -->
-                <div class="col-lg-12">
-                    <div class="table-card shadow-sm">
-                        <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
-                            <h6 class="fw-bold m-0" style="color: #1e293b;">Rincian Transaksi Keluar</h6>
-                            <span class="badge bg-light text-secondary border">Menampilkan 5 Data Teratas</span>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Tanggal</th>
-                                        <th scope="col">ID Req</th>
-                                        <th scope="col">Perusahaan</th>
-                                        <th scope="col">Item Diberikan</th>
-                                        <th scope="col" class="text-center">Total (Pcs)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><div class="fw-bold text-dark">12/07/2026</div></td>
-                                        <td>#FR-110726</td>
-                                        <td>PT. CENTRAL JAYA</td>
-                                        <td class="text-secondary">Kemeja Pria (2), Celana (2)</td>
-                                        <td class="text-center fw-bold text-primary">4</td>
-                                    </tr>
-                                    <tr>
-                                        <td><div class="fw-bold text-dark">10/07/2026</div></td>
-                                        <td>#FR-110718</td>
-                                        <td>CV. ABADI JAYA</td>
-                                        <td class="text-secondary">Seragam SA Wanita (1)</td>
-                                        <td class="text-center fw-bold text-primary">1</td>
-                                    </tr>
-                                    <tr>
-                                        <td><div class="fw-bold text-dark">08/07/2026</div></td>
-                                        <td>#FR-110705</td>
-                                        <td>PT. MAJU BERSAMA</td>
-                                        <td class="text-secondary">Kemeja Pria (5), Rok (2)</td>
-                                        <td class="text-center fw-bold text-primary">7</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                // Grouping Item Diberikan
+                                $raw_items_array = explode(',', $row['all_items']);
+                                $item_counts = array_count_values($raw_items_array);
+
+                                $formatted_items = [];
+                                foreach ($item_counts as $nama_item => $jumlah) {
+                                    $formatted_items[] = htmlspecialchars(trim($nama_item)) . " ($jumlah)";
+                                }
+                                $string_item_diberikan = implode(', ', $formatted_items);
+
+                                // Grouping Item Return
+                                if (!empty($row['items_returned_raw'])) {
+                                    $raw_returns = explode(',', $row['items_returned_raw']);
+                                    $return_counts = array_count_values($raw_returns);
+
+                                    $formatted_returns = [];
+                                    foreach ($return_counts as $nama => $jumlah) {
+                                        // Menambahkan htmlspecialchars agar aman dari XSS
+                                        $formatted_returns[] = htmlspecialchars(trim($nama)) . " ($jumlah)";
+                                    }
+                                    $string_item_direturn = implode(', ', $formatted_returns);
+                                } else {
+                                    $string_item_direturn = '-';
+                                }
+                                ?>
+                                <tr class="border-bottom">
+                                    <td class="fw-bold py-3"><?php echo $tgl; ?></td>
+                                    <td class="text-muted">#<?php echo htmlspecialchars($row['transaction_id']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($row['perusahaan']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($row['nama_sa']); ?></td>
+                                    <td class="text-muted"><?php echo $string_item_diberikan; ?></td>
+                                    <td><span class="text-danger"><?php echo $string_item_direturn; ?></span></td>
+                                    <td class="text-center fw-bold text-primary"><?php echo $row['total_pcs']; ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">Tidak ada transaksi pada periode tanggal ini.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                    </table>
                 </div>
-
             </div>
-            
+
         </main>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 </body>

@@ -22,7 +22,10 @@ include 'controllers/proses_generate.php';
         <?php include 'includes/topbar.php'; ?>
 
         <main class="content-area p-4">
-            <div class="page-title mb-4">Barcode Generator</div>
+            <div>
+                <h4 class="page-title mb-1">Generate Barcode</h4>
+                <p class="text-muted small mb-8">Pembuatan Barcode untuk penamaan item</p>
+            </div>
 
             <?php if (!empty($success_msg)): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -126,11 +129,13 @@ include 'controllers/proses_generate.php';
                             <?php if (!empty($generated_barcodes)): ?>
                                 <div class="barcode-grid">
                                     <?php foreach ($generated_barcodes as $code): ?>
-                                        <div class="barcode-print-card">
-                                            <div style="font-size: 9px; font-weight: bold; color: #64748b; margin-bottom: 2px;"><?php echo $tipe; ?>&nbsp<?php echo $gender; ?>&nbsp<?php echo $ukuran; ?></div>
-                                            <svg class="barcode-element" data-value="<?php echo $code; ?>"></svg>
+                                    <div class="barcode-print-card">
+                                        <div style="font-size: 9px; font-weight: bold; color: #64748b; margin-bottom: 2px;">
+                                            <?php echo $tipe; ?>&nbsp;<?php echo $gender; ?>&nbsp;<?php echo $ukuran; ?>
                                         </div>
-                                    <?php endforeach; ?>
+                                        <svg class="barcode-element" data-value="<?php echo $code; ?>"></svg>
+                                    </div>
+                                <?php endforeach; ?>
                                 </div>
                             <?php else: ?>
                                 <div class="text-center py-5 border rounded bg-light text-secondary">
