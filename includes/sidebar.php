@@ -46,5 +46,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="bi bi-journal-check"></i>
             <span>Laporan</span>
         </a>
+        <a href="audit_item.php" class="nav-link <?= ($current_page == 'audit_item.php') ? 'active' : '' ?>">
+            <i class="bi bi-patch-exclamation-fill"></i>
+            <span>Change Status</span>
+        </a>
     </div>
 </aside>

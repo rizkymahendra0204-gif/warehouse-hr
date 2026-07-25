@@ -1,3 +1,14 @@
+<?php
+// Pastikan session sudah aktif
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$nama_user   = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'User';
+$role_user   = $_SESSION['role'] ?? 'Staff';
+$initial_user = strtoupper(substr(trim($nama_user), 0, 1));
+?>
+
 <?php 
 $current_page = basename($_SERVER['PHP_SELF']); 
 
@@ -103,20 +114,50 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
             </ul>
         </div>
 
+        <?php
+        // Ambil data user dari Session (dengan fallback aman)
+        $nama_user   = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'User';
+        $role_user   = $_SESSION['role'] ?? 'Staff';
+
+        // Ambil inisial huruf pertama nama untuk avatar
+        $initial_user = strtoupper(substr(trim($nama_user), 0, 1));
+        ?>
+
         <!-- 2. Bagian Profil User Dropdown -->
         <div class="dropdown">
             <div class="user-info d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
-                <div class="avatar">🍔</div>
-                <span class="user-name fw-semibold" style="font-size: 14px;">
-                    Delicious Burger <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
-                </span>
+                <!-- Avatar Inisial Nama -->
+                <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px; background-color: #556ee6 !important;">
+                    <?php echo $initial_user; ?>
+                </div>
+                
+                <!-- Nama & Role User -->
+                <div class="d-flex flex-column text-start">
+                    <span class="user-name fw-semibold" style="font-size: 14px; line-height: 1.2;">
+                        <?php echo htmlspecialchars($nama_user); ?> 
+                        <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
+                    </span>
+                    <small class="text-muted text-capitalize" style="font-size: 11px;">
+                        <?php echo htmlspecialchars($role_user); ?>
+                    </small>
+                </div>
             </div>
             
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
+                <li class="px-3 py-2 border-bottom bg-light">
+                    <div class="fw-bold small"><?php echo htmlspecialchars($nama_user); ?></div>
+                    <span class="badge bg-soft-primary text-primary text-capitalize" style="font-size: 10px;">
+                        <?php echo htmlspecialchars($role_user); ?> Account
+                    </span>
+                </li>
+                <li><a class="dropdown-item py-2 mt-1" href="#"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
                 <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger py-2" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                    <a class="dropdown-item text-danger py-2" href="logout.php">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </a>
+                </li>
             </ul>
         </div>
 
