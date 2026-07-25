@@ -62,7 +62,8 @@ Proyek ini terhubung melalui 4 tabel utama:
 | **`request_form`** | Menyimpan data pemohon (`request_id`, `perusahaan`, `nama_sa`).                                 |
 | **`transaksi`**    | Menyimpan transaksi barang keluar (`transaction_id`, `request_id`, `barcode`, `tgl_transaksi`). |
 | **`return_items`** | Menyimpan data barang yang di-return (`transaction_id`, `barcode`).                             |
-
+| **`setting`**      | Untuk menutup dan membuka Periode Audit (`setting_key`, `setting_value`).                       |
+| **`users`**        | Menyimpan data user untuk Login (`id`, `username`, `password`).                                 |
 ---
 
 ## 📂 Struktur Folder Proyek
@@ -79,10 +80,11 @@ WAREHOUSE-HR/
 ├── controllers/               # LOGIKA PEMROSESAN BACKEND & QUERY
 │   ├── cek_barcode.php        # Pengecekan status barcode
 │   ├── export_excel.php       # Handler ekspor laporan ke format Excel (.xlsx)
-│   ├── proses_generate.php   # Proses generate data/barcode (BERHUBUNGAN DENGAN HALAMAN GENERATE BARCODE)
+│   ├── proses_generate.php    # Proses generate data/barcode (BERHUBUNGAN DENGAN HALAMAN GENERATE BARCODE)
 │   ├── proses_return.php      # Logika pemrosesan transaksi return (BERHUNGAN DENGAN HALAMAN RETURN)
 │   ├── proses_tambah_item.php # Proses penambahan item baru (BERHUBUNGAN DENGAN HALAMAN STOK GUDANG)
 │   ├── proses_transaksi.php   # Logika pemrosesan barang keluar (BERHUBUNGAN DENGAN HALAMAN TRANSAKSI)
+│   ├── query_audit.php        # Query data audit ( BERHUBUNGAN DENGAN AUDIT_ITEM)
 │   ├── query_dashboard.php    # Query data statistik dashboard
 │   ├── query_laporan.php      # Query rekapitulasi laporan transaksi (BERHUBUNGAN DENGAN HALAMAN LAPORAN)
 │   ├── query_pending.php      # Query data transaksi pending (BERHUBUNGAN DENGAN HALAMAN PENDING)
@@ -97,6 +99,9 @@ WAREHOUSE-HR/
 
 ├── vendor/                    # Dependensi Composer (PhpSpreadsheet, dll.)
 
+├── audit_item.php             # Halaman untuk mengubah status transaksi dan barang
+├── change_password.php        # Halaman mengubah password saat pertama kali login
+
 ├── composer.json              # Konfigurasi dependensi PHP
 ├── composer.lock              # Lockfile versi dependensi Composer
 
@@ -105,6 +110,8 @@ WAREHOUSE-HR/
 ├── laporan.php                # Halaman tampilan laporan transaksi
 ├── log_activity.php           # Halaman catatan log aktivitas sistem
 ├── pending.php                # Halaman kelola transaksi pending
+├── login.php                  # Halaman untuk login
+├── logout.php                 # logout
 ├── return.php                 # Halaman input pengembalian barang (return)
 ├── stok_barang.php            # Halaman manajemen stok barang
 └── transaksi.php              # Halaman input transaksi barang keluar
