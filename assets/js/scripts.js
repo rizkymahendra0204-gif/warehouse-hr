@@ -209,76 +209,102 @@ $(document).ready(function () {
   }
 
   // --- H. STOK BARANG SCANNER ---
+  // Variable untuk mencegah eksekusi ganda dari scanner
+  var lastScannedBarcode = "";
+
+  // Reset variabel saat modal dibuka
   $("#modalTambahBarang").on("shown.bs.modal", function () {
     resetFormDigitParse();
+    lastScannedBarcode = "";
+    $("#scanBarcodeInput").focus();
   });
 
+  // Fungsi Utama Proses Scan
+  function eksekusiScanBarcode(barcodeVal) {
+    if (barcodeVal === lastScannedBarcode) return; // Cegah scan ulang kode yang sama
+
+    if (barcodeVal.length === 9 && /^\d+$/.test(barcodeVal)) {
+      lastScannedBarcode = barcodeVal;
+
+      var genderCode = barcodeVal.substring(0, 1);
+      var tipeCode = barcodeVal.substring(1, 3);
+      var sizeCode = barcodeVal.substring(3, 5);
+
+      var parsedGender = APP_CONFIG.GENDER[genderCode] || null;
+      var parsedTipe = APP_CONFIG.TYPE[tipeCode] || null;
+      var parsedSize = APP_CONFIG.SIZE[sizeCode] || null;
+
+      $("#inputGender").val(parsedGender);
+      $("#inputTipe").val(parsedTipe);
+      $("#inputSize").val(parsedSize);
+
+      if (parsedGender && parsedTipe && parsedSize) {
+        $.ajax({
+          url: "controllers/cek_barcode.php",
+          type: "GET",
+          data: { barcode: barcodeVal },
+          dataType: "json",
+          beforeSend: function () {
+            setParsingAlert(
+              "loading",
+              "Menganalisis status pendaftaran kode...",
+            );
+          },
+          success: function (response) {
+            $("#btnSimpanStok").prop("disabled", false);
+
+            // Pengecekan status ketersediaan item di database
+            if (response.exists === true || response.success === true) {
+              setParsingAlert(
+                "warning",
+                `<strong>Item Sudah Terdaftar!</strong> Ganti dengan barcode lain !`,
+              );
+            } else {
+              setParsingAlert(
+                "success",
+                `<strong>Barcode Baru!</strong> Mendaftarkan item <strong>${parsedTipe} ${parsedGender} (${parsedSize})</strong>.`,
+              );
+            }
+            $("#btnSimpanStok").focus();
+          },
+          error: function () {
+            $("#btnSimpanStok").prop("disabled", false);
+            setParsingAlert(
+              "secondary",
+              "Validasi terhambat. Data lokal siap disimpan.",
+            );
+          },
+        });
+      } else {
+        invalidDigitFallback(
+          barcodeVal,
+          "Kode komponen tidak dikenali sistem.",
+        );
+      }
+    } else if (barcodeVal.length > 9) {
+      invalidDigitFallback(
+        barcodeVal,
+        "Barcode harus berjumlah tepat 9 digit angka penuh.",
+      );
+    }
+  }
+
+  // 1. Otomatis Deteksi saat 9 Digit Terisi (Tanpa Perlu Enter)
+  $("#scanBarcodeInput").on("input", function () {
+    var barcodeVal = $(this).val().trim();
+    if (barcodeVal.length === 9) {
+      eksekusiScanBarcode(barcodeVal);
+    } else {
+      lastScannedBarcode = ""; // Reset jika user menghapus karakter
+    }
+  });
+
+  // 2. Fallback jika user/scanner menekan Enter
   $("#scanBarcodeInput").on("keypress", function (e) {
     if (e.which === 13) {
       e.preventDefault();
       var barcodeVal = $(this).val().trim();
-      if (barcodeVal === "") return;
-
-      if (barcodeVal.length === 9 && /^\d+$/.test(barcodeVal)) {
-        var genderCode = barcodeVal.substring(0, 1);
-        var tipeCode = barcodeVal.substring(1, 3);
-        var sizeCode = barcodeVal.substring(3, 5);
-
-        var parsedGender = APP_CONFIG.GENDER[genderCode] || null;
-        var parsedTipe = APP_CONFIG.TYPE[tipeCode] || null;
-        var parsedSize = APP_CONFIG.SIZE[sizeCode] || null;
-
-        $("#inputGender").val(parsedGender);
-        $("#inputTipe").val(parsedTipe);
-        $("#inputSize").val(parsedSize);
-
-        if (parsedGender && parsedTipe && parsedSize) {
-          $.ajax({
-            url: "controllers/cek_barcode.php",
-            type: "GET",
-            data: { barcode: barcodeVal },
-            dataType: "json",
-            beforeSend: function () {
-              setParsingAlert(
-                "loading",
-                "Menganalisis status pendaftaran kode...",
-              );
-            },
-            success: function (response) {
-              $("#btnSimpanStok").prop("disabled", false);
-              if (response.success) {
-                setParsingAlert(
-                  "success",
-                  `<strong>Item Terdaftar!</strong> Menambah stok untuk <strong>${parsedTipe} ${parsedGender} (${parsedSize})</strong>.`,
-                );
-              } else {
-                setParsingAlert(
-                  "warning",
-                  `<strong>Barcode Baru!</strong> Mendaftarkan item <strong>${parsedTipe} ${parsedGender} (${parsedSize})</strong>.`,
-                );
-              }
-              $("#btnSimpanStok").focus();
-            },
-            error: function () {
-              $("#btnSimpanStok").prop("disabled", false);
-              setParsingAlert(
-                "secondary",
-                "Validasi terhambat. Data lokal siap disimpan.",
-              );
-            },
-          });
-        } else {
-          invalidDigitFallback(
-            barcodeVal,
-            "Kode komponen tidak dikenali sistem.",
-          );
-        }
-      } else {
-        invalidDigitFallback(
-          barcodeVal,
-          "Barcode harus berjumlah tepat 9 digit angka penuh.",
-        );
-      }
+      eksekusiScanBarcode(barcodeVal);
     }
   });
 

@@ -2,10 +2,9 @@
 // 1. Panggil koneksi database
 include 'includes/db.php';
 
-$conn = new mysqli("localhost", "root", "", "db_warehouse");
-
-if ($conn->connect_error) {
-    die("Koneksi Database Gagal: " . $conn->connect_error);
+// Jika $conn sudah di-include dari db.php, baris bawah ini tidak perlu diulang:
+if (!isset($conn)) {
+    $conn = new mysqli("localhost", "root", "", "db_warehouse");
 }
 
 // 2. Tangkap parameter filter dan pencarian dari URL
@@ -15,12 +14,13 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 // 3. Bangun Query SQL secara dinamis
 $conditions = [];
 
-// Filter berdasarkan Tab Status
-if ($tab === 'tersedia') {
+// Filter berdasarkan Tab Status (Disesuaikan dengan href HTML)
+if ($tab === 'available') {
     $conditions[] = "LOWER(status_transaksi) = 'available' AND LOWER(status_barang) = 'active'";
-} elseif ($tab === 'terdistribusi') {
-    $conditions[] = "LOWER(status_transaksi) = 'distributed'";
-} elseif ($tab === 'nonaktif') {
+} elseif ($tab === 'soldout') {
+    // Menyesuaikan jika sold out / terdistribusi
+    $conditions[] = "(LOWER(status_transaksi) = 'sold out' OR LOWER(status_transaksi) = 'distributed')";
+} elseif ($tab === 'inactive') {
     $conditions[] = "LOWER(status_barang) = 'inactive'";
 }
 

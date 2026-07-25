@@ -64,6 +64,7 @@ Proyek ini terhubung melalui 4 tabel utama:
 | **`return_items`** | Menyimpan data barang yang di-return (`transaction_id`, `barcode`).                             |
 | **`setting`**      | Untuk menutup dan membuka Periode Audit (`setting_key`, `setting_value`).                       |
 | **`users`**        | Menyimpan data user untuk Login (`id`, `username`, `password`).                                 |
+
 ---
 
 ## 📂 Struktur Folder Proyek
@@ -78,7 +79,7 @@ WAREHOUSE-HR/
 │       └── scripts.js         # Script JavaScript frontend
 
 ├── controllers/               # LOGIKA PEMROSESAN BACKEND & QUERY
-│   ├── cek_barcode.php        # Pengecekan status barcode
+│   ├── cek_barcode.php        # Pengecekan status barcode (BERHUBUNGAN DENGAN HALAMAN STOK BARANG)
 │   ├── export_excel.php       # Handler ekspor laporan ke format Excel (.xlsx)
 │   ├── proses_generate.php    # Proses generate data/barcode (BERHUBUNGAN DENGAN HALAMAN GENERATE BARCODE)
 │   ├── proses_return.php      # Logika pemrosesan transaksi return (BERHUNGAN DENGAN HALAMAN RETURN)

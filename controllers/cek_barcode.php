@@ -1,32 +1,32 @@
 <?php
-// controllers/cek_barcode.php
+require_once '../includes/db.php'; // Sesuaikan lokasi koneksi PDO kamu
+
 header('Content-Type: application/json');
 
-// Memanggil file koneksi dengan path absolut relatif terhadap folder controllers
-require_once __DIR__ . '/../includes/db.php';
+$barcode = trim($_GET['barcode'] ?? '');
 
-// Pastikan variabel $conn dari db.php berhasil dimuat
-if (!isset($conn) || !$conn) {
+if (empty($barcode)) {
+    echo json_encode(['exists' => false, 'message' => 'Barcode kosong']);
+    exit;
+}
+
+// Cek apakah barcode sudah tersimpan di tabel master_item
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM master_item WHERE barcode = ?");
+$stmt->execute([$barcode]);
+$count = $stmt->fetchColumn();
+
+if ($count > 0) {
+    // Barcode SUDAH TERDAFTAR di database
     echo json_encode([
-        'success' => false, 
-        'message' => 'Koneksi database gagal terhubung.'
+        'exists'  => true,
+        'success' => true,
+        'message' => 'Item terdaftar'
     ]);
-    exit();
+} else {
+    // Barcode BELUM ADA (Baru)
+    echo json_encode([
+        'exists'  => false,
+        'success' => false,
+        'message' => 'Barcode baru'
+    ]);
 }
-
-if (isset($_GET['barcode'])) {
-    $barcode = mysqli_real_escape_string($conn, trim($_GET['barcode']));
-    
-    // Cek keberadaan barcode di master_item
-    $query = mysqli_query($conn, "SELECT barcode FROM master_item WHERE barcode = '$barcode'");
-    
-    if ($query && mysqli_num_rows($query) > 0) {
-        $response['success'] = true; // Barang LAMA / Sudah terdaftar
-    } else {
-        $response['success'] = false; // Barang BARU / Belum terdaftar
-    }
-}
-
-echo json_encode($response);
-exit();
-?>
