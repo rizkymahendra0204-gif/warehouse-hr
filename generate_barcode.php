@@ -49,22 +49,22 @@ include 'controllers/proses_generate.php';
                         
                         <form action="generate_barcode.php" method="POST">
                             <input type="hidden" name="action" value="generate_range">
-                            
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">1. Tipe Pakaian</label>
-                                <select class="form-select" name="tipe" required>
-                                    <option value="">-- Pilih Tipe --</option>
-                                    <option value="Baju">Baju (01)</option>
-                                    <option value="Celana">Celana (02)</option>
-                                </select>
-                            </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">2. Gender</label>
+                                <label class="form-label fw-semibold text-secondary">1. Gender</label>
                                 <select class="form-select" name="gender" required>
                                     <option value="">-- Pilih Gender --</option>
                                     <option value="Pria">Pria (1)</option>
                                     <option value="Wanita">Wanita (2)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-secondary">2. Tipe Pakaian</label>
+                                <select class="form-select" name="tipe" required>
+                                    <option value="">-- Pilih Tipe --</option>
+                                    <option value="Baju">Baju (01)</option>
+                                    <option value="Celana">Celana (02)</option>
                                 </select>
                             </div>
 
