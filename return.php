@@ -197,10 +197,10 @@ if ($is_auto) {
                 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="page-title fs-4 fw-bold">Return Item Transaksi</div>
+                    <a href="return.php" class="btn btn-outline-secondary fw-bold px-3 py-2" style="border-radius: 6px;">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Return
+                    </a>
                 </div>
-
-                <!-- Alert Container Flash Message -->
-                <div id="alertContainer"></div>
 
                 <form action="controllers/proses_return.php" method="POST" id="formReturn">
                     
