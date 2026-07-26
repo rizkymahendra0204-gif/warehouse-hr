@@ -16,12 +16,6 @@ include 'controllers/query_transaksi.php';
     <!-- CSS Utama -->
     <link rel="stylesheet" href="assets/css/style.css">
 
-    <style>
-        .scan-input-main:focus {
-            border-color: #556ee6;
-            box-shadow: 0 0 0 0.25rem rgba(85, 110, 230, 0.25);
-        }
-    </style>
 </head>
 <body>
 
@@ -41,10 +35,6 @@ include 'controllers/query_transaksi.php';
             <div class="page-title">Transaksi
                 <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Manajemen untuk pengelolaan item keluar</p>
             </div>
-            
-            <!-- Alert Container Flash Message -->
-            <div id="alertContainer"></div>
-
             <div class="container-fluid px-0">
                 
                 <form action="controllers/proses_transaksi.php" method="POST" id="formTransaksi">
@@ -149,7 +139,7 @@ include 'controllers/query_transaksi.php';
                     <!-- Tombol Aksi Bawah -->
                     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
                         <button type="reset" class="btn btn-light border fw-bold px-4 text-secondary" style="border-radius: 6px;" onclick="resetForm()">Batal</button>
-                        <button type="submit" id="btnSimpanTransaksi" class="btn fw-bold text-white px-5" style="background-color: #556ee6; border-radius: 6px;">Simpan Transaksi</button>
+                        <button type="submit" id="btnSimpanTransaksi" class="btn fw-bold text-white px-5" style="background-color: #556ee6; border-radius: 6px;">Proses Transaksi</button>
                     </div>
                 </form>
                 

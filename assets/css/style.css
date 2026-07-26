@@ -675,6 +675,10 @@ body {
   margin-bottom: 16px;
   transition: 0.3s;
 }
+.scan-input-main:focus {
+  border-color: #556ee6;
+  box-shadow: 0 0 0 0.25rem rgba(85, 110, 230, 0.25);
+}
 
 /* ===========================================================================
    9. PAGE: STOK BARANG
