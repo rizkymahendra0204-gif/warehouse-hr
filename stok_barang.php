@@ -51,7 +51,7 @@ include 'controllers/query_stokbarang.php';
                     <a href="?tab=semua&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'semua' ? 'active' : '' ?>">Semua</a>
                     <a href="?tab=available&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'active' : '' ?>">Available</a>
                     <a href="?tab=soldout&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'sold out' ? 'active' : '' ?>">Sold Out</a>
-                    <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'inactive' ? 'active' : '' ?>">Inactive</a>
+                    <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'inactive' : '' ?>">Inactive</a>
                 </div>
                 
                 <!-- Form Pencarian (Otomatis submit saat menekan tombol Enter) -->
@@ -222,6 +222,7 @@ include 'controllers/query_stokbarang.php';
                                         <option value="28">28</option>
                                         <option value="30">30</option>
                                         <option value="32">32</option>
+                                        <option value="34">34</option>
                                         <option value="36">36</option>
                                     </select>
                                 </div>

@@ -39,7 +39,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_update_master->execute([$barcode_clean]);
         }
 
-        // Commit seluruh perubahan ke database
+        // ====================================================================
+        // 3. CATAT REKAM JEJAK KE TABEL log_activity (DITAMBAHKAN DI SINI)
+        // ====================================================================
+        $admin_nama = $_SESSION['user_name'] ?? $_SESSION['nama'] ?? 'Admin HR';
+        $admin_role = $_SESSION['role'] ?? 'Administrator';
+        $total_item = count($barcodes);
+
+        $aktivitas  = "Proses Return Barang";
+        $keterangan = "Memproses return {$total_item} item untuk Transaksi #{$transaction_id}";
+        $modul      = "Return";
+
+        $sql_log = "INSERT INTO log_activity (nama_user, role, aktivitas, keterangan, modul, created_at) 
+                    VALUES (:nama_user, :role, :aktivitas, :keterangan, :modul, NOW())";
+        
+        $stmt_log = $pdo->prepare($sql_log);
+        $stmt_log->execute([
+            ':nama_user'  => $admin_nama,
+            ':role'       => $admin_role,
+            ':aktivitas'  => $aktivitas,
+            ':keterangan' => $keterangan,
+            ':modul'      => $modul
+        ]);
+
+        // Commit seluruh perubahan ke database (return_items + master_item + log_activity)
         $pdo->commit();
 
         echo "<script>alert('Proses Return Berhasil Disimpan!'); window.location.href='../return.php';</script>";

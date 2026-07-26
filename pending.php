@@ -1,5 +1,6 @@
 <?php
 include 'controllers/query_pending.php';
+include 'includes/log.php';
 ?>
 
 <!DOCTYPE html>
@@ -126,7 +127,6 @@ include 'controllers/query_pending.php';
                                                                         <table class="table table-borderless summary-table m-0">
                                                                             <tr><th>Perusahaan</th><td>: <?= $pt ?></td></tr>
                                                                             <tr><th>Nama SA</th><td>: <?= htmlspecialchars($row['nama_sa']) ?></td></tr>
-                                                                            <tr><th>Alamat</th><td>: <?= nl2br(htmlspecialchars($row['alamat'])) ?></td></tr>
                                                                             <?php if ($row['qty_top'] > 0): ?>
                                                                                 <tr><th>Item Atasan</th><td>: Baju <?= $gender_txt ?> (Size <?= htmlspecialchars($row['size_top']) ?>) - <?= htmlspecialchars($row['qty_top']) ?> Pcs</td></tr>
                                                                             <?php endif; ?>
@@ -140,17 +140,62 @@ include 'controllers/query_pending.php';
                                                                 </div>
                                                                 <div class="col-lg-5">
                                                                     <div class="panel-card p-3 border rounded-3 d-flex flex-column h-100">
+                                                                        <!-- Header Panel -->
                                                                         <h6 class="fw-bold text-danger mb-3">KONFIRMASI</h6>
-                                                                        <p class="fw-bold mb-2">Metode Pembayaran: <span class="text-danger"><?= strtoupper(str_replace('_', ' ', $row['pembayaran'])) ?></span></p>
                                                                         
-                                                                        <?php if ($row['pembayaran'] === 'transfer' && $file_path !== '#'): ?>
-                                                                            <a href="<?= htmlspecialchars($file_path) ?>" target="_blank" class="btn btn-sm btn-outline-danger w-100 mb-3">
-                                                                                <i class="bi bi-file-earmark-pdf me-1"></i> Lihat Bukti Transfer
-                                                                            </a>
+                                                                        <!-- Informasi Metode Pembayaran -->
+                                                                        <p class="fw-bold mb-3" style="font-size: 14px; color: #1f2937;">
+                                                                            Metode Pembayaran: 
+                                                                            <span class="text-danger"><?= strtoupper(str_replace('_', ' ', $row['pembayaran'])) ?></span>
+                                                                        </p>
+
+                                                                        <!-- Box Preview Bukti Transfer (Khusus Pembayaran Transfer) -->
+                                                                        <?php if ($row['pembayaran'] === 'transfer'): ?>
+                                                                            <div class="bukti-box p-3 text-center border rounded-3 bg-light mb-3">
+                                                                                <?php if (isset($file_path) && $file_path !== '#'): ?>
+                                                                                    <?php 
+                                                                                        // Deteksi Ekstensi File & Jenis Media
+                                                                                        $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
+                                                                                        $is_image = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+                                                                                        $display_filename = !empty($file_name) ? $file_name : basename($file_path);
+                                                                                    ?>
+
+                                                                                    <!-- Render Preview Jika File Berupa Gambar -->
+                                                                                    <?php if ($is_image): ?>
+                                                                                        <div class="mb-2">
+                                                                                            <img src="<?= htmlspecialchars($file_path) ?>" alt="Bukti Transfer" style="width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid #e5e7eb;">
+                                                                                        </div>
+                                                                                    <!-- Render Icon Box Jika File Berupa Dokumen (PDF/Lainnya) -->
+                                                                                    <?php else: ?>
+                                                                                        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">
+                                                                                            <i class="bi bi-file-earmark-pdf-fill text-danger d-block mb-2" style="font-size: 40px;"></i>
+                                                                                            <span class="fw-bold text-secondary" style="font-size: 13px;">Dokumen <?= strtoupper($ext) ?></span>
+                                                                                        </div>
+                                                                                    <?php endif; ?>
+
+                                                                                    <!-- Nama File -->
+                                                                                    <p class="text-secondary mb-3 small text-truncate" title="<?= htmlspecialchars($display_filename) ?>" style="font-size: 12px;">
+                                                                                        <?= htmlspecialchars($display_filename) ?>
+                                                                                    </p>
+
+                                                                                    <!-- Tombol Buka File -->
+                                                                                    <a href="<?= htmlspecialchars($file_path) ?>" target="_blank" class="btn btn-sm text-white fw-bold w-100 py-2 shadow-sm" style="background-color: #b91c1c; border-radius: 6px;">
+                                                                                        <i class="bi bi-box-arrow-up-right me-1"></i> Buka File
+                                                                                    </a>
+
+                                                                                <!-- Tampilan Fallback Jika File Tidak Ditemukan -->
+                                                                                <?php else: ?>
+                                                                                    <div class="py-3">
+                                                                                        <i class="bi bi-file-earmark-x mb-2 d-block text-muted" style="font-size: 40px;"></i>
+                                                                                        <span class="text-danger fw-bold" style="font-size: 13px;">Bukti transfer belum diunggah / tidak ditemukan</span>
+                                                                                    </div>
+                                                                                <?php endif; ?>
+                                                                            </div>
                                                                         <?php endif; ?>
 
-                                                                        <div class="mt-auto">
-                                                                            <a href="transaksi.php?id=<?= urlencode($req_id) ?>&pt=<?= urlencode($row['perusahaan']) ?>" class="btn btn-success fw-bold w-100 py-2">
+                                                                        <!-- Tombol Approve Request (Selalu Berada di Paling Bawah) -->
+                                                                        <div class="mt-auto pt-2">
+                                                                            <a href="transaksi.php?id=<?= urlencode($req_id) ?>&pt=<?= urlencode($row['perusahaan']) ?>" class="btn btn-success fw-bold w-100 py-2 shadow-sm">
                                                                                 <i class="bi bi-check-circle me-1"></i> Approve Request
                                                                             </a>
                                                                         </div>

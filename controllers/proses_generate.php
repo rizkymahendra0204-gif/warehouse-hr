@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     elseif ($ukuran === '28') $ukuran_code = '28';
     elseif ($ukuran === '30') $ukuran_code = '30';
     elseif ($ukuran === '32') $ukuran_code = '32';
-    elseif ($ukuran === '36') $ukuran_code = '36';
-    elseif ($ukuran === '38') $ukuran_code = '38';    
+    elseif ($ukuran === '34') $ukuran_code = '34';
+    elseif ($ukuran === '36') $ukuran_code = '36';    
 
     // Validasi Form
     if (empty($tipe) || empty($gender) || empty($ukuran)) {

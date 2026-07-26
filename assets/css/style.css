@@ -1005,3 +1005,37 @@ body {
   background-color: #fee2e2;
   color: #dc2626;
 }
+
+
+/* ===========================================================================
+   14. PAGE: Log Activity
+   ========================================================================== */
+
+.activity-icon {
+width: 36px;
+height: 36px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.1rem;
+}
+.icon-transaksi { background-color: #d1fae5; color: #059669; }
+.icon-inventory { background-color: #dbeafe; color: #2563eb; }
+.icon-return { background-color: #fef3c7; color: #d97706; }
+.icon-audit { background-color: #cff4fc; color: #0dcaf0; }
+.icon-system { background-color: #f1f5f9; color: #475569; }
+.date-filter-group {
+display: flex;
+align-items: center;
+background: #fff;
+padding: 6px 12px;
+border-radius: 8px;
+border: 1px solid #e2e8f0;
+}
+.date-filter-group input[type="date"] {
+border: none;
+outline: none;
+font-size: 13px;
+color: #334155;
+}

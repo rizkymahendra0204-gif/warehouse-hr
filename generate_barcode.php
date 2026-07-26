@@ -2,6 +2,13 @@
 include 'controllers/proses_generate.php';
 ?>
 
+<?php
+// Pastikan session sudah diaktifkan di paling atas file PHP
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -79,8 +86,8 @@ include 'controllers/proses_generate.php';
                                     <option value="28">28</option>
                                     <option value="30">30</option>
                                     <option value="32">32</option>
+                                    <option value="34">34</option>
                                     <option value="36">36</option>
-                                    <option value="38">38</option>
                                 </select>
                             </div>
 
@@ -155,6 +162,7 @@ include 'controllers/proses_generate.php';
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="assets/js/scripts.js"></script>
 

@@ -38,13 +38,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </a>
 
         <div class="menu-category">OTHERS</div>
-        <a href="log_activity.php" class="nav-link <?= ($current_page == 'log_activity.php') ? 'active' : '' ?>">
-            <i class="bi bi-ui-checks"></i>
-            <span>Log Activity</span>
-        </a>
         <a href="laporan.php" class="nav-link <?= ($current_page == 'laporan.php') ? 'active' : '' ?>">
             <i class="bi bi-journal-check"></i>
             <span>Laporan</span>
+        </a>
+        <a href="log_activity.php" class="nav-link <?= ($current_page == 'log_activity.php') ? 'active' : '' ?>">
+            <i class="bi bi-ui-checks"></i>
+            <span>Log Activity</span>
         </a>
         <a href="audit_item.php" class="nav-link <?= ($current_page == 'audit_item.php') ? 'active' : '' ?>">
             <i class="bi bi-patch-exclamation-fill"></i>

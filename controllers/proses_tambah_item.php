@@ -1,47 +1,77 @@
 <?php
 // controllers/proses_tambah_item.php
-require_once '../includes/db.php'; 
+session_start();
+require_once __DIR__ . '/../includes/db.php'; 
 
-$conn = new mysqli($host, $user, $pass, $db);
-
-if ($conn->connect_error) {
-    die("Koneksi Database Gagal: " . $conn->connect_error);
+// Cek apakah koneksi $pdo dari db.php berhasil dipanggil
+if (!isset($pdo)) {
+    die("Koneksi Database Gagal: Variabel \$pdo tidak ditemukan di db.php");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Menangkap barcode langsung dari input scanner form
-    $barcode = trim($_POST['barcode']); 
-    $gender  = $_POST['gender']; 
-    $tipe    = $_POST['tipe'];   
-    $size    = $_POST['size'];   
+    // Menangkap barcode & detail item dari form
+    $barcode = trim($_POST['barcode'] ?? ''); 
+    $gender  = trim($_POST['gender'] ?? ''); 
+    $tipe    = trim($_POST['tipe'] ?? '');   
+    $size    = trim($_POST['size'] ?? '');   
 
-    // Validasi duplikasi: Pastikan barcode fisik belum terdaftar sebelumnya di database
-    $sql_cek = "SELECT barcode FROM master_item WHERE barcode = ?";
-    $stmt_cek = $conn->prepare($sql_cek);
-    $stmt_cek->bind_param("s", $barcode);
-    $stmt_cek->execute();
-    $result_cek = $stmt_cek->get_result();
-
-    if ($result_cek->num_rows > 0) {
-        echo "<script>alert('Error: Barcode " . $barcode . " sudah terdaftar di sistem!'); window.location.href='../stok_barang.php';</script>";
-        $stmt_cek->close();
+    if (empty($barcode)) {
+        echo "<script>alert('Error: Barcode tidak boleh kosong!'); window.history.back();</script>";
         exit();
     }
-    $stmt_cek->close();
 
-    // Simpan data ke database master_item menggunakan barcode fisik hasil scan
-    $sql_insert = "INSERT INTO master_item (barcode, gender, tipe, size) VALUES (?, ?, ?, ?)";
-    $stmt_insert = $conn->prepare($sql_insert);
-    $stmt_insert->bind_param("ssss", $barcode, $gender, $tipe, $size);
-    
-    if ($stmt_insert->execute()) {
+    try {
+        // ==========================================
+        // 1. VALIDASI DUPLIKASI BARCODE
+        // ==========================================
+        $stmt_cek = $pdo->prepare("SELECT barcode FROM master_item WHERE barcode = ?");
+        $stmt_cek->execute([$barcode]);
+        $item_ada = $stmt_cek->fetch(PDO::FETCH_ASSOC);
+
+        if ($item_ada) {
+            echo "<script>alert('Error: Barcode " . addslashes($barcode) . " sudah terdaftar di sistem!'); window.location.href='../stok_barang.php';</script>";
+            exit();
+        }
+
+        // Mulai Transaksi Database (Atomic)
+        $pdo->beginTransaction();
+
+        // ==========================================
+        // 2. INSERT DATA BARANG BARU KE master_item
+        // ==========================================
+        $sql_insert = "INSERT INTO master_item (barcode, gender, tipe, size) VALUES (?, ?, ?, ?)";
+        $stmt_insert = $pdo->prepare($sql_insert);
+        $stmt_insert->execute([$barcode, $gender, $tipe, $size]);
+
+        // ==========================================
+        // 3. CATAT REKAM JEJAK KE TABEL log_activity (SUDAH DIPERBAIKI)
+        // ==========================================
+        $user_id    = $_SESSION['user_id'] ?? NULL;
+        $admin_nama = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Admin HR';
+        $admin_role = $_SESSION['role'] ?? 'Administrator';
+
+        $aktivitas  = "Tambah Item Baru";
+        $keterangan = "Menambahkan item baru dengan Barcode: {$barcode} ({$gender} | {$tipe} | Size: {$size})";
+        $modul      = "Inventory";
+
+        $sql_log  = "INSERT INTO log_activity (user_id, nama_user, role, aktivitas, keterangan, modul, created_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
+        $stmt_log = $pdo->prepare($sql_log);
+        $stmt_log->execute([$user_id, $admin_nama, $admin_role, $aktivitas, $keterangan, $modul]);
+
+        // Commit transaksi (Simpan Barang + Simpan Log secara bersamaan)
+        $pdo->commit();
+
         header("Location: ../stok_barang.php");
         exit();
-    } else {
-        echo "Gagal menyimpan data: " . $conn->error;
-    }
-    $stmt_insert->close();
-}
 
-if(isset($conn)){ $conn->close(); }
+    } catch (Exception $e) {
+        // Rollback jika terjadi error
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        echo "<script>alert('Gagal menyimpan data: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
+        exit();
+    }
+}
 ?>
