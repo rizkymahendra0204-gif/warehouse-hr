@@ -130,16 +130,31 @@ if ($is_auto) {
                                     $check_tx  = str_replace(' ', '', strtolower(trim($status_tx)));
                                     $check_brg = strtolower(trim($status_brg));
 
-                                    // Logika penentuan warna & ikon
-                                    if ($check_tx === 'available' && $check_brg === 'active') {
-                                        $text_color = '#16a34a'; // Hijau
-                                        $icon_class = 'bi-check-circle-fill';
-                                    } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
-                                        $text_color = '#dc2626'; // Merah
-                                        $icon_class = 'bi-arrow-counterclockwise';
+                                    // LOGIKA STATUS & PENGECEKAN KELAYAKAN
+                                    $raw_st_transaksi = trim($row['status_transaksi'] ?? '');
+                                    $raw_st_barang    = trim($row['status_barang'] ?? '');
+
+                                    $st_transaksi_lower = strtolower($raw_st_transaksi);
+                                    $st_barang_lower    = strtolower($raw_st_barang);
+
+                                    // Tampilan teks status
+                                    if (!empty($raw_st_transaksi) && !empty($raw_st_barang)) {
+                                        $status_display = $raw_st_transaksi . " (" . $raw_st_barang . ")";
                                     } else {
-                                        $text_color = '#16a34a'; // Hijau default
+                                        $status_display = $raw_st_transaksi ?: ($raw_st_barang ?: '-');
+                                    }
+
+                                    // PENENTUAN KELAYAKAN RETURN (JIKA AVAILABLE / INACTIVE = SUDAH DIRETURN):
+                                    $already_returned = ($st_transaksi_lower === 'available' || $st_barang_lower === 'inactive');
+                                    $can_return       = !$already_returned;
+
+                                    // Logika penentuan warna & ikon
+                                    if ($can_return) {
+                                        $text_color = '#16a34a'; // Hijau jika masih Sold Out (Active)
                                         $icon_class = 'bi-check-circle-fill';
+                                    } else {
+                                        $text_color = '#dc2626'; // Merah jika sudah Available (Inactive)
+                                        $icon_class = 'bi-arrow-counterclockwise';
                                     }
 
                                     // Membungkus single barcode ke JSON safe
@@ -165,16 +180,24 @@ if ($is_auto) {
                                         </td>
                                         
                                         <td class="text-center">
-                                            <button type="button" class="btn btn-proses-custom" 
-                                                    onclick="openProcessPage(
-                                                        '<?php echo addslashes($no_trx); ?>', 
-                                                        '<?php echo addslashes($row['id_sales']); ?>', 
-                                                        '<?php echo addslashes($row['nama_sa']); ?>', 
-                                                        '<?php echo addslashes($detail_with_barcode); ?>',
-                                                        <?php echo $single_barcode_json; ?>
-                                                    )">
-                                                Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
-                                            </button>
+                                            <?php if ($can_return): ?>
+                                                <!-- Tombol Aktif jika barang belum direturn -->
+                                                <button type="button" class="btn btn-proses-custom" 
+                                                        onclick="openProcessPage(
+                                                            '<?php echo addslashes($no_trx); ?>', 
+                                                            '<?php echo addslashes($row['id_sales']); ?>', 
+                                                            '<?php echo addslashes($row['nama_sa']); ?>', 
+                                                            '<?php echo addslashes($detail_with_barcode); ?>',
+                                                            <?php echo $single_barcode_json; ?>
+                                                        )">
+                                                    Proses Return <i class="bi bi-arrow-right-circle ms-1"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <!-- Tombol Disabled jika barang sudah direturn -->
+                                                <button type="button" class="btn btn-secondary btn-sm fw-bold px-3 opacity-75" disabled title="Barang ini sudah pernah direturn">
+                                                    <i class="bi bi-check2-all me-1"></i> Sudah Direturn
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                             <?php 

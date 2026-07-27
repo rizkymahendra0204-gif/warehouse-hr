@@ -69,6 +69,7 @@ include 'controllers/query_audit.php';
             <?php endif; ?>
 
             <!-- Alert Notifikasi Session (Hasil Action) -->
+            <div class="floating-alert-container">
             <?php if (isset($_SESSION['alert_message'])): ?>
                 <div class="alert alert-<?php echo $_SESSION['alert_type']; ?> alert-dismissible fade show shadow-sm mb-3" role="alert">
                     <i class="bi bi-info-circle-fill me-2"></i>
@@ -80,6 +81,7 @@ include 'controllers/query_audit.php';
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
+            </div>
 
             <!-- Tabel Data Stok -->
             <div class="bg-white border rounded-3 p-4 shadow-sm">

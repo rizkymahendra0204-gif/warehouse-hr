@@ -38,7 +38,7 @@ include 'controllers/query_stokbarang.php';
                 </div>
                 <div class="d-flex gap-3">
                     <!-- Memicu Jendela Modal Tambah Barang -->
-                    <button class="btn text-white fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBarang" style="background-color: #556ee6; border-radius: 8px;">
+                    <button class="btn btn-tambah-custom text-white fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
                         <i class="bi bi-plus-lg me-2"></i>Tambah Barang
                     </button>
                 </div>

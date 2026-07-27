@@ -35,6 +35,21 @@ include 'controllers/query_transaksi.php';
             <div class="page-title">Transaksi
                 <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Manajemen untuk pengelolaan item keluar</p>
             </div>
+
+            <div class="floating-alert-container" id="alertContainer">
+                <?php if (isset($_SESSION['alert_message'])): ?>
+                    <div class="alert alert-<?php echo $_SESSION['alert_type'] ?? 'info'; ?> alert-dismissible fade show shadow-sm mb-3" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <?php 
+                            echo $_SESSION['alert_message']; 
+                            unset($_SESSION['alert_message']);
+                            unset($_SESSION['alert_type']);
+                        ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+            </div>
+
             <div class="container-fluid px-0">
                 
                 <form action="controllers/proses_transaksi.php" method="POST" id="formTransaksi">
@@ -56,8 +71,16 @@ include 'controllers/query_transaksi.php';
                                 <input type="text" class="form-control <?php echo $bg_class; ?>" name="nama_sa" value="<?php echo htmlspecialchars($nama_sa); ?>" placeholder="Nama SA" <?php echo $readonly_attr; ?>>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">ID Sales</label>
-                                <input type="text" class="form-control" name="id_sales" placeholder="Masukkan ID Sales" required>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="form-label fw-bold text-dark m-0" style="font-size: 13px;">ID Sales</label>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;">Wajib</span>
+                                </div>
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="id_sales" 
+                                    name="id_sales" 
+                                    placeholder="Masukkan ID Sales" 
+                                    required>
                             </div>
                         </div>
                     </div>
@@ -113,7 +136,7 @@ include 'controllers/query_transaksi.php';
                         <!-- Fast Auto-Scan Box -->
                         <div class="bg-light p-3 rounded-3 mb-4 border">
                             <label class="form-label small fw-bold mb-1" style="color: #556ee6;">
-                                <i class="bi bi-lightning-charge-fill me-1"></i> Mode Cepat Auto-Scan (Auto-Add):
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Auto-Scan (Auto-Add):
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white" style="color: #556ee6;"><i class="bi bi-upc-scan"></i></span>
@@ -127,9 +150,6 @@ include 'controllers/query_transaksi.php';
                         </div>
                             
                         <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                            <button type="button" id="btn-tambah-item" class="btn btn-light border fw-bold text-secondary" style="border-radius: 6px; font-size: 14px;">
-                                <i class="bi bi-plus-lg me-1"></i>Tambah Baris
-                            </button>
                             <button type="button" id="btn-validate" class="btn text-white fw-bold px-4 py-2" style="background-color: #556ee6; border-radius: 6px; font-size: 14px;">
                                 <i class="bi bi-check2-circle me-2"></i>Validate Items
                             </button>
@@ -139,7 +159,9 @@ include 'controllers/query_transaksi.php';
                     <!-- Tombol Aksi Bawah -->
                     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
                         <button type="reset" class="btn btn-light border fw-bold px-4 text-secondary" style="border-radius: 6px;" onclick="resetForm()">Batal</button>
-                        <button type="submit" id="btnSimpanTransaksi" class="btn fw-bold text-white px-5" style="background-color: #556ee6; border-radius: 6px;">Proses Transaksi</button>
+                        <button type="submit" id="btnProses" class="btn btn-light border fw-bold px-4 text-secondary" disabled>
+                            Proses Transaksi
+                        </button>
                     </div>
                 </form>
                 

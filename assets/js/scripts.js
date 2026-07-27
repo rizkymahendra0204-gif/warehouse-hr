@@ -25,6 +25,18 @@ const APP_CONFIG = {
 let itemCount = 0;
 let scannedBarcodes = new Set();
 
+// --- FLAG & FUNGSI RESET VALIDASI ---
+let isValidated = false;
+
+function invalidateForm() {
+  isValidated = false;
+  // Cari tombol proses transaksi di halaman transaksi
+  const btnProses = document.getElementById("btnProses") || document.querySelector("#formTransaksi button[type='submit']");
+  if (btnProses) {
+    btnProses.disabled = true;
+  }
+}
+
 // =========================================================================
 // 2. DOM READY LISTENERS
 // =========================================================================
@@ -33,6 +45,14 @@ $(document).ready(function () {
   $("#sidebarToggle").on("click", function () {
     $(".sidebar").toggleClass("collapsed");
   });
+
+  if ($(".floating-alert-container .alert, #alertContainer .alert").length > 0) {
+    setTimeout(function () {
+      $(".floating-alert-container .alert, #alertContainer .alert").fadeOut("slow", function () {
+        $(this).remove();
+      });
+    }, 4000); // Hilang otomatis setelah 4 detik
+  }
 
   $(".btn-submit").on("click", function (e) {
     e.preventDefault();
@@ -63,8 +83,11 @@ $(document).ready(function () {
     $("#dynamic-item-container").length > 0 &&
     $("#formTransaksi").length > 0
   ) {
+    // 1. Kunci tombol proses transaksi secara default saat load
+    invalidateForm();
+
     // Generasi card item awal berdasarkan target tiket atau default 1
-    if ($(".item-row").length === 0) {
+    /*if ($(".item-row").length === 0) {
       const targetCount =
         window.transactionData && window.transactionData.totalQty > 0
           ? window.transactionData.totalQty
@@ -73,20 +96,27 @@ $(document).ready(function () {
       for (let i = 0; i < targetCount; i++) {
         addItemCard();
       }
-    }
+    }*/
 
-    // Event listener Tambah Baris & Validate Manual
-    $("#btn-tambah-item")
-      .off("click")
-      .on("click", function () {
-        addItemCard();
-      });
-
-    $("#btn-validate")
+    // Event listener Tombol Validate
+    $("#btn-validate, #btnValidate")
       .off("click")
       .on("click", function () {
         validateAllItems();
       });
+
+    // Event listener Submit Form (Proteksi Ganda)
+    $("#formTransaksi").on("submit", function (e) {
+      if (!isValidated) {
+        e.preventDefault();
+        showAlert("<strong>Gagal Submit:</strong> Harap lakukan <b>Validate Items</b> terlebih dahulu!", "danger");
+      }
+    });
+
+    // Reset validasi jika ada perubahan/ketikan manual pada input barcode
+    $("#dynamic-item-container").on("input", ".barcode-item-input", function () {
+      invalidateForm();
+    });
   }
 
   // Listener Auto-Scan Input Utama
@@ -207,22 +237,62 @@ $(document).ready(function () {
         });
       }
     });
+
+    // Buka kunci tombol Simpan ke Stok jika preview barcode ada
+    $("#btnSimpanStokBatch").prop("disabled", false);
   }
 
+  // EVENT LISTENER TOMBOL SIMPAN KE STOK BARANG (BATCH)
+  $("#btnSimpanStokBatch").on("click", function () {
+    let barcodesToSave = [];
+
+    // Mengambil nilai barcode dari elemen-elemen preview lembar cetak
+    $(".barcode-element").each(function () {
+      let code = $(this).attr("data-value") || $(this).text().trim();
+      if (code) {
+        barcodesToSave.push(code);
+      }
+    });
+
+    if (barcodesToSave.length === 0) {
+      showAlert("Tidak ada barcode di lembar preview untuk disimpan!", "warning");
+      return;
+    }
+
+    // Popup Konfirmasi Keamanan
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        title: "Input ke Stok Barang?",
+        text: `Apakah Anda yakin ingin mendaftarkan ${barcodesToSave.length} item barcode ini secara otomatis ke stok barang?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, Simpan Stok!",
+        cancelButtonText: "Batal"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eksekusiSimpanBatchStok(barcodesToSave);
+        }
+      });
+    } else {
+      if (confirm(`Apakah Anda yakin ingin memasukkan ${barcodesToSave.length} item barcode ini ke Stok Barang?`)) {
+        eksekusiSimpanBatchStok(barcodesToSave);
+      }
+    }
+  });
+
   // --- H. STOK BARANG SCANNER ---
-  // Variable untuk mencegah eksekusi ganda dari scanner
   var lastScannedBarcode = "";
 
-  // Reset variabel saat modal dibuka
   $("#modalTambahBarang").on("shown.bs.modal", function () {
     resetFormDigitParse();
     lastScannedBarcode = "";
     $("#scanBarcodeInput").focus();
   });
 
-  // Fungsi Utama Proses Scan
   function eksekusiScanBarcode(barcodeVal) {
-    if (barcodeVal === lastScannedBarcode) return; // Cegah scan ulang kode yang sama
+    if (barcodeVal === lastScannedBarcode) return;
 
     if (barcodeVal.length === 9 && /^\d+$/.test(barcodeVal)) {
       lastScannedBarcode = barcodeVal;
@@ -254,7 +324,6 @@ $(document).ready(function () {
           success: function (response) {
             $("#btnSimpanStok").prop("disabled", false);
 
-            // Pengecekan status ketersediaan item di database
             if (response.exists === true || response.success === true) {
               setParsingAlert(
                 "warning",
@@ -290,17 +359,15 @@ $(document).ready(function () {
     }
   }
 
-  // 1. Otomatis Deteksi saat 9 Digit Terisi (Tanpa Perlu Enter)
   $("#scanBarcodeInput").on("input", function () {
     var barcodeVal = $(this).val().trim();
     if (barcodeVal.length === 9) {
       eksekusiScanBarcode(barcodeVal);
     } else {
-      lastScannedBarcode = ""; // Reset jika user menghapus karakter
+      lastScannedBarcode = "";
     }
   });
 
-  // 2. Fallback jika user/scanner menekan Enter
   $("#scanBarcodeInput").on("keypress", function (e) {
     if (e.which === 13) {
       e.preventDefault();
@@ -313,6 +380,13 @@ $(document).ready(function () {
   if (window.IS_AUTO_RETURN) {
     loadTransactionItems(window.AUTO_BARCODES || []);
   }
+
+  if ($("#id_request").val() !== "") {
+  setTimeout(function() {
+    $("#id_sales").focus();
+  }, 300);
+}
+
 }); // END DOM READY
 
 // =========================================================================
@@ -333,7 +407,7 @@ function parseBarcode(rawCode) {
 
   const gender = APP_CONFIG.GENDER[clean.substring(0, 1)] || "Unknown";
   const type = APP_CONFIG.TYPE[clean.substring(1, 3)] || "Item";
-  const size = APP_CONFIG.SIZE[clean.substring(3, 5)] || "All Size";
+  const size = APP_CONFIG.SIZE[clean.substring(3, 5)] || "Unknown";
   const num = clean.substring(5, 9);
 
   return {
@@ -381,6 +455,9 @@ function processAutoScan(barcodeVal) {
 
   scannedBarcodes.add(parsed.raw);
   showAlert(`Berhasil memindai <strong>${parsed.label}</strong>`, "success");
+
+  // Reset status validasi setiap kali ada barang baru di-scan
+  invalidateForm();
 }
 
 function addItemCard(prefilledData = null) {
@@ -436,6 +513,7 @@ function addItemCard(prefilledData = null) {
     scannedBarcodes.add(prefilledData.raw);
   }
   updateRemoveButtons();
+  invalidateForm(); // Reset status validasi
 }
 
 function fillCardData(id, parsedData) {
@@ -453,6 +531,7 @@ function fillCardData(id, parsedData) {
 
   scannedBarcodes.add(parsedData.raw);
   updateRemoveButtons();
+  invalidateForm(); // Reset status validasi
 }
 
 function removeItemCard(id) {
@@ -485,6 +564,7 @@ function removeItemCard(id) {
   }
 
   updateRemoveButtons();
+  invalidateForm(); // Reset status validasi setelah hapus item
 }
 
 function updateRemoveButtons() {
@@ -502,6 +582,7 @@ function updateRemoveButtons() {
 
 // --- FUNGSI VALIDASI GABUNGAN (DATABASE + KECOCOKAN TIKET) ---
 async function validateAllItems() {
+  invalidateForm(); // Kunci tombol proses di awal pemeriksaan
   const inputs = document.querySelectorAll(".barcode-item-input");
   let validCount = 0;
   let errors = [];
@@ -604,6 +685,7 @@ async function validateAllItems() {
         )}`,
         "danger",
       );
+      return; // Tetap terkunci jika tidak sesuai tiket
     } else {
       showAlert(
         `<strong>Validasi Sempurna!</strong> Seluruh ${validCount} item terdaftar di database & cocok 100% dengan tiket.`,
@@ -615,6 +697,13 @@ async function validateAllItems() {
       `<strong>Validasi Berhasil!</strong> ${validCount} item terkonfirmasi terdaftar di database.`,
       "success",
     );
+  }
+
+  // BUKA KUNCI TOMBOL PROSES TRANSAKSI JIKA LOLOS
+  isValidated = true;
+  const btnProses = document.getElementById("btnProses") || document.querySelector("#formTransaksi button[type='submit']");
+  if (btnProses) {
+    btnProses.disabled = false;
   }
 }
 
@@ -636,17 +725,43 @@ function calculateGrandTotal() {
   $("#grandTotal").text("Rp " + total.toLocaleString("id-ID"));
 }
 
+// 1. Fungsi showAlert (Dinamis JS) - Menggunakan Animasi Bootstrap Native
 function showAlert(msg, type) {
-  const alertContainer = document.getElementById("alertContainer");
+  const alertContainer = document.getElementById("alertContainer") || document.querySelector(".floating-alert-container");
+  
   if (alertContainer) {
-    alertContainer.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show py-2 px-3 small mb-3 shadow-sm" role="alert">
-                ${msg}
-                <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
-            </div>
-        `;
+    const alertDiv = document.createElement("div");
+    // Dihapus class 'small' dan 'py-2 px-3' agar mengikuti CSS baru
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show mb-3`;
+    alertDiv.setAttribute("role", "alert");
+    alertDiv.innerHTML = `
+      <div>${msg}</div>
+    `;
+
+    alertContainer.appendChild(alertDiv);
+
+    setTimeout(function () {
+      alertDiv.classList.remove("show");
+      setTimeout(function () {
+        alertDiv.remove();
+      }, 300);
+    }, 4000);
   }
 }
+
+// 2. Auto-Dismiss Alert PHP Session saat Halaman Dimuat
+$(document).ready(function () {
+  const existingAlerts = document.querySelectorAll(".floating-alert-container .alert, #alertContainer .alert");
+  
+  existingAlerts.forEach(function (alertEl) {
+    setTimeout(function () {
+      alertEl.classList.remove("show");
+      setTimeout(function () {
+        alertEl.remove();
+      }, 300);
+    }, 4000);
+  });
+});
 
 // --- Return Module Functions ---
 function openProcessPage(trxId, salesId, saName, detailInfo, barcodesArray) {
@@ -673,7 +788,10 @@ function openProcessPage(trxId, salesId, saName, detailInfo, barcodesArray) {
         `;
   }
 
-  showAlert("", "light");
+  // BERSHIHAN ALERT LAMA (Bukan memanggil showAlert kosong)
+  const alertContainer = document.getElementById("alertContainer") || document.querySelector(".floating-alert-container");
+  if (alertContainer) alertContainer.innerHTML = "";
+
   loadTransactionItems(barcodesArray);
 }
 
@@ -727,7 +845,6 @@ function addItemRow(barcodeVal) {
                 <div class="col-md-6">
                     <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Kondisi / Alasan Return</label>
                     <select class="form-select" name="kondisi_return[]" required>
-                        <option value="Layak">Layak (Kembali ke Stok Warehouse)</option>
                         <option value="Kebesaran">Tukar: Ukuran Kebesaran</option>
                         <option value="Kekecilan">Tukar: Ukuran Kekecilan</option>
                         <option value="Cacat Produksi">Rusak: Cacat Produksi / Baju Rusak</option>
@@ -819,4 +936,41 @@ function resetFormDigitParse() {
     .html(
       '<i class="bi bi-arrow-left-right d-block mb-1 text-muted fs-5"></i><span>Silakan scan barcode untuk ekstraksi digit otomatis.</span>',
     );
+}
+
+// [TAMBAHAN BARU]: Helper AJAX untuk Mengirim Batch Barcode ke Backend
+function eksekusiSimpanBatchStok(barcodes) {
+  $.ajax({
+    url: "controllers/proses_generate.php", // Tanpa ../ jika halaman utama ada di root warehouse-hr
+    type: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ 
+      action: "simpan_stok_batch", 
+      barcodes: barcodes 
+    }),
+    beforeSend: function () {
+      $("#btnSimpanStokBatch")
+        .prop("disabled", true)
+        .html('<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...');
+    },
+    success: function (response) {
+      if (response.success) {
+        showAlert(`<strong>Berhasil!</strong> ${response.message}`, "success");
+        $("#btnSimpanStokBatch")
+          .prop("disabled", true)
+          .html('<i class="bi bi-check-circle-fill me-1"></i> Sudah Disimpan');
+      } else {
+        showAlert(`<strong>Gagal:</strong> ${response.message}`, "danger");
+        $("#btnSimpanStokBatch")
+          .prop("disabled", false)
+          .html('<i class="bi bi-box-arrow-in-down me-1"></i> Simpan ke Stok Barang');
+      }
+    },
+    error: function () {
+      showAlert("Terjadi kesalahan sistem / jaringan!", "danger");
+      $("#btnSimpanStokBatch")
+        .prop("disabled", false)
+        .html('<i class="bi bi-box-arrow-in-down me-1"></i> Simpan ke Stok Barang');
+    }
+  });
 }

@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // GENERATE 1 TRANSACTION ID UNIK UNTUK SATU BATCH REQUEST/TRANSAKSI
     // Contoh Format: TRX-260726-0001
     // ====================================================================
-    $prefix = "TRX-" . date('ymd') . "-";
+    $prefix = "TRX-" . date('Y') . "-";
     
     $stmt_max = $pdo->prepare("SELECT MAX(transaction_id) AS max_id FROM transaksi WHERE transaction_id LIKE ?");
     $stmt_max->execute([$prefix . '%']);

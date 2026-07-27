@@ -34,19 +34,19 @@ if (session_status() === PHP_SESSION_NONE) {
                 <p class="text-muted small mb-8">Pembuatan Barcode untuk penamaan item</p>
             </div>
 
+            <div class="floating-alert-container">
             <?php if (!empty($success_msg)): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bi bi-printer-fill me-2"></i> <?php echo $success_msg; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
             
             <?php if (!empty($error_msg)): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i> <?php echo $error_msg; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
+            </div>
 
             <div class="row g-4">
                 <!-- FORM SETUP PARAMETER BATCH -->
@@ -110,7 +110,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <small class="text-muted d-block mt-1">Sistem otomatis mengisi format padding angka 0 di depan.</small>
                             </div>
 
-                            <button type="submit" class="btn text-white w-100 fw-bold py-2 shadow-sm" style="background-color: #556ee6; border-radius: 8px;">
+                            <button type="submit" class="btn text-white w-100 fw-bold py-2 shadow-sm" style="background-color: #2563eb; border-radius: 8px;">
                                 <i class="bi bi-eye-fill me-2"></i>Preview Label Barcode
                             </button>
                         </form>
@@ -123,11 +123,11 @@ if (session_status() === PHP_SESSION_NONE) {
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold m-0" style="color: #1e293b;"><i class="bi bi-layout-three-columns me-2 text-success"></i>Lembar Cetak</h5>
                             <?php if (!empty($generated_barcodes)): ?>
-                                <button type="button" onclick="window.print();" class="btn btn-success btn-sm fw-bold px-3 btn-print-trigger">
+                                <button type="button" onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
                                     <i class="bi bi-printer-fill me-1"></i> Cetak ke Kertas Stiker
                                 </button>
-                                <button type="button" onclick="exportExcel();" class="btn btn-success btn-sm fw-bold px-3 btn-print-trigger">
-                                        <i class="bi bi-file-earmark-excel-fill me-1"></i> Export ke Excel
+                                <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none" disabled>
+                                    <i class="bi bi-box-arrow-in-down me-1"></i> Simpan ke Stok Barang
                                 </button>
                             <?php endif; ?>
                         </div>

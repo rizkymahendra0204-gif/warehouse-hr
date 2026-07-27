@@ -34,6 +34,98 @@ body {
 }
 
 /* ==========================================================================
+   CSS UNTUK ALERT
+   ========================================================================== */
+
+/* Container Utama Alert */
+.floating-alert-container {
+  position: fixed;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 850px;
+  z-index: 9999;
+
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+
+/* Styling Box Alert (Teks Rapi & Menyatu) */
+.floating-alert-container .alert {
+  pointer-events: auto;
+  font-size: 0.95rem !important;
+  font-weight: 500;
+  padding: 0.9rem 3.5rem 0.9rem 1.25rem !important; /* Ruang kanan khusus tombol X */
+  border-radius: 12px !important;
+  border: none !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  position: relative; /* Dasar posisi tombol close */
+
+  /* Animasi meluncur turun */
+  animation: alertSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Warna Soft & Aksen Garis Kiri */
+.floating-alert-container .alert-danger {
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  border-left: 6px solid #ef4444 !important;
+}
+
+.floating-alert-container .alert-success {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  border-left: 6px solid #22c55e !important;
+}
+
+.floating-alert-container .alert-warning {
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+  border-left: 6px solid #f59e0b !important;
+}
+
+.floating-alert-container .alert-info {
+  background-color: #f0f9ff !important;
+  color: #075985 !important;
+  border-left: 6px solid #0ea5e9 !important;
+}
+
+/* Posisi Tombol Close (Pojok Kanan Tengah) */
+.floating-alert-container .alert .btn-close {
+  position: absolute !important;
+  top: 50% !important;
+  right: 1rem !important;
+  transform: translateY(-50%) !important;
+  padding: 0.5rem !important;
+  margin: 0 !important;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.floating-alert-container .alert .btn-close:hover {
+  opacity: 1;
+}
+
+/* Keyframe Animasi Slide Down */
+@keyframes alertSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+/* ==========================================================================
+   ========================================================================== */
+
+
+/* ==========================================================================
    2. TOPBAR STYLES
    ========================================================================== */
 .topbar {
@@ -221,6 +313,10 @@ body {
 /* ==========================================================================
    4. COMPONENTS & UTILITIES
    ========================================================================== */
+/* ==========================================================================
+   Button
+   ========================================================================== */
+
 .btn {
   background-color: #e3e3e3;
   color: white;
@@ -230,6 +326,140 @@ body {
   border: none;
   transition: background-color 0.2s;
 }
+
+.btn-submit {
+  background-color: #b91c1c;
+  color: white;
+  border-radius: 8px;
+  padding: 10px 40px;
+  font-weight: 600;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #991b1b;
+}
+
+.btn-proses {
+  background-color: #cc5c5c;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-proses:hover {
+  background-color: #a84747;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(204, 92, 92, 0.3);
+}
+
+.btn-action {
+  padding: 10px 32px;
+  font-weight: 600;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.btn-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background-color: transparent;
+}
+.btn-action-icon:hover {
+  background-color: #e5e7eb;
+}
+.btn-detail {
+  color: #6b7280;
+}
+.btn-edit {
+  color: #556ee6;
+}
+
+.btn-proses-custom {
+  background-color: #cc5c5c;
+  color: white;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-proses-custom:hover {
+  background-color: #a84747;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(204, 92, 92, 0.3);
+}
+
+.btn-process {
+  color: #556ee6;
+}
+
+.btn-cetak-custom {
+    background-color: #15803d !important; /* Hijau solid awal */
+    color: #ffffff !important;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-cetak-custom:hover {
+    background-color: #166534 !important; /* Hijau lebih gelap saat hover */
+}
+
+.btn-simpan-custom {
+    background-color: #2563eb !important; /* Biru solid awal */
+    color: #ffffff !important;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-simpan-custom:hover {
+    background-color: #1d4ed8 !important; /* Biru lebih gelap saat hover */
+}
+
+.btn-tambah-custom {
+    background-color: #2563eb !important; /* Biru solid awal */
+    color: #ffffff !important;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-tambah-custom:hover {
+    background-color: #1d4ed8 !important; /* Biru lebih gelap saat hover */
+}
+
+.btn-aprove-custom {
+    background-color: #15803d !important; /* Biru solid awal */
+    color: #ffffff !important;
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-aprove-custom:hover {
+    background-color: #166534 !important; /* Biru lebih gelap saat hover */
+}
+/* ==========================================================================
+   ========================================================================== */
 
 .page-title {
   font-size: 18px;
@@ -466,20 +696,6 @@ body {
   color: #556ee6 !important;
 }
 
-.btn-submit {
-  background-color: #b91c1c;
-  color: white;
-  border-radius: 8px;
-  padding: 10px 40px;
-  font-weight: 600;
-  border: none;
-  transition: background-color 0.2s;
-}
-
-.btn-submit:hover {
-  background-color: #991b1b;
-}
-
 .success-icon {
   font-size: 80px;
   color: #22c55e;
@@ -543,27 +759,6 @@ body {
   border-radius: 20px;
   font-weight: 600;
   font-size: 12px;
-}
-
-.btn-proses {
-  background-color: #cc5c5c;
-  color: white;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-weight: 600;
-  font-size: 13px;
-  transition: all 0.2s;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-proses:hover {
-  background-color: #a84747;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(204, 92, 92, 0.3);
 }
 
 /* ================= POPUP STYLES ================= */
@@ -661,12 +856,7 @@ body {
   border: 1px solid #ced4da;
   color: #6c757d;
 }
-.btn-action {
-  padding: 10px 32px;
-  font-weight: 600;
-  border-radius: 6px;
-  font-size: 14px;
-}
+
 .item-row {
   padding: 16px;
   background-color: #ffffff;
@@ -678,6 +868,17 @@ body {
 .scan-input-main:focus {
   border-color: #556ee6;
   box-shadow: 0 0 0 0.25rem rgba(85, 110, 230, 0.25);
+}
+
+/* Efek kedip halus (Pulse) saat pertama dimuat jika belum diisi */
+.highlight-required {
+  animation: pulseBorder 2s infinite;
+}
+
+@keyframes pulseBorder {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
 /* ===========================================================================
@@ -703,26 +904,6 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-.btn-action-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  background-color: transparent;
-}
-.btn-action-icon:hover {
-  background-color: #e5e7eb;
-}
-.btn-detail {
-  color: #6b7280;
-}
-.btn-edit {
-  color: #556ee6;
 }
 
 .filter-tab {
@@ -828,31 +1009,6 @@ body {
   font-weight: 700;
   font-size: 13px;
   display: inline-block;
-}
-
-.btn-proses-custom {
-  background-color: #cc5c5c;
-  color: white;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-weight: 600;
-  font-size: 13px;
-  transition: all 0.2s;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-proses-custom:hover {
-  background-color: #a84747;
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(204, 92, 92, 0.3);
-}
-
-.btn-process {
-  color: #556ee6;
 }
 
 /* ===========================================================================

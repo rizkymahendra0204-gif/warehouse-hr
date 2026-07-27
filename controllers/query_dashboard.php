@@ -18,7 +18,7 @@ if ($res_pending) {
 
 // KPI 2: Total Transaksi (Menghitung jumlah total item/barcode unik yang sudah didistribusikan)
 $kpi_transaksi = 0;
-$res_transaksi = $conn->query("SELECT COUNT(*) as total FROM transaksi");
+$res_transaksi = $conn->query("SELECT COUNT(DISTINCT transaction_id) as total FROM transaksi");
 if ($res_transaksi) {
     $row = $res_transaksi->fetch_assoc();
     $kpi_transaksi = (int)$row['total'];
