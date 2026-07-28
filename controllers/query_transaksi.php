@@ -1,5 +1,5 @@
 <?php
-// Panggil koneksi database
+// controllers/query_transaksi.php
 include 'includes/db.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
@@ -30,7 +30,7 @@ if ($is_auto && !$conn->connect_error) {
     $result = $stmt->get_result();
 
     if ($row = $result->fetch_assoc()) {
-        $brand        = $row['perusahaan']; // Menggunakan 'perusahaan' sebagai Brand
+        $brand        = $row['brand']; // Langsung mengambil dari kolom 'brand' sesuai ERD baru
         $nama_sa      = $row['nama_sa'];
         $gender_txt   = ($row['gender'] === 'male') ? 'SA Pria' : 'SA Wanita';
         $qty_top      = $row['qty_top'];

@@ -73,25 +73,21 @@ body {
 .floating-alert-container .alert-danger {
   background-color: #fef2f2 !important;
   color: #991b1b !important;
-  border-left: 6px solid #ef4444 !important;
 }
 
 .floating-alert-container .alert-success {
   background-color: #f0fdf4 !important;
   color: #166534 !important;
-  border-left: 6px solid #22c55e !important;
 }
 
 .floating-alert-container .alert-warning {
   background-color: #fffbeb !important;
   color: #92400e !important;
-  border-left: 6px solid #f59e0b !important;
 }
 
 .floating-alert-container .alert-info {
   background-color: #f0f9ff !important;
   color: #075985 !important;
-  border-left: 6px solid #0ea5e9 !important;
 }
 
 /* Posisi Tombol Close (Pojok Kanan Tengah) */

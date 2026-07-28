@@ -88,13 +88,12 @@ if ($is_auto) {
                             </thead>
                             <tbody>
                             <?php
-                            // Query tanpa GROUP BY agar setiap barcode pada TRX yang sama tampil di baris terpisah
                             $sql = "SELECT 
                                         t.transaction_id,
                                         t.request_id,
                                         t.id_sales,
                                         t.tgl_transaksi,
-                                        TRIM(t.barcode) AS barcode_item,
+                                        TRIM(td.barcode) AS barcode_item,
                                         rf.perusahaan,
                                         rf.nama_sa,
                                         mi.tipe,
@@ -103,9 +102,10 @@ if ($is_auto) {
                                         mi.status_transaksi,
                                         mi.status_barang
                                     FROM transaksi t
+                                    INNER JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
                                     INNER JOIN request_form rf ON t.request_id = rf.request_id
-                                    INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
-                                    ORDER BY t.transaction_id DESC, t.barcode ASC";
+                                    INNER JOIN master_item mi ON TRIM(td.barcode) = TRIM(mi.barcode)
+                                    ORDER BY t.transaction_id DESC, td.barcode ASC";
 
                             $query = mysqli_query($conn, $sql);
 
@@ -117,20 +117,6 @@ if ($is_auto) {
                                     $tgl_trx      = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
 
                                     // LOGIKA STATUS
-                                    $status_tx  = $row['status_barang'] ?? ''; 
-                                    $status_brg = $row['status_transaksi'] ?? '';
-
-                                    if (!empty($status_brg) && !empty($status_tx)) {
-                                        $status_display = $status_brg . " (" . $status_tx . ")";
-                                    } else {
-                                        $status_display = $status_brg ?: ($status_tx ?: '-');
-                                    }
-
-                                    // FORMAT STRING UNTUK PENGECEKAN
-                                    $check_tx  = str_replace(' ', '', strtolower(trim($status_tx)));
-                                    $check_brg = strtolower(trim($status_brg));
-
-                                    // LOGIKA STATUS & PENGECEKAN KELAYAKAN
                                     $raw_st_transaksi = trim($row['status_transaksi'] ?? '');
                                     $raw_st_barang    = trim($row['status_barang'] ?? '');
 

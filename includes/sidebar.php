@@ -37,7 +37,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <span>Generate Barcode</span>
         </a>
 
-        <div class="menu-category">OTHERS</div>
+        <!-- <div class="menu-category">OTHERS</div>
         <a href="laporan.php" class="nav-link <?= ($current_page == 'laporan.php') ? 'active' : '' ?>">
             <i class="bi bi-journal-check"></i>
             <span>Laporan</span>
@@ -49,6 +49,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="audit_item.php" class="nav-link <?= ($current_page == 'audit_item.php') ? 'active' : '' ?>">
             <i class="bi bi-patch-exclamation-fill"></i>
             <span>Change Status</span>
-        </a>
+        </a> -->
     </div>
 </aside>

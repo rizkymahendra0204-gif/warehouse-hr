@@ -21,19 +21,21 @@ $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
 $end_date   = isset($_GET['end_date']) ? $_GET['end_date'] : date('Y-m-t');
 
 try {
-    // Query mengambil data transaksi keluar sesuai filter tanggal
+    // Query mengambil data transaksi keluar (DIPERBAIKI DENGAN INNER JOIN transaksi_detail)
     $sql_table = "SELECT 
                 t.tgl_transaksi,
                 t.transaction_id,
                 rf.request_id,
                 rf.perusahaan,
+                rf.brand,
                 rf.nama_sa,
                 GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender) SEPARATOR ',') AS all_items,
-                (COUNT(t.barcode) - COALESCE(ret.qty_return, 0)) AS total_pcs,
+                (COUNT(td.barcode) - COALESCE(ret.qty_return, 0)) AS total_pcs,
                 ret.items_returned_raw
             FROM transaksi t
+            INNER JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
             INNER JOIN request_form rf ON t.request_id = rf.request_id
-            INNER JOIN master_item mi ON TRIM(t.barcode) = TRIM(mi.barcode)
+            INNER JOIN master_item mi ON TRIM(td.barcode) = TRIM(mi.barcode)
             LEFT JOIN (
                 SELECT 
                     ri.transaction_id,
@@ -64,7 +66,7 @@ $sheet = $spreadsheet->getActiveSheet();
 $sheet->setTitle('Laporan Transaksi');
 
 // 3. Set Header Kolom (Total 9 Kolom: A-I)
-$headers = ['NO', 'TANGGAL', 'ID TRX', 'PERUSAHAAN', 'NAMA SA', 'ITEM DIBERIKAN', 'ITEM RETURN', 'TOTAL (PCS)'];
+$headers = ['NO', 'TANGGAL', 'ID TRX', 'PERUSAHAAN', 'BRAND', 'NAMA SA', 'ITEM DIBERIKAN', 'ITEM RETURN', 'TOTAL (PCS)'];
 $sheet->fromArray($headers, NULL, 'A1');
 
 // Style Header (Warna Hijau #198754, Teks Putih Bold, Tengah)
@@ -79,7 +81,6 @@ $headerStyle = [
         'vertical' => Alignment::VERTICAL_CENTER
     ]
 ];
-// FIX: Range disesuaikan sampai I1
 $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
 
 // 4. Isi Data ke Spreadsheet
@@ -100,7 +101,7 @@ if (!empty($list_transaksi)) {
         }
         $string_item_diberikan = implode(', ', $formatted_items);
 
-        // FIX: Format Item Di-Return jika ada
+        // Format Item Di-Return jika ada
         if (!empty($row['items_returned_raw'])) {
             $raw_returns_array = explode(',', $row['items_returned_raw']);
             $return_counts = array_count_values($raw_returns_array);
@@ -114,28 +115,29 @@ if (!empty($list_transaksi)) {
             $string_item_direturn = '-';
         }
 
-        // Masukkan data ke cell
+        // Masukkan data ke cell (A-I)
         $sheet->setCellValue("A{$rowNum}", $no++);
         $sheet->setCellValue("B{$rowNum}", $tgl);
         $sheet->setCellValue("C{$rowNum}", '#' . $row['transaction_id']);
         $sheet->setCellValue("D{$rowNum}", $row['perusahaan']);
-        $sheet->setCellValue("E{$rowNum}", $row['nama_sa']);
-        $sheet->setCellValue("F{$rowNum}", $string_item_diberikan);
-        $sheet->setCellValue("G{$rowNum}", $string_item_direturn);
-        $sheet->setCellValue("H{$rowNum}", $row['total_pcs']);
+        $sheet->setCellValue("E{$rowNum}", $row['brand'] ?? '-');
+        $sheet->setCellValue("F{$rowNum}", $row['nama_sa']);
+        $sheet->setCellValue("G{$rowNum}", $string_item_diberikan);
+        $sheet->setCellValue("H{$rowNum}", $string_item_direturn);
+        $sheet->setCellValue("I{$rowNum}", $row['total_pcs']);
 
         $rowNum++;
     }
 
     $lastRow = $rowNum - 1;
 
-    // FIX 2: Formatting alignment & style isi tabel (Kolom A, B, H rata tengah)
+    // Formatting alignment & style isi tabel
     $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
     $sheet->getStyle("B2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-    $sheet->getStyle("H2:H{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-    $sheet->getStyle("H2:H{$lastRow}")->getFont()->setBold(true); // Total (PCS) tebal
+    $sheet->getStyle("I2:I{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+    $sheet->getStyle("I2:I{$lastRow}")->getFont()->setBold(true); // Total (PCS) tebal
 
-    // FIX 2: Border untuk seluruh tabel A1:H
+    // Border untuk seluruh tabel A1:I{$lastRow}
     $borderStyle = [
         'borders' => [
             'allBorders' => [
@@ -144,17 +146,17 @@ if (!empty($list_transaksi)) {
             ]
         ]
     ];
-    $sheet->getStyle("A1:H{$lastRow}")->applyFromArray($borderStyle);
+    $sheet->getStyle("A1:I{$lastRow}")->applyFromArray($borderStyle);
 
 } else {
-    // FIX 2: Jika data kosong merge A2:H2
-    $sheet->mergeCells('A2:H2');
+    // Jika data kosong merge A2:I2
+    $sheet->mergeCells('A2:I2');
     $sheet->setCellValue('A2', 'Tidak ada transaksi pada periode tanggal ini.');
     $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 }
 
-// FIX 2: Auto-size Lebar Kolom A sampai H
-foreach (range('A', 'H') as $col) {
+// Auto-size Lebar Kolom A sampai I
+foreach (range('A', 'I') as $col) {
     $sheet->getColumnDimension($col)->setAutoSize(true);
 }
 

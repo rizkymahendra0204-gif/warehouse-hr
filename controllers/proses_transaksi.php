@@ -1,9 +1,9 @@
 <?php
-// processes_transaksi.php
+// controllers/proses_transaksi.php
 session_start();
 require_once __DIR__ . '/../includes/db.php';
 
-// Cek apakah koneksi $pdo dari db.php berhasil dipanggil
+// Cek koneksi PDO
 if (!isset($pdo)) {
     die("Koneksi Database Gagal: Variabel \$pdo tidak ditemukan di db.php");
 }
@@ -32,8 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ====================================================================
-    // GENERATE 1 TRANSACTION ID UNIK UNTUK SATU BATCH REQUEST/TRANSAKSI
-    // Contoh Format: TRX-260726-0001
+    // GENERATE TRANSACTION ID UNIK (Contoh Format: TRX-260728-0001)
     // ====================================================================
     $prefix = "TRX-" . date('Y') . "-";
     
@@ -47,25 +46,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $next_num = $last_num + 1;
     }
     
-    // 1 ID Transaksi ini dipakai bersama oleh semua barcode di bawah
     $transaction_id = $prefix . sprintf("%04d", $next_num);
-
 
     // ==========================================
     // PROSES DATABASE DENGAN TRANSACTION SYSTEM (PDO)
     // ==========================================
     try {
-        // Mulai Transaksi Multi-Row
         $pdo->beginTransaction();
 
-        $sql_check_item  = "SELECT status_transaksi, status_barang FROM master_item WHERE barcode = ?";
-        $sql_insert_tx   = "INSERT INTO transaksi (transaction_id, request_id, barcode, id_sales, tgl_transaksi) VALUES (?, ?, ?, ?, NOW())";
-        $sql_update_stok = "UPDATE master_item SET status_transaksi = 'Sold Out', status_barang = 'Active' WHERE barcode = ?";
+        // A. INSERT KE TABEL HEADER 'transaksi' (Cukup 1 Kali)
+        $sql_insert_tx = "INSERT INTO transaksi (transaction_id, request_id, id_sales, tgl_transaksi) VALUES (?, ?, ?, NOW())";
+        $stmt_tx = $pdo->prepare($sql_insert_tx);
+        $stmt_tx->execute([$transaction_id, $request_id, $id_sales]);
+
+        // Prepared statements untuk query di dalam loop
+        $sql_check_item    = "SELECT status_transaksi, status_barang FROM master_item WHERE barcode = ?";
+        $sql_insert_detail = "INSERT INTO transaksi_detail (transaction_id, barcode) VALUES (?, ?)";
+        $sql_update_stok   = "UPDATE master_item SET status_transaksi = 'Sold Out', status_barang = 'Active' WHERE barcode = ?";
 
         $stmt_check  = $pdo->prepare($sql_check_item);
-        $stmt_insert = $pdo->prepare($sql_insert_tx);
+        $stmt_detail = $pdo->prepare($sql_insert_detail);
         $stmt_update = $pdo->prepare($sql_update_stok);
 
+        // B. LOOP SETIAP BARCODE KE TABEL 'transaksi_detail' & UPDATE STOK
         foreach ($valid_barcodes as $barcode) {
             $barcode_clean = trim($barcode);
 
@@ -81,31 +84,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $st_brg = strtolower($item_data['status_barang'] ?? '');
 
             if ($st_tx === 'sold out') {
-                throw new Exception("Barcode " . $barcode_clean . " sudah berstatus SOLD OUT (Double Scan)!");
+                throw new Exception("Barcode " . $barcode_clean . " sudah berstatus SOLD OUT!");
             }
             if ($st_brg === 'inactive' || $st_brg === 'nonaktif') {
                 throw new Exception("Barcode " . $barcode_clean . " berstatus NONAKTIF!");
             }
 
-            // 2. Insert ke tabel transaksi ($transaction_id SAMA)
-            $stmt_insert->execute([$transaction_id, $request_id, $barcode_clean, $id_sales]);
+            // 2. Insert ke tabel transaksi_detail
+            $stmt_detail->execute([$transaction_id, $barcode_clean]);
 
             // 3. Update status item di master_item
             $stmt_update->execute([$barcode_clean]);
         }
 
-        // ====================================================================
-        // 4. UPDATE STATUS REQUEST MENJADI 'Done'
-        // ====================================================================
+        // C. UPDATE STATUS REQUEST MENJADI 'Done'
         if (!empty($request_id)) {
             $sql_update_request = "UPDATE request_form SET status = 'Done' WHERE request_id = ?";
             $stmt_req = $pdo->prepare($sql_update_request);
             $stmt_req->execute([$request_id]);
         }
 
-        // ====================================================================
-        // 5. CATAT REKAM JEJAK KE TABEL log_activity (SUDAH DIPERBAIKI)
-        // ====================================================================
+        // D. CATAT REKAM JEJAK KE TABEL log_activity
         $user_id    = $_SESSION['user_id'] ?? NULL;
         $admin_nama = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'Admin HR';
         $admin_role = $_SESSION['role'] ?? 'Administrator';
@@ -120,14 +119,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt_log = $pdo->prepare($sql_log);
         $stmt_log->execute([$user_id, $admin_nama, $admin_role, $aktivitas, $keterangan, $modul]);
 
-        // Commit seluruh transaksi database (transaksi + update request + log)
+        // Commit seluruh transaksi database
         $pdo->commit();
-        
+
+        $_SESSION['alert_message'] = "Transaksi Berhasil Disimpan dengan No. Transaksi: <strong>{$transaction_id}</strong>";
+        $_SESSION['alert_type']    = "success";
+
         echo "<script>alert('Transaksi Berhasil Disimpan dengan No. Transaksi: " . $transaction_id . "'); window.location.href='../pending.php';</script>";
         exit();
 
     } catch (Exception $e) {
-        // Rollback jika terjadi kegagalan
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
