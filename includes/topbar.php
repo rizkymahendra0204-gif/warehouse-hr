@@ -6,53 +6,59 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $nama_user   = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'User';
 $role_user   = $_SESSION['role'] ?? 'Staff';
+$foto_user   = $_SESSION['foto_profil'] ?? 'default.png';
+
+// Cek kelayakan dan keberadaan foto profil
+$path_foto   = 'assets/img/profile/' . $foto_user;
+$has_foto    = !empty($foto_user) && $foto_user !== 'default.png' && file_exists($path_foto);
+
 $initial_user = strtoupper(substr(trim($nama_user), 0, 1));
 ?>
 
 <?php 
 $current_page = basename($_SERVER['PHP_SELF']); 
 
-// 1. Pastikan koneksi database tersedia
-if (!isset($conn)) {
+// 1. Pastikan koneksi database PDO tersedia
+if (!isset($pdo)) {
     if (file_exists(__DIR__ . '/db.php')) {
         include_once __DIR__ . '/db.php';
     } elseif (file_exists(__DIR__ . '/../includes/db.php')) {
         include_once __DIR__ . '/../includes/db.php';
     }
-    
-    // Inisialisasi koneksi MySQLi jika belum ada
-    if (isset($host, $user, $pass, $db) && !isset($conn)) {
-        $conn = @new mysqli($host, $user, $pass, $db);
-    }
 }
 
-// 2. Query Ambil Data Pending Request (Maksimal 5 data terbaru untuk dropdown)
+// 2. Query Ambil Data Pending Request menggunakan PDO
 $notif_items = [];
 $total_pending = 0;
 
-if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
-    // Ambil request_form yang belum ada di tabel transaksi (Pending)
-    $sql_notif = "SELECT rf.request_id, rf.perusahaan, rf.nama_sa 
-                  FROM request_form rf 
-                  LEFT JOIN transaksi t ON rf.request_id = t.request_id 
-                  WHERE t.request_id IS NULL 
-                  ORDER BY rf.request_id DESC LIMIT 5";
-    
-    $res_notif = mysqli_query($conn, $sql_notif);
-    if ($res_notif) {
-        while ($row_notif = mysqli_fetch_assoc($res_notif)) {
-            $notif_items[] = $row_notif;
+if (isset($pdo) && $pdo instanceof PDO) {
+    try {
+        // Ambil request_form yang belum ada di tabel transaksi (Pending) - Limit 5
+        $sql_notif = "SELECT rf.request_id, rf.perusahaan, rf.nama_sa 
+                      FROM request_form rf 
+                      LEFT JOIN transaksi t ON rf.request_id = t.request_id 
+                      WHERE t.request_id IS NULL 
+                      ORDER BY rf.request_id DESC LIMIT 5";
+        
+        $stmt_notif = $pdo->query($sql_notif);
+        if ($stmt_notif) {
+            $notif_items = $stmt_notif->fetchAll(PDO::FETCH_ASSOC);
         }
-    }
 
-    // Hitung total seluruh request pending untuk indikator titik/badge
-    $sql_count = "SELECT COUNT(DISTINCT rf.request_id) as total 
-                  FROM request_form rf 
-                  LEFT JOIN transaksi t ON rf.request_id = t.request_id 
-                  WHERE t.request_id IS NULL";
-    $res_count = mysqli_query($conn, $sql_count);
-    if ($res_count && $row_c = mysqli_fetch_assoc($res_count)) {
-        $total_pending = (int)$row_c['total'];
+        // Hitung total seluruh request pending untuk badge notifikasi
+        $sql_count = "SELECT COUNT(DISTINCT rf.request_id) as total 
+                      FROM request_form rf 
+                      LEFT JOIN transaksi t ON rf.request_id = t.request_id 
+                      WHERE t.request_id IS NULL";
+        
+        $stmt_count = $pdo->query($sql_count);
+        if ($stmt_count && $row_c = $stmt_count->fetch(PDO::FETCH_ASSOC)) {
+            $total_pending = (int)($row_c['total'] ?? 0);
+        }
+    } catch (PDOException $e) {
+        // Mencegah error merusak tampilan jika database bermasalah
+        $notif_items = [];
+        $total_pending = 0;
     }
 }
 ?>
@@ -114,22 +120,23 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
             </ul>
         </div>
 
-        <?php
-        // Ambil data user dari Session (dengan fallback aman)
-        $nama_user   = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'User';
-        $role_user   = $_SESSION['role'] ?? 'Staff';
-
-        // Ambil inisial huruf pertama nama untuk avatar
-        $initial_user = strtoupper(substr(trim($nama_user), 0, 1));
-        ?>
-
         <!-- 2. Bagian Profil User Dropdown -->
         <div class="dropdown">
             <div class="user-info d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
-                <!-- Avatar Inisial Nama -->
-                <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px; background-color: #556ee6 !important;">
-                    <?php echo $initial_user; ?>
-                </div>
+                
+                <!-- KONDISI TAMPILAN AVATAR / FOTO PROFIL -->
+                <?php if ($has_foto): ?>
+                    <!-- TAMPILAN FOTO PROFIL DARI DATABASE/SESSION -->
+                    <img src="<?php echo htmlspecialchars($path_foto); ?>" 
+                         alt="Foto Profil" 
+                         class="rounded-circle shadow-sm border" 
+                         style="width: 36px; height: 36px; object-fit: cover;">
+                <?php else: ?>
+                    <!-- FALLBACK: AVATAR INISIAL NAMA -->
+                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px; background-color: #556ee6 !important;">
+                        <?php echo $initial_user; ?>
+                    </div>
+                <?php endif; ?>
                 
                 <!-- Nama & Role User -->
                 <div class="d-flex flex-column text-start">
@@ -150,7 +157,7 @@ if (isset($conn) && $conn instanceof mysqli && !$conn->connect_error) {
                         <?php echo htmlspecialchars($role_user); ?> Account
                     </span>
                 </li>
-                <li><a class="dropdown-item py-2 mt-1" href="#"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
+                <li><a class="dropdown-item py-2 mt-1" href="profile.php"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
                 <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                 <li><hr class="dropdown-divider my-1"></li>
                 <li>

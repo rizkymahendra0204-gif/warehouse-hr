@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'controllers/query_dashboard.php';
 ?>
 

@@ -15,8 +15,9 @@ include 'controllers/query_stokbarang.php';
     
     <!-- Memanggil file CSS Anda -->
     <link rel="stylesheet" href="assets/css/style.css">
+
 </head>
-<body>
+<body id="page-top">
 
 <div class="app-container">
 
@@ -46,7 +47,7 @@ include 'controllers/query_stokbarang.php';
 
             <!-- Area Filter dan Pencarian -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Tab Filter (Mempertahankan text pencarian saat tab diklik) -->
+                <!-- Tab Filter -->
                 <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm">
                     <a href="?tab=semua&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'semua' ? 'active' : '' ?>">Semua</a>
                     <a href="?tab=available&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'active' : '' ?>">Available</a>
@@ -54,9 +55,8 @@ include 'controllers/query_stokbarang.php';
                     <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'inactive' : '' ?>">Inactive</a>
                 </div>
                 
-                <!-- Form Pencarian (Otomatis submit saat menekan tombol Enter) -->
+                <!-- Form Pencarian -->
                 <form method="GET" action="" class="input-group shadow-sm" style="width: 300px; border-radius: 8px; overflow: hidden;">
-                    <!-- Menyimpan state tab aktif saat user mengetik pencarian baru -->
                     <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
                     
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
@@ -85,29 +85,21 @@ include 'controllers/query_stokbarang.php';
                             $no = 1; 
                         ?>
                         <?php while ($row = $result->fetch_assoc()): 
-                            // 1. Ambil data status dengan fallback string kosong jika null
                             $status_tx  = $row['status_barang'] ?? ''; 
                             $status_brg = $row['status_transaksi'] ?? '';
                             
-                            // 2. Normalisasi string (hapus spasi di awal/akhir & ubah ke huruf kecil)
                             $check_tx  = strtolower(trim($status_tx));
                             $check_brg = strtolower(trim($status_brg));
                             
-                            // 3. Logika penentuan status badge & ikon
                             if ($check_tx === 'available' && $check_brg === 'active') {
-                            // BARANG FRESH / READY
-                            $text_color = '#16a34a'; // Hijau
-                            $icon_class = 'bi-check-circle-fill';
-
+                                $text_color = '#16a34a'; 
+                                $icon_class = 'bi-check-circle-fill';
                             } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
-                            // BARANG HASIL RETURN
-                            $text_color = '#dc2626'; // Merah
-                            $icon_class = 'bi-arrow-counterclockwise'; // Ikon Return / Refund
-
+                                $text_color = '#dc2626'; 
+                                $icon_class = 'bi-arrow-counterclockwise';
                             } else {
-                            // SOLD OUT / LAINNYA
-                            $text_color = '#16a34a'; // Hijau
-                            $icon_class = 'bi-check-circle-fill';
+                                $text_color = '#16a34a'; 
+                                $icon_class = 'bi-check-circle-fill';
                             }
                         ?>
                             <tr>
@@ -122,7 +114,6 @@ include 'controllers/query_stokbarang.php';
                                     </span>
                                 </td>
                                 <td>
-                                    <!-- Detail item -->
                                     <div class="fw-bold text-dark" style="font-size: 15px;">
                                         <?= htmlspecialchars($row['tipe'] ?? '') ?> SA <?= htmlspecialchars($row['gender'] ?? '') ?>
                                     </div>
@@ -135,15 +126,13 @@ include 'controllers/query_stokbarang.php';
                                         <?= htmlspecialchars($row['tipe'] ?? '') ?>
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <span class="badge-status" style="color: <?= $text_color ?>; font-weight: 600;">
                                         <i class="bi <?= $icon_class ?>" style="font-size: 1.0rem;"></i> <?= htmlspecialchars($status_brg) ?> (<?= htmlspecialchars($status_tx) ?>)
                                     </span>
                                 </td>
                             </tr>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
+                        <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
                                 <td colspan="5" class="text-center text-muted py-5">
@@ -151,7 +140,6 @@ include 'controllers/query_stokbarang.php';
                                 </td>
                             </tr>
                         <?php endif; ?>
-
 
                         </tbody>
                     </table>
@@ -162,7 +150,7 @@ include 'controllers/query_stokbarang.php';
     </div>
 </div>
 
-<!-- MODAL WINDOW FORM TAMBAH BARANG (FIXED-WIDTH DIGIT PARSE MODE) -->
+<!-- MODAL WINDOW FORM TAMBAH BARANG -->
 <div class="modal fade" id="modalTambahBarang" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 12px;">
@@ -174,8 +162,6 @@ include 'controllers/query_stokbarang.php';
             <form action="controllers/proses_tambah_item.php" method="POST" id="formTambahStok">
                 <div class="modal-body px-4 pb-4">
                     <div class="row g-3">
-                        
-                        <!-- Input Barcode Utama -->
                         <div class="col-md-12">
                             <label class="form-label fw-semibold small text-secondary">Barcode Item (9 Digit Angka)</label>
                             <div class="input-group">
@@ -184,7 +170,6 @@ include 'controllers/query_stokbarang.php';
                             </div>
                         </div>
 
-                        <!-- Indikator Hasil Analisis Karakter & Status Database -->
                         <div class="col-md-12">
                             <div id="parsingAlertBox" class="p-3 border rounded bg-light text-center small text-secondary" style="border-style: dashed !important; transition: all 0.2s ease;">
                                 <i class="bi bi-arrow-left-right d-block mb-1 text-muted fs-5"></i>
@@ -192,7 +177,6 @@ include 'controllers/query_stokbarang.php';
                             </div>
                         </div>
 
-                        <!-- Preview Form Dropdown -->
                         <div class="col-md-12">
                             <div class="row g-2">
                                 <div class="col-md-12">
@@ -242,11 +226,15 @@ include 'controllers/query_stokbarang.php';
     </div>
 </div>
 
+<!-- ELEMEN TOMBOL SCROLL TO TOP -->
+<a class="scroll-to-top rounded" href="#page-top" id="scrollToTopBtn">
+    <i class="bi bi-chevron-up fs-5"></i>
+</a>
+
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
+
 </body>
 </html>
-<?php 
-if(isset($conn)){ $conn->close(); } 
-?>

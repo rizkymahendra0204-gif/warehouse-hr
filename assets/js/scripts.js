@@ -41,9 +41,20 @@ function invalidateForm() {
 // 2. DOM READY LISTENERS
 // =========================================================================
 $(document).ready(function () {
-  // --- A. GLOBAL & SIDEBAR ---
+  // --- A. GLOBAL & SIDEBAR (DIPERBAIKI DENGAN LOCALSTORAGE) ---
+  
+  // 1. Cek memori browser saat halaman dimuat
+  if (localStorage.getItem("sidebar_collapsed") === "true") {
+    $(".sidebar").addClass("collapsed");
+  }
+
+  // 2. Event Toggle Sidebar + Simpan Status
   $("#sidebarToggle").on("click", function () {
     $(".sidebar").toggleClass("collapsed");
+    
+    // Simpan status terbaru ke localStorage
+    const isCollapsed = $(".sidebar").hasClass("collapsed");
+    localStorage.setItem("sidebar_collapsed", isCollapsed);
   });
 
   if ($(".floating-alert-container .alert, #alertContainer .alert").length > 0) {
@@ -85,18 +96,6 @@ $(document).ready(function () {
   ) {
     // 1. Kunci tombol proses transaksi secara default saat load
     invalidateForm();
-
-    // Generasi card item awal berdasarkan target tiket atau default 1
-    /*if ($(".item-row").length === 0) {
-      const targetCount =
-        window.transactionData && window.transactionData.totalQty > 0
-          ? window.transactionData.totalQty
-          : 1;
-
-      for (let i = 0; i < targetCount; i++) {
-        addItemCard();
-      }
-    }*/
 
     // Event listener Tombol Validate
     $("#btn-validate, #btnValidate")
@@ -382,10 +381,25 @@ $(document).ready(function () {
   }
 
   if ($("#id_request").val() !== "") {
-  setTimeout(function() {
-    $("#id_sales").focus();
-  }, 300);
-}
+    setTimeout(function() {
+      $("#id_sales").focus();
+    }, 300);
+  }
+
+  // Tampilkan tombol saat halaman di-scroll lebih dari 150px
+  $(window).scroll(function() {
+    if ($(this).scrollTop() > 150) {
+      $('#scrollToTopBtn').fadeIn();
+    } else {
+      $('#scrollToTopBtn').fadeOut();
+    }
+  });
+
+  // Efek smooth scroll saat tombol diklik
+  $('#scrollToTopBtn').click(function(e) {
+    e.preventDefault();
+    $('html, body').animate({ scrollTop: 0 }, 300);
+  });
 
 }); // END DOM READY
 
@@ -432,6 +446,18 @@ function processAutoScan(barcodeVal) {
       "danger",
     );
     return;
+  }
+
+  // --- PENGECEKAN MAX SCAN (Sesuai Request Ticket) ---
+  if (window.transactionData && window.transactionData.isAuto) {
+    const maxQty = parseInt(window.transactionData.totalQty) || 0;
+    if (maxQty > 0 && scannedBarcodes.size >= maxQty) {
+      showAlert(
+        `<strong>Batas Maksimum Scan!</strong> Permintaan tiket ini hanya membutuhkan <b>${maxQty} Pcs</b> item.`,
+        "warning"
+      );
+      return;
+    }
   }
 
   if (scannedBarcodes.has(parsed.raw)) {
@@ -680,7 +706,7 @@ async function validateAllItems() {
 
     if (ticketErrors.length > 0) {
       showAlert(
-        `<strong>Item Terdaftar DB, Tapi Tidak Sesuai Tiket:</strong><br>• ${ticketErrors.join(
+        `<strong>Item Terdaftar, Tapi Tidak Sesuai Tiket:</strong><br>• ${ticketErrors.join(
           "<br>• ",
         )}`,
         "danger",
@@ -688,7 +714,7 @@ async function validateAllItems() {
       return; // Tetap terkunci jika tidak sesuai tiket
     } else {
       showAlert(
-        `<strong>Validasi Sempurna!</strong> Seluruh ${validCount} item terdaftar di database & cocok 100% dengan tiket.`,
+        `<strong>Validasi Sempurna!</strong> Seluruh ${validCount} item terdaftar & cocok 100% dengan tiket.`,
         "success",
       );
     }
@@ -731,7 +757,6 @@ function showAlert(msg, type) {
   
   if (alertContainer) {
     const alertDiv = document.createElement("div");
-    // Dihapus class 'small' dan 'py-2 px-3' agar mengikuti CSS baru
     alertDiv.className = `alert alert-${type} alert-dismissible fade show mb-3`;
     alertDiv.setAttribute("role", "alert");
     alertDiv.innerHTML = `
@@ -788,7 +813,7 @@ function openProcessPage(trxId, salesId, saName, detailInfo, barcodesArray) {
         `;
   }
 
-  // BERSHIHAN ALERT LAMA (Bukan memanggil showAlert kosong)
+  // BERSHIHAN ALERT LAMA
   const alertContainer = document.getElementById("alertContainer") || document.querySelector(".floating-alert-container");
   if (alertContainer) alertContainer.innerHTML = "";
 
@@ -938,10 +963,10 @@ function resetFormDigitParse() {
     );
 }
 
-// [TAMBAHAN BARU]: Helper AJAX untuk Mengirim Batch Barcode ke Backend
+// Helper AJAX untuk Mengirim Batch Barcode ke Backend
 function eksekusiSimpanBatchStok(barcodes) {
   $.ajax({
-    url: "controllers/proses_generate.php", // Tanpa ../ jika halaman utama ada di root warehouse-hr
+    url: "controllers/proses_generate.php",
     type: "POST",
     contentType: "application/json",
     data: JSON.stringify({ 

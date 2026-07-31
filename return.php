@@ -95,6 +95,7 @@ if ($is_auto) {
                                         t.tgl_transaksi,
                                         TRIM(td.barcode) AS barcode_item,
                                         rf.perusahaan,
+                                        rf.brand,
                                         rf.nama_sa,
                                         mi.tipe,
                                         mi.gender,
@@ -151,7 +152,7 @@ if ($is_auto) {
                                         <td class="text-center"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
                                         
                                         <td>
-                                            <div class="fw-bold"><?php echo htmlspecialchars($row['perusahaan']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
+                                            <div class="fw-bold"><?php echo htmlspecialchars($row['brand']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
                                             <div class="text-muted small">
                                                 <i class="bi bi-box-seam me-1"></i> <b>[<?php echo $barcode_item; ?>]</b> <?php echo $detail_item; ?> &nbsp;|&nbsp; 
                                                 <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
@@ -168,7 +169,7 @@ if ($is_auto) {
                                         <td class="text-center">
                                             <?php if ($can_return): ?>
                                                 <!-- Tombol Aktif jika barang belum direturn -->
-                                                <button type="button" class="btn btn-proses-custom" 
+                                                <button type="button" class="btn btn-proses w-100 fw-bold" 
                                                         onclick="openProcessPage(
                                                             '<?php echo addslashes($no_trx); ?>', 
                                                             '<?php echo addslashes($row['id_sales']); ?>', 
@@ -212,8 +213,27 @@ if ($is_auto) {
                 </div>
 
                 <form action="controllers/proses_return.php" method="POST" id="formReturn">
+
+                <!-- SECTION 1: Detail Pesanan -->
+                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm sticky-detail-pesanan">
+                        <h6 class="fw-bold mb-4" style="color: #4b5563;">
+                            <i class="bi bi-cart-check me-2"></i>Detail Pesanan
+                        </h6>
+                        <div class="border-top pt-2">
+                            <table class="table table-borderless m-0" style="font-size: 14px;">
+                                <tbody id="rincian-item-list">
+                                    <?php if ($is_auto): ?>
+                                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                                            <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Info Order</td>
+                                            <td class="py-3 text-dark">: <?php echo !empty($auto_detail) ? htmlspecialchars($auto_detail) : 'Detail Request Transaksi #' . htmlspecialchars($auto_id_transaksi); ?></td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     
-                    <!-- SECTION 1: Informasi Tiket Return -->
+                    <!-- SECTION 2: Informasi Tiket Return -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
                         <h6 class="fw-bold mb-4" style="color: #4b5563;">
                             <i class="bi bi-arrow-counterclockwise me-2"></i>Informasi Tiket Return
@@ -235,25 +255,6 @@ if ($is_auto) {
                                 <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Tanggal Return</label>
                                 <input type="date" class="form-control bg-light" name="tgl_return" value="<?php echo date('Y-m-d'); ?>" readonly>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 2: Detail Pesanan -->
-                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
-                        <h6 class="fw-bold mb-4" style="color: #4b5563;">
-                            <i class="bi bi-cart-check me-2"></i>Detail Pesanan
-                        </h6>
-                        <div class="border-top pt-2">
-                            <table class="table table-borderless m-0" style="font-size: 14px;">
-                                <tbody id="rincian-item-list">
-                                    <?php if ($is_auto): ?>
-                                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                                            <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Info Order</td>
-                                            <td class="py-3 text-dark">: <?php echo !empty($auto_detail) ? htmlspecialchars($auto_detail) : 'Detail Request Transaksi #' . htmlspecialchars($auto_id_transaksi); ?></td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
 

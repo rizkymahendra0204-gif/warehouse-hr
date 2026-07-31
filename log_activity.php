@@ -139,3 +139,8 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
 <script src="assets/js/scripts.js"></script>
 </body>
 </html>
+<?php 
+if(isset($conn)){
+    $conn->close();
+}
+?>

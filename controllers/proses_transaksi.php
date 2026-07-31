@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ====================================================================
-    // GENERATE TRANSACTION ID UNIK (Contoh Format: TRX-260728-0001)
+    // GENERATE TRANSACTION ID UNIK (Contoh Format: TRX-2026-0001)
     // ====================================================================
     $prefix = "TRX-" . date('Y') . "-";
     

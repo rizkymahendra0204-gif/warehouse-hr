@@ -102,7 +102,7 @@ include 'includes/log.php';
                                                     <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i> Pending</span>
                                                 </td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-proses-custom w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#reviewPopup_<?= htmlspecialchars($req_id) ?>">
+                                                    <button type="button" class="btn btn-proses w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#reviewPopup_<?= htmlspecialchars($req_id) ?>">
                                                         Proses <i class="bi bi-arrow-right-circle ms-2"></i>
                                                     </button>
                                                 </td>
@@ -259,7 +259,7 @@ include 'includes/log.php';
                                                     <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-check-all me-1"></i> Done</span>
                                                 </td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-outline-secondary w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#reviewPopup_<?= htmlspecialchars($req_id) ?>">
+                                                    <button type="button" class="btn btn-cetak-custom w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#reviewPopup_<?= htmlspecialchars($req_id) ?>">
                                                         <i class="bi bi-eye me-1"></i> Lihat Detail
                                                     </button>
                                                 </td>

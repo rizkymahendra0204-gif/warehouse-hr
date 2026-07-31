@@ -28,8 +28,8 @@ include 'controllers/query_audit.php';
             <!-- Header & Tombol Action Toggle Audit -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">Kelola Status Stok</h4>
-                    <p class="text-muted small mb-0">Evaluasi barang retur/non-aktif untuk dikembalikan</p>
+                    <h4 class="fw-bold mb-1">Closing</h4>
+                    <p class="text-muted small mb-0">Evaluasi barang return untuk dikembalikan</p>
                 </div>
                 
                 <!-- Tombol Toggle Mode Audit -->
@@ -39,12 +39,12 @@ include 'controllers/query_audit.php';
                     <?php if ($is_audit_active): ?>
                         <input type="hidden" name="audit_status" value="0">
                         <button type="submit" class="btn btn-outline-danger fw-bold shadow-sm" onclick="return confirm('Tutup periode audit?')">
-                            <i class="bi bi-lock-fill me-1"></i> Tutup Periode Audit
+                            <i class="bi bi-lock-fill me-1"></i> Tutup Periode
                         </button>
                     <?php else: ?>
                         <input type="hidden" name="audit_status" value="1">
                         <button type="submit" class="btn btn-success fw-bold shadow-sm" onclick="return confirm('Buka periode audit?')">
-                            <i class="bi bi-unlock-fill me-1"></i> Buka Periode Audit
+                            <i class="bi bi-unlock-fill me-1"></i> Buka Periode
                         </button>
                     <?php endif; ?>
                 </form>
@@ -56,14 +56,14 @@ include 'controllers/query_audit.php';
                 <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
                     <i class="bi bi-lock-fill me-2 fs-5"></i>
                     <div>
-                        <strong>Periode Audit Ditutup:</strong> Perubahan status barang dikunci sementara.
+                        <strong>Periode Closing Ditutup:</strong> Perubahan status barang dikunci sementara.
                     </div>
                 </div>
             <?php else: ?>
                 <div class="alert alert-success d-flex align-items-center mb-3" role="alert">
                     <i class="bi bi-check-circle-fill me-2 fs-5"></i>
                     <div>
-                        <strong>Mode Audit Aktif:</strong> Silakan lakukan perubahan status untuk barang yang eligible.
+                        <strong>Mode Closing Aktif:</strong> Silakan lakukan perubahan status.
                     </div>
                 </div>
             <?php endif; ?>
@@ -92,7 +92,7 @@ include 'controllers/query_audit.php';
                                 <th class="py-3 text-center">BARCODE</th>
                                 <th class="py-3">DETAIL ITEM</th>
                                 <th class="py-3 text-center">STATUS</th>
-                                <th class="py-3 text-center">AKSI AUDIT</th>
+                                <th class="py-3 text-center">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -207,7 +207,9 @@ include 'controllers/query_audit.php';
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/scripts.js"></script>
 <script>
 function setAuditData(barcode, detail, statusTx, statusBrg) {
     document.getElementById('modal_barcode').value = barcode;
@@ -217,5 +219,12 @@ function setAuditData(barcode, detail, statusTx, statusBrg) {
     document.getElementById('modal_status_brg').value = statusBrg;
 }
 </script>
+
 </body>
 </html>
+
+<?php 
+if(isset($conn)){
+    $conn->close();
+}
+?>
