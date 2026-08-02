@@ -6,6 +6,12 @@ $db     = 'db_warehouse';
 $user   = 'root';
 $pass   = '';
 
+// 1. Baca status dari cookie (default: 'collapsed' jika cookie belum ada)
+$sidebar_cookie = $_COOKIE['sidebar_state'] ?? 'collapsed';
+
+// 2. Tentukan class CSS yang akan dipasang
+$sidebar_class = ($sidebar_cookie === 'collapsed') ? 'sidebar-collapsed' : '';
+
 try {
     // Membuat koneksi ke database
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass);

@@ -1,8 +1,11 @@
 <?php 
 $current_page = basename($_SERVER['PHP_SELF']); 
+
+$is_collapsed = ($_COOKIE['sidebar_collapsed'] ?? 'true') === 'true';
+$sidebar_class = $is_collapsed ? 'collapsed' : '';
 ?>
 
-<aside class="sidebar">
+<aside class="sidebar <?= isset($sidebar_class) ? $sidebar_class : '' ?> ">
     <div class="sidebar-header d-flex align-items-center gap-2">
     <img src="assets/img/Logo.png" alt="Logo" style="width: 200px; height: 32px; object-fit: contain;">
 </div>
@@ -37,10 +40,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </a>
 
         <div class="menu-category">OTHERS</div>
-        <!--<a href="laporan.php" class="nav-link <?= ($current_page == 'laporan.php') ? 'active' : '' ?>">
+        <a href="laporan.php" class="nav-link <?= ($current_page == 'laporan.php') ? 'active' : '' ?>">
             <i class="bi bi-journal-check"></i>
             <span>Laporan</span>
-        </a> -->
+        </a> 
         <a href="log_activity.php" class="nav-link <?= ($current_page == 'log_activity.php') ? 'active' : '' ?>">
             <i class="bi bi-ui-checks"></i>
             <span>Log Activity</span>

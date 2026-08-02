@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/auth_check.php';
 // 1. Panggil koneksi database di baris pertama
 include 'includes/db.php';
 

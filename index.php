@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/auth_check.php';
 include 'controllers/query_dashboard.php';
 ?>
 
@@ -21,7 +21,6 @@ include 'controllers/query_dashboard.php';
 
 <div class="app-container">
 
-    <!-- Memanggil file Sidebar -->
     <?php include 'includes/sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->

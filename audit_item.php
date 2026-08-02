@@ -1,4 +1,5 @@
 <?php 
+require_once __DIR__ . '/includes/auth_check.php';
 // 1. Deklarasikan variabel audit SEBELUM controller di-include
 $is_audit_active = true; 
 

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/auth_check.php';
 include 'controllers/query_laporan.php';
 ?>
 
@@ -56,8 +57,8 @@ include 'controllers/query_laporan.php';
             </div>
 
             <!-- Cards -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
+            <div class="row g-4 mb-3">
+                <div class="col-md-3">
                     <div class="report-card shadow-sm">
                         <div class="icon-box icon-masuk"><i class="bi bi-download"></i></div>
                         <div>
@@ -66,7 +67,7 @@ include 'controllers/query_laporan.php';
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="report-card shadow-sm">
                         <div class="icon-box icon-keluar"><i class="bi bi-upload"></i></div>
                         <div>
@@ -75,12 +76,21 @@ include 'controllers/query_laporan.php';
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="report-card shadow-sm">
                         <div class="icon-box icon-return"><i class="bi bi-arrow-counterclockwise"></i></div>
                         <div>
                             <div class="text-muted small fw-bold mb-1">TOTAL RETURN</div>
                             <h3 class="fw-bold m-0"><?php echo number_format($total_return); ?> <span class="fs-6 text-muted fw-normal">Pcs</span></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="report-card shadow-sm">
+                        <div class="icon-box icon-grandtotal"><i class="bi bi-wallet"></i></div>
+                        <div>
+                            <div class="text-muted small fw-bold mb-1">GRAND TOTAL</div>
+                            <h3 class="fw-bold m-0"><?php echo number_format($grand_total); ?> <span class="fs-6 text-muted fw-normal">Pcs</span></h3>
                         </div>
                     </div>
                 </div>
@@ -97,13 +107,14 @@ include 'controllers/query_laporan.php';
                     <table class="table table-borderless align-middle m-0" style="font-size: 14px;">
                         <thead class="text-secondary small border-bottom">
                             <tr>
-                                <th class="py-3">TANGGAL</th>
-                                <th class="py-3">ID TRX</th>
-                                <th class="py-3">PERUSAHAAN</th>
-                                <th class="py-3">Nama SA</th>
-                                <th class="py-3">ITEM DIBERIKAN</th>
-                                <th class="py-3">ITEM RETURN</th>
-                                <th class="py-3 text-center">TOTAL (PCS)</th>
+                                <th class="py-2">TANGGAL</th>
+                                <th class="py-2">ID TRX</th>
+                                <th class="py-2">BRAND</th>
+                                <th class="py-2">Nama SA</th>
+                                <th class="py-2 text-center">ITEM DIBERIKAN</th>
+                                <th class="py-2 text-center">ITEM RETURN</th>
+                                <th class="py-2 text-center">TOTAL (PCS)</th>
+                                <th class="py-2 text-center">PEMBAYARAN</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,15 +147,21 @@ include 'controllers/query_laporan.php';
                                 } else {
                                     $string_item_direturn = '-';
                                 }
+                                $formatted_harga = 'Rp ' . number_format($row['harga'] ?? 0, 0, ',', '.');
+                                $metode_pembayaran = !empty($row['pembayaran']) ? htmlspecialchars($row['pembayaran']) : '-';
                                 ?>
                                 <tr class="border-bottom">
                                     <td class="fw-bold py-3"><?php echo $tgl; ?></td>
                                     <td class="text-muted">#<?php echo htmlspecialchars($row['transaction_id']); ?></td>
-                                    <td class="text-muted"><?php echo htmlspecialchars($row['perusahaan']); ?></td>
+                                    <td class="text-muted"><?php echo htmlspecialchars($row['brand']); ?></td>
                                     <td class="text-muted"><?php echo htmlspecialchars($row['nama_sa']); ?></td>
-                                    <td class="text-muted"><?php echo $string_item_diberikan; ?></td>
-                                    <td><span class="text-danger"><?php echo $string_item_direturn; ?></span></td>
+                                    <td class="text-muted text-break text-center"><?php echo $string_item_diberikan; ?></td>
+                                    <td class="text-center text-break"><span class="text-danger"><?php echo $string_item_direturn; ?></span></td>
                                     <td class="text-center fw-bold text-primary"><?php echo $row['total_pcs']; ?></td>
+                                    <td class="text-center text-nowrap">
+                                        <div class="fw-bold text-dark"><?php echo $formatted_harga; ?></div>
+                                        <small class="text-muted badge bg-light text-dark border"><?php echo $metode_pembayaran; ?></small>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
@@ -161,6 +178,7 @@ include 'controllers/query_laporan.php';
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 </body>

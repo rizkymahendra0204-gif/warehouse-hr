@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/auth_check.php';
 include 'controllers/proses_generate.php';
 ?>
 

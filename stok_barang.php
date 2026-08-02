@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/auth_check.php';
 include 'controllers/query_stokbarang.php';
 ?>
 
@@ -80,59 +81,58 @@ include 'controllers/query_stokbarang.php';
                             </tr>
                         </thead>
                         <tbody>
-                            
-                        <?php if ($result && $result->num_rows > 0):
+                        <?php if (!empty($list_item)): 
                             $no = 1; 
                         ?>
-                        <?php while ($row = $result->fetch_assoc()): 
-                            $status_tx  = $row['status_barang'] ?? ''; 
-                            $status_brg = $row['status_transaksi'] ?? '';
-                            
-                            $check_tx  = strtolower(trim($status_tx));
-                            $check_brg = strtolower(trim($status_brg));
-                            
-                            if ($check_tx === 'available' && $check_brg === 'active') {
-                                $text_color = '#16a34a'; 
-                                $icon_class = 'bi-check-circle-fill';
-                            } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
-                                $text_color = '#dc2626'; 
-                                $icon_class = 'bi-arrow-counterclockwise';
-                            } else {
-                                $text_color = '#16a34a'; 
-                                $icon_class = 'bi-check-circle-fill';
-                            }
-                        ?>
-                            <tr>
-                                <td>
-                                    <span class="fw-bold text-dark" style="font-size: 15px;">
-                                        <?= $no++ ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="barcode-badge">
-                                        <i class="bi bi-upc-scan"></i> <?= htmlspecialchars($row['barcode'] ?? '') ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="fw-bold text-dark" style="font-size: 15px;">
-                                        <?= htmlspecialchars($row['tipe'] ?? '') ?> SA <?= htmlspecialchars($row['gender'] ?? '') ?>
-                                    </div>
-                                    <div class="text-secondary mt-1" style="font-size: 13px;">
-                                        Ukuran: <?= htmlspecialchars($row['size'] ?? '') ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="text-secondary fw-bold" style="font-size: 13px;">
-                                        <?= htmlspecialchars($row['tipe'] ?? '') ?>
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge-status" style="color: <?= $text_color ?>; font-weight: 600;">
-                                        <i class="bi <?= $icon_class ?>" style="font-size: 1.0rem;"></i> <?= htmlspecialchars($status_brg) ?> (<?= htmlspecialchars($status_tx) ?>)
-                                    </span>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
+                            <?php foreach ($list_item as $row): 
+                                $status_tx  = $row['status_barang'] ?? ''; 
+                                $status_brg = $row['status_transaksi'] ?? '';
+                                
+                                $check_tx  = strtolower(trim($status_tx));
+                                $check_brg = strtolower(trim($status_brg));
+                                
+                                if ($check_tx === 'available' && $check_brg === 'active') {
+                                    $text_color = '#16a34a'; 
+                                    $icon_class = 'bi-check-circle-fill';
+                                } elseif ($check_brg === 'available' && $check_tx === 'inactive') {
+                                    $text_color = '#dc2626'; 
+                                    $icon_class = 'bi-arrow-counterclockwise';
+                                } else {
+                                    $text_color = '#16a34a'; 
+                                    $icon_class = 'bi-check-circle-fill';
+                                }
+                            ?>
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-dark" style="font-size: 15px;">
+                                            <?= $no++ ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="barcode-badge">
+                                            <i class="bi bi-upc-scan"></i> <?= htmlspecialchars($row['barcode'] ?? '') ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark" style="font-size: 15px;">
+                                            <?= htmlspecialchars($row['tipe'] ?? '') ?> SA <?= htmlspecialchars($row['gender'] ?? '') ?>
+                                        </div>
+                                        <div class="text-secondary mt-1" style="font-size: 13px;">
+                                            Ukuran: <?= htmlspecialchars($row['size'] ?? '') ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-secondary fw-bold" style="font-size: 13px;">
+                                            <?= htmlspecialchars($row['tipe'] ?? '') ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-status" style="color: <?= $text_color ?>; font-weight: 600;">
+                                            <i class="bi <?= $icon_class ?>" style="font-size: 1.0rem;"></i> <?= htmlspecialchars($status_brg) ?> (<?= htmlspecialchars($status_tx) ?>)
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
                                 <td colspan="5" class="text-center text-muted py-5">
@@ -140,8 +140,7 @@ include 'controllers/query_stokbarang.php';
                                 </td>
                             </tr>
                         <?php endif; ?>
-
-                        </tbody>
+                    </tbody>
                     </table>
                 </div>
             </div>

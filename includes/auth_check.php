@@ -1,19 +1,18 @@
 <?php 
-require_once 'includes/auth_check.php'; // Pemasangan barikade login
+require_once __DIR__ . '/db.php';
 $is_audit_active = true; 
 include 'controllers/query_audit.php';
-?>
 
-<?php
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Jika belum login, tendang ke halaman login
+// Jika belum login, set alert dan tendang ke login.php
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['alert_message'] = "Anda harus login terlebih dahulu untuk mengakses halaman ini.";
     $_SESSION['alert_type']    = "danger";
     header("Location: login.php");
-    exit;
+    exit; // Wajib dipanggil untuk menghentikan eksekusi script selanjutnya
 }
 ?>
