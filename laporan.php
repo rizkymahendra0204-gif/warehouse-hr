@@ -90,7 +90,7 @@ include 'controllers/query_laporan.php';
                         <div class="icon-box icon-grandtotal"><i class="bi bi-wallet"></i></div>
                         <div>
                             <div class="text-muted small fw-bold mb-1">GRAND TOTAL</div>
-                            <h3 class="fw-bold m-0"><?php echo number_format($grand_total); ?> <span class="fs-6 text-muted fw-normal">Pcs</span></h3>
+                            <h3 class="fw-bold m-0">Rp   <?php echo number_format($grand_total); ?> <span class="fs-6 text-muted fw-normal"></span></h3>
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,7 @@ include 'controllers/query_laporan.php';
                                 <th class="py-2">BRAND</th>
                                 <th class="py-2">Nama SA</th>
                                 <th class="py-2 text-center">ITEM DIBERIKAN</th>
-                                <th class="py-2 text-center">ITEM RETURN</th>
+                                <!-- <th class="py-2 text-center">ITEM RETURN</th> -->
                                 <th class="py-2 text-center">TOTAL (PCS)</th>
                                 <th class="py-2 text-center">PEMBAYARAN</th>
                             </tr>
@@ -152,11 +152,11 @@ include 'controllers/query_laporan.php';
                                 ?>
                                 <tr class="border-bottom">
                                     <td class="fw-bold py-3"><?php echo $tgl; ?></td>
-                                    <td class="text-muted">#<?php echo htmlspecialchars($row['transaction_id']); ?></td>
+                                    <td class="text-muted">#<?php echo htmlspecialchars($row['request_id']); ?></td>
                                     <td class="text-muted"><?php echo htmlspecialchars($row['brand']); ?></td>
                                     <td class="text-muted"><?php echo htmlspecialchars($row['nama_sa']); ?></td>
                                     <td class="text-muted text-break text-center"><?php echo $string_item_diberikan; ?></td>
-                                    <td class="text-center text-break"><span class="text-danger"><?php echo $string_item_direturn; ?></span></td>
+                                    <!-- <td class="text-center text-break"><span class="text-danger"><?php echo $string_item_direturn; ?></span></td> -->
                                     <td class="text-center fw-bold text-primary"><?php echo $row['total_pcs']; ?></td>
                                     <td class="text-center text-nowrap">
                                         <div class="fw-bold text-dark"><?php echo $formatted_harga; ?></div>

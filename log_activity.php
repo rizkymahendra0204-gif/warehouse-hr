@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth_check.php';
-include 'controllers/query_log.php'; // Koneksi PDO Anda
+include 'controllers/query_log.php'; // Controller PDO
 ?>
 
 <!DOCTYPE html>
@@ -14,7 +14,6 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
 <body>
 
@@ -29,7 +28,7 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <!-- Header Halaman & Tombol Export -->
+            <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h4 class="fw-bold m-0" style="color: #1e293b;">Log Activity</h4>
@@ -43,9 +42,9 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
                 <!-- Filter Tanggal (Date Range) -->
                 <div class="date-filter-group shadow-sm">
                     <i class="bi bi-calendar3 text-secondary me-2"></i>
-                    <input type="date" name="start_date" value="<?php echo $start_date; ?>" title="Mulai Tanggal">
+                    <input type="date" name="start_date" value="<?php echo htmlspecialchars($start_date ?? ''); ?>" title="Mulai Tanggal">
                     <span class="date-separator px-2 text-muted">-</span>
-                    <input type="date" name="end_date" value="<?php echo $end_date; ?>" title="Sampai Tanggal">
+                    <input type="date" name="end_date" value="<?php echo htmlspecialchars($end_date ?? ''); ?>" title="Sampai Tanggal">
                     <button type="submit" class="btn btn-light border-0 ms-2 text-primary fw-bold" title="Terapkan Filter">
                         <i class="bi bi-funnel-fill"></i>
                     </button>
@@ -56,7 +55,7 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
                     <input type="text" name="search" class="form-control border-start-0 ps-0" 
                            placeholder="Cari aktivitas, user, atau ket..." 
-                           value="<?php echo htmlspecialchars($search); ?>">
+                           value="<?php echo htmlspecialchars($search ?? ''); ?>">
                     <button class="btn btn-primary" type="submit">Cari</button>
                 </div>
             </form>
@@ -77,11 +76,15 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
                             <?php if (!empty($logs)): ?>
                                 <?php foreach ($logs as $row): ?>
                                     <?php 
-                                        $timestamp = strtotime($row['created_at']);
-                                        $tgl = date('d M Y', $timestamp);
-                                        $jam = date('H:i', $timestamp) . ' WIB';
-                                        $modul = !empty($row['modul']) ? $row['modul'] : 'Sistem';
-                                        $theme = getLogTheme($modul);
+                                        $timestamp    = strtotime($row['created_at']);
+                                        $tgl          = date('d M Y', $timestamp);
+                                        $jam          = date('H:i', $timestamp) . ' WIB';
+                                        $modul        = !empty($row['modul']) ? $row['modul'] : 'Sistem';
+                                        $theme        = getLogTheme($modul);
+                                        
+                                        // Ambil 1 huruf pertama nama user untuk avatar
+                                        $nama_user    = $row['nama_user'] ?? 'User';
+                                        $initial_user = strtoupper(substr($nama_user, 0, 1));
                                     ?>
                                     <tr class="border-bottom">
                                         <td class="ps-3">
@@ -94,7 +97,7 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
                                                     <?php echo $initial_user; ?>
                                                 </div>
                                                 <div>
-                                                    <div class="fw-bold text-dark" style="font-size: 13px;"><?php echo htmlspecialchars($row['nama_user']); ?></div>
+                                                    <div class="fw-bold text-dark" style="font-size: 13px;"><?php echo htmlspecialchars($nama_user); ?></div>
                                                     <div class="text-secondary" style="font-size: 11px;"><?php echo htmlspecialchars($row['role'] ?? 'User'); ?></div>
                                                 </div>
                                             </div>
@@ -105,8 +108,8 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
                                                     <i class="bi <?php echo $theme['icon']; ?>"></i>
                                                 </div>
                                                 <div>
-                                                    <span class="fw-bold text-dark" style="font-size: 14px;"><?php echo htmlspecialchars($row['aktivitas']); ?></span>
-                                                    <p class="text-secondary m-0 mt-1" style="font-size: 13px;"><?php echo $row['keterangan']; ?></p>
+                                                    <span class="fw-bold text-dark" style="font-size: 14px;"><?php echo htmlspecialchars($row['aktivitas'] ?? ''); ?></span>
+                                                    <p class="text-secondary m-0 mt-1" style="font-size: 13px;"><?php echo htmlspecialchars($row['keterangan'] ?? ''); ?></p>
                                                 </div>
                                             </div>
                                         </td>
@@ -139,8 +142,10 @@ include 'controllers/query_log.php'; // Koneksi PDO Anda
 <script src="assets/js/scripts.js"></script>
 </body>
 </html>
+
 <?php 
-if(isset($conn)){
-    $conn->close();
+// Menutup koneksi PDO dengan aman
+if (isset($pdo)) {
+    $pdo = null;
 }
 ?>

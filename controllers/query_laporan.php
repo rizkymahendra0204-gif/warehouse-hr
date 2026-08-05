@@ -17,7 +17,7 @@ try {
 
     // 2. QUERY CARD 2: Total Transaksi Unik
     $sql_trx  = "SELECT COUNT(DISTINCT transaction_id) 
-                FROM transaksi 
+                FROM transaksi, request_form
                 WHERE DATE(tgl_transaksi) BETWEEN :start_date AND :end_date";
     $stmt_trx = $pdo->prepare($sql_trx);
     $stmt_trx->execute([
@@ -64,7 +64,7 @@ try {
                 ret.items_returned_raw
             FROM transaksi t
             INNER JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
-            INNER JOIN request_form rf ON t.request_id = rf.request_id
+            INNER JOIN request_form rf ON t.request_id = rf.request_id 
             INNER JOIN master_item mi ON TRIM(td.barcode) = TRIM(mi.barcode)
             LEFT JOIN (
                 SELECT 
@@ -76,10 +76,11 @@ try {
                 GROUP BY ri.transaction_id
             ) ret ON t.transaction_id = ret.transaction_id
             WHERE DATE(t.tgl_transaksi) BETWEEN :start_date AND :end_date
+            AND rf.request_id LIKE 'FR%'
             GROUP BY 
                 t.transaction_id, 
                 t.tgl_transaksi, 
-                rf.request_id, 
+                rf.request_id , 
                 rf.perusahaan, 
                 rf.brand, 
                 rf.nama_sa, 

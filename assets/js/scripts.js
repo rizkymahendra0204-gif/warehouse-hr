@@ -659,7 +659,7 @@ async function validateAllItems() {
     return;
   }
 
-  // Jika ada barcode yang gagal ditemukan di database
+  // 1. Jika ada barcode yang gagal ditemukan di database
   if (errors.length > 0) {
     showAlert(
       `<strong>Gagal Validasi Database:</strong><br>• ${errors.join("<br>• ")}`,
@@ -668,60 +668,57 @@ async function validateAllItems() {
     return;
   }
 
-  // 2. Jika seluruh item terdaftar di database, lakukan pengecekan kesesuaian tiket
+  // 2. Jika seluruh item terdaftar di database, lakukan pengecekan kesesuaian JUMLAH pesanan tiket
   if (window.transactionData && window.transactionData.isAuto) {
     const t = window.transactionData;
     let countTop = 0;
     let countBottom = 0;
     let ticketErrors = [];
 
+    // Hitung berapa banyak Baju dan Celana yang telah di-scan
     scannedItems.forEach((item) => {
       if (item.type === "Baju") {
         countTop++;
-        if (t.sizeTop && item.size !== t.sizeTop) {
-          ticketErrors.push(
-            `Ukuran Baju (<b>Size ${item.size}</b>) tidak sesuai permintaan tiket (<b>Size ${t.sizeTop}</b>)`,
-          );
-        }
       } else if (item.type === "Celana") {
         countBottom++;
-        if (t.sizeBottoms && item.size !== t.sizeBottoms) {
-          ticketErrors.push(
-            `Ukuran Celana (<b>Size ${item.size}</b>) tidak sesuai permintaan tiket (<b>Size ${t.sizeBottoms}</b>)`,
-          );
-        }
       }
     });
 
-    if (t.qtyTop > 0 && countTop !== t.qtyTop) {
+    // Pengecekan Kuantitas Baju
+    const targetQtyTop = parseInt(t.qtyTop) || 0;
+    if (targetQtyTop > 0 && countTop !== targetQtyTop) {
       ticketErrors.push(
-        `Jumlah Baju (${countTop} Pcs) belum sesuai pesanan tiket (${t.qtyTop} Pcs)`,
-      );
-    }
-    if (t.qtyBottoms > 0 && countBottom !== t.qtyBottoms) {
-      ticketErrors.push(
-        `Jumlah Celana (${countBottom} Pcs) belum sesuai pesanan tiket (${t.qtyBottoms} Pcs)`,
+        `Jumlah Baju yang di-scan (<b>${countTop} Pcs</b>) tidak sesuai pesanan tiket (<b>${targetQtyTop} Pcs</b>)`
       );
     }
 
+    // Pengecekan Kuantitas Celana
+    const targetQtyBottoms = parseInt(t.qtyBottoms) || 0;
+    if (targetQtyBottoms > 0 && countBottom !== targetQtyBottoms) {
+      ticketErrors.push(
+        `Jumlah Celana yang di-scan (<b>${countBottom} Pcs</b>) tidak sesuai pesanan tiket (<b>${targetQtyBottoms} Pcs</b>)`
+      );
+    }
+
+    // Jika jumlah item tidak sesuai
     if (ticketErrors.length > 0) {
       showAlert(
-        `<strong>Item Terdaftar, Tapi Tidak Sesuai Tiket:</strong><br>• ${ticketErrors.join(
-          "<br>• ",
+        `<strong>Jumlah Item Tidak Sesuai Tiket:</strong><br>• ${ticketErrors.join(
+          "<br>• "
         )}`,
-        "danger",
+        "danger"
       );
-      return; // Tetap terkunci jika tidak sesuai tiket
+      return; // Tombol proses tetap terkunci
     } else {
       showAlert(
-        `<strong>Validasi Sempurna!</strong> Seluruh ${validCount} item terdaftar & cocok 100% dengan tiket.`,
-        "success",
+        `<strong>Validasi Sempurna!</strong> Seluruh (${validCount}) item terdaftar & jumlah pcs cocok dengan tiket.`,
+        "success"
       );
     }
   } else {
     showAlert(
       `<strong>Validasi Berhasil!</strong> ${validCount} item terkonfirmasi terdaftar di database.`,
-      "success",
+      "success"
     );
   }
 
@@ -999,3 +996,55 @@ function eksekusiSimpanBatchStok(barcodes) {
     }
   });
 }
+
+// =========================================================================
+// REAL-TIME AUTO UPDATE PENDING REQUEST (ANTI-CACHE & FAST POLLING)
+// =========================================================================
+$(document).ready(function () {
+    console.log("✅ scripts.js berhasil dimuat!");
+
+    // Pengecekan keberadaan elemen wrapper
+    if ($("#pending-tab-wrapper").length > 0) {
+        console.log("✅ Elemen #pending-tab-wrapper ditemukan! Memulai polling...");
+
+        let lastPendingCount = parseInt($("#badge-pending-count").text()) || 0;
+
+        setInterval(function () {
+            $.ajax({
+                url: "controllers/pending_update.php",
+                type: "GET",
+                cache: false,
+                data: { _t: new Date().getTime() },
+                dataType: "json",
+                success: function (response) {
+                    console.log("🔄 [Polling Status]: Check server... Total:", response.total_pending);
+                    
+                    if (response && response.status === "success") {
+                        let serverCount = parseInt(response.total_pending) || 0;
+
+                        if (serverCount !== lastPendingCount) {
+                            console.log("🚀 Data baru terdeteksi! Mengupdate tabel... Old:", lastPendingCount, "New:", serverCount);
+                            lastPendingCount = serverCount;
+
+                            // Update Badge
+                            $("#badge-pending-count").text(serverCount);
+
+                            // Update Partial Load
+                            let cleanUrl = window.location.href.split('#')[0];
+                            let refreshUrl = cleanUrl + (cleanUrl.indexOf('?') >= 0 ? '&' : '?') + '_ts=' + new Date().getTime();
+
+                            $("#pending-tab-wrapper").load(refreshUrl + " #pending-tab-wrapper > *", function () {
+                                console.log("🎉 Tabel pending berhasil diperbarui!");
+                            });
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("❌ Polling Error:", status, error, xhr.responseText);
+                }
+            });
+        }, 3000); // 3 detik
+    } else {
+        console.warn("⚠️ Elemen #pending-tab-wrapper TIDAK ditemukan di halaman ini!");
+    }
+});
