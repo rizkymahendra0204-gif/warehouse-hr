@@ -1,101 +1,167 @@
 <?php
-// 1. Barikade Autentikasi (Otomatis mengaktifkan session & cek login)
-require_once __DIR__ . '/../includes/auth_check.php';
-
-// 2. Load Koneksi Database PDO
+// controllers/query_laporan.php
 require_once __DIR__ . '/../includes/db.php';
 
-// 3. Tangkap Filter Tanggal (Default: Awal Bulan s/d Akhir Bulan)
-$start_date = $_GET['start_date'] ?? date('Y-m-01');
-$end_date   = $_GET['end_date']   ?? date('Y-m-t');
+// 1. Ambil Parameter Tanggal & Tipe Laporan
+$start_date  = $_GET['start_date'] ?? date('Y-m-01');
+$end_date    = $_GET['end_date']   ?? date('Y-m-t');
+$report_type = $_GET['type']       ?? $report_type ?? 'internal'; // Default: internal
+
+// 2. Inisialisasi variabel default agar tidak undefined di View
+$list_data            = [];
+$data                 = [];
+$total_keluar         = 0;
+$total_retur          = 0;
+$total_master_stok    = 0;
+$net_terpakai         = 0;
+$total_req            = 0;
+$grand_total_biaya    = 0;
+$total_pcs_fin        = 0;
+$grand_total_all_time = 0;
+$total_req_all_time   = 0;
 
 try {
-    // 1. QUERY CARD 1: Total Barang Masuk di Master
-    $sql_masuk  = "SELECT COUNT(barcode) FROM master_item";
-    $stmt_masuk = $pdo->query($sql_masuk);
-    $total_masuk = $stmt_masuk->fetchColumn() ?: 0;
+    if ($report_type === 'internal') {
+        // ==========================================
+        // 📦 LOGIKA LAPORAN INTERNAL (STOK)
+        // ==========================================
+        
+        // Summary Cards Internal
+        $stmt_k = $pdo->prepare("SELECT COUNT(transaction_id) 
+                                 FROM transaksi 
+                                 WHERE DATE(tgl_transaksi) BETWEEN :s AND :e 
+                                   AND request_id LIKE 'FR%'");
+        $stmt_k->execute(['s' => $start_date, 'e' => $end_date]);
+        $total_keluar = (int) $stmt_k->fetchColumn();
 
-    // 2. QUERY CARD 2: Total Transaksi Unik
-    $sql_trx  = "SELECT COUNT(DISTINCT transaction_id) 
-                FROM transaksi, request_form
-                WHERE DATE(tgl_transaksi) BETWEEN :start_date AND :end_date";
-    $stmt_trx = $pdo->prepare($sql_trx);
-    $stmt_trx->execute([
-        ':start_date' => $start_date,
-        ':end_date'   => $end_date
-    ]);
-    $total_trx = $stmt_trx->fetchColumn() ?: 0;
+        $stmt_r = $pdo->prepare("SELECT COUNT(ri.barcode) 
+                                 FROM return_items ri 
+                                 WHERE DATE(ri.tgl_return) BETWEEN :s AND :e");
+        $stmt_r->execute(['s' => $start_date, 'e' => $end_date]);
+        $total_retur = (int) $stmt_r->fetchColumn();
 
-    // 3. QUERY CARD 3: Total Return
-    $sql_return  = "SELECT COUNT(barcode) 
-                    FROM return_items 
-                    WHERE DATE(tgl_return) BETWEEN :start_date AND :end_date";
-    $stmt_return = $pdo->prepare($sql_return);
-    $stmt_return->execute([
-        ':start_date' => $start_date,
-        ':end_date'   => $end_date
-    ]);
-    $total_return = $stmt_return->fetchColumn() ?: 0;
+        $total_master_stok = (int) $pdo->query("SELECT COUNT(barcode) FROM master_item")->fetchColumn();
+        $net_terpakai      = $total_keluar - $total_retur;
 
-    // 4. QUERY CARD 4: Grand Total
-    $sql_grand_total  = "SELECT SUM(rf.total_harga) 
-                         FROM transaksi t
-                         INNER JOIN request_form rf ON t.request_id = rf.request_id
-                         WHERE DATE(t.tgl_transaksi) BETWEEN :start_date AND :end_date";
-    $stmt_grand_total = $pdo->prepare($sql_grand_total);
-    $stmt_grand_total->execute([
-        ':start_date' => $start_date,
-        ':end_date'   => $end_date
-    ]);
-    $grand_total = $stmt_grand_total->fetchColumn() ?: 0;
-
-    // 4. QUERY TABEL: Rincian Transaksi Keluar (Aman untuk Strict Mode MySQL)
-    $sql_table = "SELECT 
-                t.tgl_transaksi,
+        // Tabel Detail Stok
+        $sql_stok = "SELECT 
                 t.transaction_id,
+                t.tgl_transaksi,
                 rf.request_id,
                 rf.perusahaan,
                 rf.brand,
                 rf.nama_sa,
-                GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ', ') AS all_items,
-                (COUNT(td.barcode) - COALESCE(ret.qty_return, 0)) AS total_pcs,
-                rf.total_harga AS harga,
-                rf.pembayaran,
-                ret.items_returned_raw
+                GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ', ') AS raw_items,
+                COUNT(td.barcode) AS qty_keluar,
+                COALESCE(ret.qty_retur, 0) AS qty_retur,
+                (COUNT(td.barcode) - COALESCE(ret.qty_retur, 0)) AS net_terpakai,
+                ret.raw_returns
             FROM transaksi t
+            INNER JOIN request_form rf ON t.request_id = rf.request_id
             INNER JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
-            INNER JOIN request_form rf ON t.request_id = rf.request_id 
             INNER JOIN master_item mi ON TRIM(td.barcode) = TRIM(mi.barcode)
             LEFT JOIN (
                 SELECT 
                     ri.transaction_id,
-                    GROUP_CONCAT(CONCAT(mir.tipe, ' ', mir.gender, ' - Size ', mir.size) SEPARATOR ', ') AS items_returned_raw,
-                    COUNT(ri.barcode) AS qty_return
+                    COUNT(ri.barcode) AS qty_retur,
+                    GROUP_CONCAT(CONCAT(mir.tipe, ' ', mir.gender, ' - Size ', mir.size) SEPARATOR ', ') AS raw_returns
                 FROM return_items ri
                 INNER JOIN master_item mir ON TRIM(ri.barcode) = TRIM(mir.barcode)
                 GROUP BY ri.transaction_id
             ) ret ON t.transaction_id = ret.transaction_id
-            WHERE DATE(t.tgl_transaksi) BETWEEN :start_date AND :end_date
-            AND rf.request_id LIKE 'FR%'
+            WHERE DATE(t.tgl_transaksi) BETWEEN :s1 AND :e1
             GROUP BY 
                 t.transaction_id, 
                 t.tgl_transaksi, 
-                rf.request_id , 
+                rf.request_id, 
                 rf.perusahaan, 
                 rf.brand, 
                 rf.nama_sa, 
-                ret.items_returned_raw, 
-                ret.qty_return
+                ret.qty_retur, 
+                ret.raw_returns
             ORDER BY t.tgl_transaksi DESC";
 
-    $stmt_table = $pdo->prepare($sql_table);
-    $stmt_table->execute([
-        ':start_date' => $start_date,
-        ':end_date'   => $end_date
-    ]);
-    $list_transaksi = $stmt_table->fetchAll(PDO::FETCH_ASSOC);
+        $stmt_stok = $pdo->prepare($sql_stok);
+        $stmt_stok->execute(['s1' => $start_date, 'e1' => $end_date]);
+        $list_data = $data = $stmt_stok->fetchAll(PDO::FETCH_ASSOC);
 
+    } else if ($report_type === 'finance') {
+        // ==========================================
+        // 💰 LOGIKA LAPORAN FINANCE (KEUANGAN)
+        // ==========================================
+
+        // 1. Summary Cards Finance (Sesuai Filter Tanggal)
+        $sql_sum = "SELECT 
+                        COUNT(DISTINCT rf.request_id) AS total_req,
+                        COALESCE(SUM(rf.total_harga), 0) AS grand_total_biaya,
+                        COALESCE(SUM(td_sum.total_pcs), 0) AS total_pcs
+                    FROM request_form rf
+                    INNER JOIN transaksi t ON rf.request_id = t.request_id
+                    LEFT JOIN (
+                        SELECT 
+                            transaction_id, 
+                            COUNT(barcode) AS total_pcs
+                        FROM transaksi_detail
+                        GROUP BY transaction_id
+                    ) td_sum ON t.transaction_id = td_sum.transaction_id
+                    WHERE DATE(t.tgl_transaksi) BETWEEN :s AND :e 
+                    AND rf.request_id LIKE 'FR%'";
+
+        $stmt_sum = $pdo->prepare($sql_sum);
+        $stmt_sum->execute(['s' => $start_date, 'e' => $end_date]);
+        $sum = $stmt_sum->fetch(PDO::FETCH_ASSOC);
+
+        $total_req         = (int) ($sum['total_req'] ?? 0);
+        $grand_total_biaya = (float) ($sum['grand_total_biaya'] ?? 0);
+        $total_pcs_fin     = (int) ($sum['total_pcs'] ?? 0);
+
+        // 2. Summary Card All Time (Tanpa Filter Tanggal)
+        $sql_all_time = "SELECT 
+                            COALESCE(SUM(rf.total_harga), 0) AS grand_total_all_time,
+                            COUNT(DISTINCT rf.request_id) AS total_req_all_time
+                         FROM request_form rf
+                         INNER JOIN transaksi t ON rf.request_id = t.request_id
+                         WHERE rf.request_id LIKE 'FR%'";
+
+        $stmt_all_time = $pdo->query($sql_all_time);
+        $sum_all_time  = $stmt_all_time->fetch(PDO::FETCH_ASSOC);
+
+        $grand_total_all_time = (float) ($sum_all_time['grand_total_all_time'] ?? 0);
+        $total_req_all_time   = (int) ($sum_all_time['total_req_all_time'] ?? 0);
+
+        // 3. Tabel Detail Keuangan
+        $sql_fin = "SELECT 
+                        t.tgl_transaksi, 
+                        rf.request_id, 
+                        rf.perusahaan, 
+                        rf.brand, 
+                        rf.nama_sa,
+                        rf.pembayaran, 
+                        rf.total_harga, 
+                        COUNT(td.barcode) AS total_pcs
+                    FROM request_form rf
+                    INNER JOIN transaksi t ON rf.request_id = t.request_id
+                    LEFT JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
+                    WHERE DATE(t.tgl_transaksi) BETWEEN :s AND :e 
+                      AND rf.request_id LIKE 'FR%'
+                    GROUP BY 
+                        t.transaction_id,
+                        rf.request_id, 
+                        t.tgl_transaksi, 
+                        rf.perusahaan, 
+                        rf.brand, 
+                        rf.nama_sa, 
+                        rf.pembayaran, 
+                        rf.total_harga
+                    ORDER BY t.tgl_transaksi DESC";
+
+        $stmt_fin = $pdo->prepare($sql_fin);
+        $stmt_fin->execute(['s' => $start_date, 'e' => $end_date]);
+        $list_data = $data = $stmt_fin->fetchAll(PDO::FETCH_ASSOC);
+    }
 } catch (PDOException $e) {
-    die("Error Database: " . $e->getMessage());
+    $list_data = [];
+    $data      = [];
+    // Hilangkan tanda komentar baris di bawah jika ingin mengintip error SQL saat testing:
+    // die("Error Query Laporan: " . $e->getMessage());
 }
-?>

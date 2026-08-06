@@ -161,7 +161,7 @@ include 'controllers/query_profile.php';
                                             </div>
 
                                             <div class="col-12 mt-4 text-end">
-                                                <button type="submit" name="update_profile" class="btn btn-primary px-4">
+                                                <button type="submit" name="update_profile" class="btn btn-proses-custom px-4">
                                                     <i class="bi bi-save me-1"></i>Simpan Perubahan
                                                 </button>
                                             </div>

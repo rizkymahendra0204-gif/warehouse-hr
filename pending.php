@@ -146,10 +146,10 @@ if (!isset($requests_done)) {
                                                                                 <tr><th>Perusahaan</th><td>: <?= $pt ?></td></tr>
                                                                                 <tr><th>Nama SA</th><td>: <?= htmlspecialchars($row['nama_sa']) ?></td></tr>
                                                                                 <?php if ($row['qty_top'] > 0): ?>
-                                                                                    <tr><th>Item Atasan</th><td>: Baju <?= $gender_txt ?> (Size <?= htmlspecialchars($row['size_top']) ?>) - <?= htmlspecialchars($row['qty_top']) ?> Pcs</td></tr>
+                                                                                    <tr><th>Item Atasan</th><td>: Baju <?= $gender_txt ?> - <?= htmlspecialchars($row['qty_top']) ?> Pcs</td></tr>
                                                                                 <?php endif; ?>
                                                                                 <?php if ($row['qty_bottoms'] > 0): ?>
-                                                                                    <tr><th>Item Bawahan</th><td>: Celana <?= $gender_txt ?> (Size <?= htmlspecialchars($row['size_bottoms']) ?>) - <?= htmlspecialchars($row['qty_bottoms']) ?> Pcs</td></tr>
+                                                                                    <tr><th>Item Bawahan</th><td>: Celana <?= $gender_txt ?> - <?= htmlspecialchars($row['qty_bottoms']) ?> Pcs</td></tr>
                                                                                 <?php endif; ?>
                                                                                 <tr><th>Total Jumlah</th><td class="fw-bold">: <?= $total_qty ?> Pcs</td></tr>
                                                                                 <tr><th>Total Harga</th><td class="fw-bold text-danger">: Rp<?= number_format($row['total_harga'], 0, ',', '.') ?></td></tr>

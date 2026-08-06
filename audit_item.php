@@ -39,13 +39,13 @@ include 'controllers/query_audit.php';
                     <input type="hidden" name="action_type" value="toggle_audit">
                     <?php if ($is_audit_active): ?>
                         <input type="hidden" name="audit_status" value="0">
-                        <button type="submit" class="btn btn-outline-danger fw-bold shadow-sm" onclick="return confirm('Tutup periode audit?')">
-                            <i class="bi bi-lock-fill me-1"></i> Tutup Periode
+                        <button type="submit" class="btn btn-proses fw-bold shadow-sm" onclick="return confirm('Tutup periode audit?')">
+                            <i class="bi bi-unlock-fill me-1"></i> Tutup Periode
                         </button>
                     <?php else: ?>
                         <input type="hidden" name="audit_status" value="1">
-                        <button type="submit" class="btn btn-success fw-bold shadow-sm" onclick="return confirm('Buka periode audit?')">
-                            <i class="bi bi-unlock-fill me-1"></i> Buka Periode
+                        <button type="submit" class="btn btn-proses-custom fw-bold shadow-sm" onclick="return confirm('Buka periode audit?')">
+                            <i class="bi bi-lock-fill me-1"></i> Buka Periode
                         </button>
                     <?php endif; ?>
                 </form>
@@ -120,7 +120,7 @@ include 'controllers/query_audit.php';
                                             <?php if ($is_audit_active && $is_inactive_available): ?>
                                                 <!-- JIKA AUDIT BUKA & BARANG ELIGIBLE -->
                                                 <button type="button" 
-                                                        class="btn btn-sm btn-outline-primary fw-bold px-3"
+                                                        class="btn btn-sm btn-proses-custom fw-bold px-3"
                                                         data-bs-toggle="modal" 
                                                         data-bs-target="#modalAudit"
                                                         onclick="setAuditData('<?php echo $barcode; ?>', '<?php echo addslashes($detail); ?>', '<?php echo $st_tx; ?>', '<?php echo $st_brg; ?>')">
@@ -129,7 +129,7 @@ include 'controllers/query_audit.php';
                                             <?php elseif (!$is_audit_active): ?>
                                                 <!-- JIKA AUDIT DITUTUP -->
                                                 <button type="button" 
-                                                        class="btn btn-sm btn-secondary fw-bold px-3" 
+                                                        class="btn btn-proses fw-bold px-3" 
                                                         disabled 
                                                         title="Akses dikunci: Periode audit sedang ditutup">
                                                     <i class="bi bi-lock-fill me-1"></i> Terkunci

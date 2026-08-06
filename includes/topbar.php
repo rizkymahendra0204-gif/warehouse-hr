@@ -4,36 +4,34 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 1. Deteksi otomatis lokasi pemanggil (Root vs Subfolder)
+$prefix = file_exists('includes/topbar.php') ? '' : '../';
+
 $nama_user   = $_SESSION['nama_lengkap'] ?? $_SESSION['username'] ?? 'User';
 $role_user   = $_SESSION['role'] ?? 'Staff';
 $foto_user   = $_SESSION['foto_profil'] ?? 'default.png';
 
-// Cek kelayakan dan keberadaan foto profil
-$path_foto   = 'assets/img/profile/' . $foto_user;
-$has_foto    = !empty($foto_user) && $foto_user !== 'default.png' && file_exists($path_foto);
+// 2. Cek kelayakan dan keberadaan foto profil menggunakan absolute path
+$server_foto_path = __DIR__ . '/../assets/img/profile/' . $foto_user;
+$path_foto        = $prefix . 'assets/img/profile/' . $foto_user;
+$has_foto         = !empty($foto_user) && $foto_user !== 'default.png' && file_exists($server_foto_path);
 
 $initial_user = strtoupper(substr(trim($nama_user), 0, 1));
-?>
-
-<?php 
 $current_page = basename($_SERVER['PHP_SELF']); 
 
-// 1. Pastikan koneksi database PDO tersedia
+// 3. Pastikan koneksi database PDO tersedia
 if (!isset($pdo)) {
     if (file_exists(__DIR__ . '/db.php')) {
         include_once __DIR__ . '/db.php';
-    } elseif (file_exists(__DIR__ . '/../includes/db.php')) {
-        include_once __DIR__ . '/../includes/db.php';
     }
 }
 
-// 2. Query Ambil Data Pending Request menggunakan PDO
+// 4. Query Ambil Data Pending Request
 $notif_items = [];
 $total_pending = 0;
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        // Ambil request_form yang belum ada di tabel transaksi (Pending) - Limit 5
         $sql_notif = "SELECT rf.request_id, rf.perusahaan, rf.nama_sa 
                       FROM request_form rf 
                       LEFT JOIN transaksi t ON rf.request_id = t.request_id 
@@ -45,7 +43,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $notif_items = $stmt_notif->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        // Hitung total seluruh request pending untuk badge notifikasi
         $sql_count = "SELECT COUNT(DISTINCT rf.request_id) as total 
                       FROM request_form rf 
                       LEFT JOIN transaksi t ON rf.request_id = t.request_id 
@@ -56,7 +53,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
             $total_pending = (int)($row_c['total'] ?? 0);
         }
     } catch (PDOException $e) {
-        // Mencegah error merusak tampilan jika database bermasalah
         $notif_items = [];
         $total_pending = 0;
     }
@@ -76,7 +72,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
         <div class="dropdown">
             <div class="notification" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                 <i class="bi bi-bell-fill"></i>
-                <!-- Titik Merah Notifikasi (Hanya muncul jika ada pending request) -->
                 <?php if ($total_pending > 0): ?>
                     <div class="notification-dot"></div>
                 <?php endif; ?>
@@ -94,7 +89,8 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <?php if (!empty($notif_items)): ?>
                     <?php foreach ($notif_items as $notif): ?>
                         <li>
-                            <a class="dropdown-item notification-item py-2 border-bottom" href="pending.php?req=<?php echo urlencode($notif['request_id']); ?>">
+                            <!-- FIX PATH LINK PENDING -->
+                            <a class="dropdown-item notification-item py-2 border-bottom" href="<?= $prefix ?>pending.php?req=<?php echo urlencode($notif['request_id']); ?>">
                                 <span class="notif-title fw-bold d-block text-dark" style="font-size: 13px;">
                                     <?php echo htmlspecialchars($notif['perusahaan']); ?>
                                 </span>
@@ -113,7 +109,8 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <?php endif; ?>
                 
                 <li>
-                    <a class="dropdown-item text-center py-2" href="pending.php" style="color: #556ee6; font-weight: 600; font-size: 13px;">
+                    <!-- FIX PATH LINK LIHAT SEMUA -->
+                    <a class="dropdown-item text-center py-2" href="<?= $prefix ?>pending.php" style="color: #556ee6; font-weight: 600; font-size: 13px;">
                         Lihat Semua Request (<?php echo $total_pending; ?>)
                     </a>
                 </li>
@@ -126,13 +123,11 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 
                 <!-- KONDISI TAMPILAN AVATAR / FOTO PROFIL -->
                 <?php if ($has_foto): ?>
-                    <!-- TAMPILAN FOTO PROFIL DARI DATABASE/SESSION -->
                     <img src="<?php echo htmlspecialchars($path_foto); ?>" 
                          alt="Foto Profil" 
                          class="rounded-circle shadow-sm border" 
                          style="width: 36px; height: 36px; object-fit: cover;">
                 <?php else: ?>
-                    <!-- FALLBACK: AVATAR INISIAL NAMA -->
                     <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px; background-color: #556ee6 !important;">
                         <?php echo $initial_user; ?>
                     </div>
@@ -157,11 +152,12 @@ if (isset($pdo) && $pdo instanceof PDO) {
                         <?php echo htmlspecialchars($role_user); ?> Account
                     </span>
                 </li>
-                <li><a class="dropdown-item py-2 mt-1" href="profile.php"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
+                <!-- FIX PATH LINK PROFIL & LOGOUT -->
+                <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>profile.php"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
                 <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                 <li><hr class="dropdown-divider my-1"></li>
                 <li>
-                    <a class="dropdown-item text-danger py-2" href="logout.php">
+                    <a class="dropdown-item text-danger py-2" href="<?= $prefix ?>logout.php">
                         <i class="bi bi-box-arrow-right me-2"></i> Logout
                     </a>
                 </li>

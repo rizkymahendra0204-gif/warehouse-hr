@@ -386,8 +386,8 @@ $(document).ready(function () {
     }, 300);
   }
 
-  // Tampilkan tombol saat halaman di-scroll lebih dari 150px
-  $(window).scroll(function() {
+  // Tampilkan tombol saat area konten di-scroll lebih dari 150px
+  $('.content-area').scroll(function() {
     if ($(this).scrollTop() > 150) {
       $('#scrollToTopBtn').fadeIn();
     } else {
@@ -398,7 +398,7 @@ $(document).ready(function () {
   // Efek smooth scroll saat tombol diklik
   $('#scrollToTopBtn').click(function(e) {
     e.preventDefault();
-    $('html, body').animate({ scrollTop: 0 }, 300);
+    $('.content-area').animate({ scrollTop: 0 }, 300);
   });
 
 }); // END DOM READY

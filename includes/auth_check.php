@@ -1,7 +1,7 @@
 <?php 
 require_once __DIR__ . '/db.php';
 $is_audit_active = true; 
-include 'controllers/query_audit.php';
+include __DIR__ . '/../controllers/query_audit.php';
 
 
 if (session_status() === PHP_SESSION_NONE) {
