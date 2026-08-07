@@ -9,6 +9,8 @@ include 'controllers/query_transaksi.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaksi - HR Warehouse</title>
+
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -73,7 +75,7 @@ include 'controllers/query_transaksi.php';
                                                 <?php if ($qty_top > 0): ?>
                                                 <tr style="border-bottom: 1px solid #f1f5f9;">
                                                     <td class="fw-bold py-2 ps-0 text-secondary" width="15%">Nama Brand</td>
-                                                    <td class="py-2 text-dark">: Brand <?php echo $brand; ?></td>
+                                                    <td class="py-2 text-dark">: <?php echo $brand; ?></td>
                                                 </tr>
                                                 <?php endif; ?>
 
@@ -140,7 +142,7 @@ include 'controllers/query_transaksi.php';
                                             <label class="form-label fw-bold text-dark m-0" style="font-size: 13px;">ID Sales</label>
                                             <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;">Wajib</span>
                                         </div>
-                                        <input type="text" 
+                                        <input type="number" 
                                             class="form-control" 
                                             id="id_sales" 
                                             name="id_sales" 

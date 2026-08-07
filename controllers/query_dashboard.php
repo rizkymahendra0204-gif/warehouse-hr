@@ -42,7 +42,7 @@ $sql_active = "SELECT
     SUM(CASE WHEN tipe = 'Celana' AND gender = 'Pria' THEN 1 ELSE 0 END) as cln_pria,
     SUM(CASE WHEN tipe = 'Baju' AND gender = 'Wanita' THEN 1 ELSE 0 END) as baju_wnt,
     SUM(CASE WHEN tipe = 'Celana' AND gender = 'Wanita' THEN 1 ELSE 0 END) as cln_wnt
-    FROM master_item WHERE status_barang = 'Active'";
+    FROM master_item WHERE status_transaksi = 'Available'";
 
 $res_active = $conn->query($sql_active);
 if ($res_active) {

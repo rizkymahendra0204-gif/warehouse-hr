@@ -12,6 +12,9 @@ include __DIR__ . '/controllers/query_laporan.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+
     <title>Laporan - HR Warehouse</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -162,9 +165,10 @@ include __DIR__ . '/controllers/query_laporan.php';
                                     </div>
                                 </div>
                             </div>
+                            
 
                         <?php else: ?>
-                            <!-- 📦 STOK: 2 CARD (Total Transaksi, Total Retur) -->
+                            <!-- 📦 STOK: 3 CARD (Total Transaksi, Total Retur, Net Terpakai) -->
                             <div class="col-md-4">
                                 <div class="border rounded-3 p-3 h-100 d-flex align-items-center gap-2 bg-white">
                                     <div class="icon-box text-info fs-4"><i class="bi bi-cart-check"></i></div>
@@ -184,6 +188,16 @@ include __DIR__ . '/controllers/query_laporan.php';
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="col-md-4">
+                                <div class="border rounded-3 p-3 h-100 d-flex align-items-center gap-2 bg-white">
+                                    <div class="icon-box text-success fs-4"><i class="bi bi-box-seam"></i></div>
+                                    <div>
+                                        <div class="text-muted fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.3px;">TOTAL STOK</div>
+                                        <h4 class="fw-bold m-0 fs-5"><?= number_format($net_terpakai ?? 0) ?> <span class="text-muted fw-normal" style="font-size: 13px;">Pcs</span></h4>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -200,13 +214,13 @@ include __DIR__ . '/controllers/query_laporan.php';
                         <table class="table table-hover align-middle m-0" style="font-size: 14px;">
                             <thead class="table-light text-secondary small">
                                 <tr>
-                                    <th>NO</th>
-                                    <th>TANGGAL</th>
-                                    <th>NO REQUEST</th>
-                                    <th>PERUSAHAAN / BRAND</th>
-                                    <th>NAMA SA</th>
-                                    <th>ITEM DIBERIKAN</th>
-                                    <th>ITEM RETURN</th>
+                                    <th width="5%">NO</th>
+                                    <th width="5%">TANGGAL</th>
+                                    <th width="25%">DETAIL PESANAN</th>
+                                    <th width="15%">PERUSAHAAN / BRAND</th>
+                                    <th width="5%">NAMA SA</th>
+                                    <th width="20%">ITEM DIBERIKAN</th>
+                                    <th width="20%">ITEM RETURN</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -223,11 +237,23 @@ include __DIR__ . '/controllers/query_laporan.php';
                                             foreach ($raw_returns as $name => $qty) { if($name) $formatted_returns[] = trim($name) . " ($qty)"; }
                                             $str_returns = implode(', ', $formatted_returns);
                                         }
+
+                                        $barcode_item = htmlspecialchars($row['barcode'] ?? '-');
+                                        $detail_item  = htmlspecialchars($row['raw_items'] ?? '-');
+                                        $raw_gender = strtolower(trim($row['gender'] ?? ''));
+                                        $gender_txt = ($raw_gender === 'male' || $raw_gender === 'pria' || $raw_gender === '1') 
+                                            ? 'SA Pria' 
+                                            : 'SA Wanita';
                                     ?>
                                     <tr>
                                         <td><?= $no++ ?></td>
                                         <td><?= date('d/m/Y', strtotime($row['tgl_transaksi'])) ?></td>
-                                        <td class="text-primary fw-bold">#<?= htmlspecialchars($row['request_id']) ?></td>
+                                        <td>
+                                            <div class="fw-bold text-primary" style="font-size: 15px;">[<?= $barcode_item ?>]</div>
+                                            <div class="text-secondary mt-1" style="font-size: 13px;">
+                                                <?= $gender_txt ?> | <?= htmlspecialchars($row['raw_items'] ?? '-') ?>
+                                            </div>
+                                        </td>
                                         <td><?= htmlspecialchars($row['perusahaan']) ?> (<?= htmlspecialchars($row['brand'] ?? '-') ?>)</td>
                                         <td><?= htmlspecialchars($row['nama_sa']) ?></td>
                                         <td><small><?= implode(', ', $formatted_items) ?></small></td>

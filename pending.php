@@ -27,6 +27,8 @@ if (!isset($requests_done)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Request - HR Warehouse</title>
+
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -56,7 +58,7 @@ if (!isset($requests_done)) {
                 
                 <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari No. Request / PT...">
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari ...">
                 </div>
             </div>
 

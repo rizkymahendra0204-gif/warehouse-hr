@@ -27,26 +27,44 @@ try {
         // ==========================================
         
         // Summary Cards Internal
-        $stmt_k = $pdo->prepare("SELECT COUNT(transaction_id) 
-                                 FROM transaksi 
-                                 WHERE DATE(tgl_transaksi) BETWEEN :s AND :e 
-                                   AND request_id LIKE 'FR%'");
-        $stmt_k->execute(['s' => $start_date, 'e' => $end_date]);
-        $total_keluar = (int) $stmt_k->fetchColumn();
+        // 1. Total Transaksi Berhasil (Jumlah Form / Nota yang Selesai)
+        $stmt_trx = $pdo->prepare("SELECT COUNT(DISTINCT transaction_id) 
+                                FROM transaksi 
+                                WHERE DATE(tgl_transaksi) BETWEEN :s AND :e 
+                                    AND request_id LIKE '%FR%'"); // 💡 Diganti menjadi %FR% agar terdeteksi #FR-...
+        $stmt_trx->execute(['s' => $start_date, 'e' => $end_date]);
 
+        // Simpan nilai ke variabel
+        $total_transaksi = (int) $stmt_trx->fetchColumn();
+        $total_keluar    = $total_transaksi;
+
+        // 2. Total Barang Keluar (Menghitung Total Pcs Fisik Barang yang Di-scan)
+        $stmt_k = $pdo->prepare("SELECT COUNT(td.barcode) 
+                                FROM transaksi_detail td
+                                INNER JOIN transaksi t ON td.transaction_id = t.transaction_id
+                                WHERE DATE(t.tgl_transaksi) BETWEEN :s AND :e 
+                                AND t.request_id LIKE '%FR%'");
+        $stmt_k->execute(['s' => $start_date, 'e' => $end_date]);
+        $total_barang_keluar = (int) $stmt_k->fetchColumn();
+
+        // 3. Total Barang Retur (Menghitung Total Pcs Fisik Barang yang Dikembalikan)
         $stmt_r = $pdo->prepare("SELECT COUNT(ri.barcode) 
-                                 FROM return_items ri 
-                                 WHERE DATE(ri.tgl_return) BETWEEN :s AND :e");
+                                FROM return_items ri 
+                                WHERE DATE(ri.tgl_return) BETWEEN :s AND :e");
         $stmt_r->execute(['s' => $start_date, 'e' => $end_date]);
         $total_retur = (int) $stmt_r->fetchColumn();
 
+        // 4. Total Master Stok
         $total_master_stok = (int) $pdo->query("SELECT COUNT(barcode) FROM master_item")->fetchColumn();
-        $net_terpakai      = $total_keluar - $total_retur;
+
+        // 5. NET Terpakai (Pcs Keluar - Pcs Retur)
+        $net_terpakai = $total_barang_keluar - $total_retur;
 
         // Tabel Detail Stok
         $sql_stok = "SELECT 
                 t.transaction_id,
                 t.tgl_transaksi,
+                td.barcode,
                 rf.request_id,
                 rf.perusahaan,
                 rf.brand,

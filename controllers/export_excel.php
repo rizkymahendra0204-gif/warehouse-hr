@@ -114,7 +114,7 @@ if ($type === 'finance') {
     // EXPORT MODE FINANCE
     // ------------------------------------------------------------------
     $sheet->setTitle('Laporan Finance');
-    $headers = ['NO', 'TANGGAL', 'ID REQUEST', 'PERUSAHAAN', 'BRAND', 'NAMA SA', 'PEMBAYARAN', 'TOTAL (PCS)', 'TOTAL TAGIHAN (RP)'];
+    $headers = ['NO', 'TANGGAL', 'DETAIL PESANAN', 'PERUSAHAAN', 'BRAND', 'NAMA SA', 'PEMBAYARAN', 'TOTAL (PCS)', 'TOTAL TAGIHAN (RP)'];
     $sheet->fromArray($headers, NULL, 'A1');
     $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
 

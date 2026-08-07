@@ -560,6 +560,52 @@ function fillCardData(id, parsedData) {
   invalidateForm(); // Reset status validasi
 }
 
+// --- FUNGSI RE-INDEX UNTUK MENGURUTKAN ULANG ITEM #1, ITEM #2, DST ---
+function reindexItemCards() {
+  const cards = document.querySelectorAll("#dynamic-item-container .item-row");
+
+  cards.forEach((card, index) => {
+    const newId = index + 1;
+
+    // 1. Update ID Container Card
+    card.id = `item-card-${newId}`;
+
+    // 2. Update Label Judul "Item #X"
+    const numberEl = card.querySelector(".item-number");
+    if (numberEl) {
+      numberEl.innerHTML = `<i class="bi bi-box-seam me-2"></i>Item #${newId}`;
+    }
+
+    // 3. Update Event Onclick Tombol Hapus
+    const removeBtn = card.querySelector(".btn-remove-item");
+    if (removeBtn) {
+      removeBtn.setAttribute("onclick", `removeItemCard(${newId})`);
+    }
+
+    // 4. Update ID & Data Attribute Input Barcode
+    const inputEl = card.querySelector(".barcode-item-input");
+    if (inputEl) {
+      inputEl.id = `barcode-input-${newId}`;
+      inputEl.dataset.id = newId;
+    }
+
+    // 5. Update ID Teks Detail
+    const detailTextEl = card.querySelector(".barcode-detail-text");
+    if (detailTextEl) {
+      detailTextEl.id = `detail-text-${newId}`;
+    }
+
+    // 6. Update ID Input Hidden Detail
+    const detailHiddenEl = card.querySelector(".barcode-detail-hidden");
+    if (detailHiddenEl) {
+      detailHiddenEl.id = `detail-hidden-${newId}`;
+    }
+  });
+
+  // Reset counter itemCount sesuai jumlah card aktif agar item berikutnya berlanjut tepat
+  itemCount = cards.length;
+}
+
 function removeItemCard(id) {
   const input = document.getElementById(`barcode-input-${id}`);
   const barcodeVal = input ? input.value.trim() : "";
@@ -568,7 +614,7 @@ function removeItemCard(id) {
     scannedBarcodes.delete(barcodeVal);
   }
 
-  const cards = document.querySelectorAll(".item-row");
+  const cards = document.querySelectorAll("#dynamic-item-container .item-row");
 
   if (cards.length === 1) {
     if (input) {
@@ -585,16 +631,20 @@ function removeItemCard(id) {
     showAlert("Item #1 berhasil dikosongkan.", "info");
   } else {
     const card = document.getElementById(`item-card-${id}`);
-    if (card) card.remove();
+    if (card) {
+      card.remove();
+    }
     showAlert("Item berhasil dihapus.", "info");
   }
 
+  // Lakukan pengurutan ulang ID & Judul Card
+  reindexItemCards();
   updateRemoveButtons();
   invalidateForm(); // Reset status validasi setelah hapus item
 }
 
 function updateRemoveButtons() {
-  const cards = document.querySelectorAll(".item-row");
+  const cards = document.querySelectorAll("#dynamic-item-container .item-row");
   cards.forEach((card) => {
     const btn = card.querySelector(".btn-remove-item");
     const input = card.querySelector(".barcode-item-input");
@@ -606,7 +656,7 @@ function updateRemoveButtons() {
   });
 }
 
-// --- FUNGSI VALIDASI GABUNGAN (DATABASE + KECOCOKAN TIKET) ---
+// --- FUNGSI VALIDASI GABUNGAN (DATABASE + KONSISTENSI GENDER + KECOCOKAN TIKET) ---
 async function validateAllItems() {
   invalidateForm(); // Kunci tombol proses di awal pemeriksaan
   const inputs = document.querySelectorAll(".barcode-item-input");
@@ -655,33 +705,80 @@ async function validateAllItems() {
 
   // Jika tidak ada item yang diisi
   if (validCount === 0 && errors.length === 0) {
-    showAlert("Belum ada barcode yang diinputkan untuk divalidasi!", "warning");
+    showAlert("Belum ada barcode yang diinputkan", "warning");
     return;
   }
 
-  // 1. Jika ada barcode yang gagal ditemukan di database
+  // Jika ada barcode yang gagal ditemukan di database
   if (errors.length > 0) {
     showAlert(
       `<strong>Gagal Validasi Database:</strong><br>• ${errors.join("<br>• ")}`,
-      "danger",
+      "danger"
     );
     return;
   }
 
-  // 2. Jika seluruh item terdaftar di database, lakukan pengecekan kesesuaian JUMLAH pesanan tiket
+  let ticketErrors = [];
+
+  // =========================================================================
+  // 🔍 LAPIS 1: CEK KONSISTENSI GENDER ANTAR ITEM (DILARANG CAMPUR PRIA & WANITA)
+  // =========================================================================
+  let uniqueGenders = new Set();
+  scannedItems.forEach((item) => {
+    let g = (item.gender || "").toString().toLowerCase().trim();
+    if (g === "1" || g === "pria" || g === "male") uniqueGenders.add("Pria");
+    if (g === "2" || g === "wanita" || g === "female") uniqueGenders.add("Wanita");
+  });
+
+  if (uniqueGenders.size > 1) {
+    ticketErrors.push(
+      `Kamu memasukkan pakaian <b>Pria</b> dan <b>Wanita</b> sekaligus dalam satu transaksi.`
+    );
+  }
+
+  // =========================================================================
+  // 🔍 LAPIS 2: PENGECEKAN KESESUAIN DENGAN TIKET (JIKA ADANYA DATA TIKET)
+  // =========================================================================
   if (window.transactionData && window.transactionData.isAuto) {
     const t = window.transactionData;
     let countTop = 0;
     let countBottom = 0;
-    let ticketErrors = [];
 
-    // Hitung berapa banyak Baju dan Celana yang telah di-scan
-    scannedItems.forEach((item) => {
-      if (item.type === "Baju") {
-        countTop++;
-      } else if (item.type === "Celana") {
-        countBottom++;
+    // Normalisasi Gender Tiket (male / female / pria / wanita)
+    const rawTargetGender = (t.gender || t.genderSA || t.gender_sa || "").toString().toLowerCase().trim();
+    let normalizedTargetGender = "";
+    let targetGenderLabel = "";
+
+    if (rawTargetGender === "male" || rawTargetGender === "pria" || rawTargetGender === "1") {
+      normalizedTargetGender = "male";
+      targetGenderLabel = "Pria (Male)";
+    } else if (rawTargetGender === "female" || rawTargetGender === "wanita" || rawTargetGender === "2") {
+      normalizedTargetGender = "female";
+      targetGenderLabel = "Wanita (Female)";
+    }
+
+    // Loop pengecekan Gender dan Kuantitas
+    scannedItems.forEach((item, index) => {
+      const rawScannedGender = (item.gender || "").toString().toLowerCase().trim();
+      let normalizedScannedGender = "";
+
+      if (rawScannedGender === "male" || rawScannedGender === "pria" || rawScannedGender === "1") {
+        normalizedScannedGender = "male";
+      } else if (rawScannedGender === "female" || rawScannedGender === "wanita" || rawScannedGender === "2") {
+        normalizedScannedGender = "female";
       }
+
+      // Cocokkan Gender Barang dengan Tiket
+      if (normalizedTargetGender && normalizedScannedGender) {
+        if (normalizedTargetGender !== normalizedScannedGender) {
+          ticketErrors.push(
+            `Item #${index + 1} (<b>${item.type}</b>): Gender barang (<b>${item.gender}</b>) tidak sesuai pesanan tiket (<b>${targetGenderLabel}</b>)`
+          );
+        }
+      }
+
+      if (item.type === "Baju") countTop++;
+      if (item.type === "Celana") countBottom++;
     });
 
     // Pengecekan Kuantitas Baju
@@ -699,28 +796,21 @@ async function validateAllItems() {
         `Jumlah Celana yang di-scan (<b>${countBottom} Pcs</b>) tidak sesuai pesanan tiket (<b>${targetQtyBottoms} Pcs</b>)`
       );
     }
-
-    // Jika jumlah item tidak sesuai
-    if (ticketErrors.length > 0) {
-      showAlert(
-        `<strong>Jumlah Item Tidak Sesuai Tiket:</strong><br>• ${ticketErrors.join(
-          "<br>• "
-        )}`,
-        "danger"
-      );
-      return; // Tombol proses tetap terkunci
-    } else {
-      showAlert(
-        `<strong>Validasi Sempurna!</strong> Seluruh (${validCount}) item terdaftar & jumlah pcs cocok dengan tiket.`,
-        "success"
-      );
-    }
-  } else {
-    showAlert(
-      `<strong>Validasi Berhasil!</strong> ${validCount} item terkonfirmasi terdaftar di database.`,
-      "success"
-    );
   }
+
+  // Jika terdapat kesalahan (Gender Campur / Beda dengan Tiket / Qty Salah)
+  if (ticketErrors.length > 0) {
+    showAlert(
+      `<strong>Gagal Validasi Transaksi:</strong><br>• ${ticketErrors.join("<br>• ")}`,
+      "danger"
+    );
+    return; // Tombol "Proses Transaksi" TETAP TERKUNCI
+  }
+
+  showAlert(
+    `<strong>Validasi Berhasil!</strong> Seluruh (${validCount}) item terdaftar & cocok dengan tiket.`,
+    "success"
+  );
 
   // BUKA KUNCI TOMBOL PROSES TRANSAKSI JIKA LOLOS
   isValidated = true;
@@ -849,11 +939,6 @@ function addItemRow(barcodeVal) {
                     <i class="bi bi-box-seam me-2"></i>Barang #${id}
                     <small class="text-dark fw-normal ms-2">${parsed.text}</small>
                 </span>
-                <button type="button" class="btn btn-sm text-danger fw-bold" 
-                        style="background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
-                        onclick="removeItemRow(${id})">
-                    <i class="bi bi-trash3 me-1"></i>Hapus
-                </button>
             </div>
             
             <div class="row g-4">

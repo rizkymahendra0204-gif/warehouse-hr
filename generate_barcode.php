@@ -1,25 +1,23 @@
 <?php
 require_once __DIR__ . '/includes/auth_check.php';
 include 'controllers/proses_generate.php';
-?>
 
-<?php
-// Pastikan session sudah diaktifkan di paling atas file PHP
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+
     <title>Cetak Label SKU - HR Warehouse</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
 <body>
 
@@ -32,104 +30,132 @@ if (session_status() === PHP_SESSION_NONE) {
         <main class="content-area p-4">
             <div>
                 <h4 class="page-title mb-1">Generate Barcode</h4>
-                <p class="text-muted small mb-8">Pembuatan Barcode untuk penamaan item</p>
+                <p class="text-muted small mb-3">Pembuatan Barcode untuk penamaan item</p>
             </div>
 
+            <!-- AREA ALERT -->
             <div class="floating-alert-container">
-            <?php if (!empty($success_msg)): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-printer-fill me-2"></i> <?php echo $success_msg; ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($error_msg)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i> <?php echo $error_msg; ?>
-                </div>
-            <?php endif; ?>
+                <?php if (!empty($info_msg)): ?>
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i> <?php echo $info_msg; ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($success_msg)): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-printer-fill me-2"></i> <?php echo $success_msg; ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (!empty($error_msg)): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> <?php echo $error_msg; ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
             </div>
 
-            <div class="row g-4">
-                <!-- FORM SETUP PARAMETER BATCH -->
-                <div class="col-12 mb-4 d-print-none">
-                    <div class="card shadow-sm border-0 p-4" style="border-radius: 12px;">
-                        <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-sliders me-2 text-primary"></i>Barcode Prefik</h5>
-                        
-                        <form action="generate_barcode.php" method="POST">
-                            <input type="hidden" name="action" value="generate_range">
+            <!-- FORM UNIFIED SETUP BARCODE -->
+            <form action="generate_barcode.php" method="POST" class="d-print-none">
+                <div class="row g-4">
+                    <!-- CARD 1: PARAMETER SKU -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm border-0 p-4 h-100" style="border-radius: 12px;">
+                            <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-sliders me-2 text-primary"></i>1. Barcode Prefiks</h5>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">1. Gender</label>
+                                <label class="form-label fw-semibold text-secondary">Gender</label>
                                 <select class="form-select" name="gender" required>
                                     <option value="">-- Pilih Gender --</option>
-                                    <option value="Pria">Pria (1)</option>
-                                    <option value="Wanita">Wanita (2)</option>
+                                    <option value="Pria" <?= $gender === 'Pria' ? 'selected' : '' ?>>Pria (1)</option>
+                                    <option value="Wanita" <?= $gender === 'Wanita' ? 'selected' : '' ?>>Wanita (2)</option>
                                 </select>
                             </div>
                             
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">2. Tipe Pakaian</label>
+                                <label class="form-label fw-semibold text-secondary">Tipe Pakaian</label>
                                 <select class="form-select" name="tipe" required>
                                     <option value="">-- Pilih Tipe --</option>
-                                    <option value="Baju">Baju (01)</option>
-                                    <option value="Celana">Celana (02)</option>
+                                    <option value="Baju" <?= $tipe === 'Baju' ? 'selected' : '' ?>>Baju (01)</option>
+                                    <option value="Celana" <?= $tipe === 'Celana' ? 'selected' : '' ?>>Celana (02)</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">3. Ukuran</label>
+                                <label class="form-label fw-semibold text-secondary">Ukuran</label>
                                 <select class="form-select" name="ukuran" required>
                                     <option value="">-- Pilih Ukuran --</option>
-                                    <option value="S">S</option>
-                                    <option value="M">M</option>
-                                    <option value="L">L</option>
-                                    <option value="XL">XL</option>
-                                    <option value="28">28</option>
-                                    <option value="30">30</option>
-                                    <option value="32">32</option>
-                                    <option value="34">34</option>
-                                    <option value="36">36</option>
+                                    <?php 
+                                        $opts = ['S','M','L','XL','28','30','32','34','36'];
+                                        foreach($opts as $opt): 
+                                    ?>
+                                        <option value="<?= $opt ?>" <?= $ukuran === $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
 
+                            <button type="submit" name="action" value="check_last" class="btn btn-proses-custom w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                                <i class="bi bi-search me-2"></i>Cek Running Terakhir
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: RUNNING NUMBER RANGE -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card shadow-sm border-0 p-4 h-100" style="border-radius: 12px;">
+                            <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-hash me-2 text-primary"></i>2. Range Running Number</h5>
+
                             <div class="mb-4">
-                                <label class="form-label fw-semibold text-secondary">4. Range Running Number (4 Digit)</label>
+                                <label class="form-label fw-semibold text-secondary">Range Running Number (4 Digit)</label>
                                 <div class="row g-2">
                                     <div class="col-6">
                                         <div class="input-group">
                                             <span class="input-group-text bg-light" style="font-size: 12px;">Mulai</span>
-                                            <input type="number" class="form-control" name="range_awal" min="1" max="9999" value="1" required>
+                                            <!-- Input Tampilan Disabled -->
+                                            <input type="text" class="form-control bg-light fw-bold text-primary" value="<?= sprintf("%04d", $range_awal) ?>" disabled>
+                                            <!-- Hidden Input untuk dikirim via form -->
+                                            <input type="hidden" name="range_awal" value="<?= $range_awal ?>">
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="input-group">
                                             <span class="input-group-text bg-light" style="font-size: 12px;">Sampai</span>
-                                            <input type="number" class="form-control" name="range_akhir" min="1" max="9999" value="10" required>
+                                            <input type="number" class="form-control fw-bold" name="range_akhir" min="<?= $range_awal ?>" max="9999" value="<?= max($range_akhir, $range_awal) ?>" required>
                                         </div>
                                     </div>
                                 </div>
-                                <small class="text-muted d-block mt-1">Sistem otomatis mengisi format padding angka 0 di depan.</small>
+                                <!--<small class="text-muted d-block mt-2">
+                                    *Nomor urut <strong>Mulai</strong> otomatis didapat dari stok terakhir (+1) di database.
+                                </small> -->
                             </div>
 
-                            <button type="submit" class="btn text-white w-100 fw-bold py-2 shadow-sm" style="background-color: #2563eb; border-radius: 8px;">
-                                <i class="bi bi-eye-fill me-2"></i>Preview Label Barcode
-                            </button>
-                        </form>
+                            <div class="mt-auto">
+                                <button type="submit" name="action" value="generate_range" class="btn btn-proses-custom text-white w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
+                                    <i class="bi bi-eye-fill me-2"></i>Preview Label Barcode
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </form>
 
-                <!-- PREVIEW & TOMBOL PRINT -->
+            <!-- PREVIEW & TOMBOL PRINT -->
+            <div class="row mt-2">
                 <div class="col-12">
                     <div class="card shadow-sm border-0 p-4" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold m-0" style="color: #1e293b;"><i class="bi bi-layout-three-columns me-2 text-success"></i>Lembar Cetak</h5>
                             <?php if (!empty($generated_barcodes)): ?>
-                                <button type="button" onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
-                                    <i class="bi bi-printer-fill me-1"></i> Cetak ke Kertas Stiker
-                                </button>
-                                <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none" disabled>
-                                    <i class="bi bi-box-arrow-in-down me-1"></i> Simpan ke Stok Barang
-                                </button>
+                                <div>
+                                    <button type="button" onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
+                                        <i class="bi bi-printer-fill me-1"></i> Cetak ke Kertas Stiker
+                                    </button>
+                                    <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none" disabled>
+                                        <i class="bi bi-box-arrow-in-down me-1"></i> Simpan ke Stok Barang
+                                    </button>
+                                </div>
                             <?php endif; ?>
                         </div>
                         
@@ -137,18 +163,18 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?php if (!empty($generated_barcodes)): ?>
                                 <div class="barcode-grid">
                                     <?php foreach ($generated_barcodes as $code): ?>
-                                    <div class="barcode-print-card">
-                                        <div style="font-size: 9px; font-weight: bold; color: #64748b; margin-bottom: 2px;">
-                                            <?php echo $tipe; ?>&nbsp;<?php echo $gender; ?>&nbsp;<?php echo $ukuran; ?>
+                                        <div class="barcode-print-card">
+                                            <div style="font-size: 9px; font-weight: bold; color: #64748b; margin-bottom: 2px;">
+                                                <?php echo htmlspecialchars($tipe); ?>&nbsp;<?php echo htmlspecialchars($gender); ?>&nbsp;<?php echo htmlspecialchars($ukuran); ?>
+                                            </div>
+                                            <svg class="barcode-element" data-value="<?php echo htmlspecialchars($code); ?>"></svg>
                                         </div>
-                                        <svg class="barcode-element" data-value="<?php echo $code; ?>"></svg>
-                                    </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
                                 </div>
                             <?php else: ?>
                                 <div class="text-center py-5 border rounded bg-light text-secondary">
                                     <i class="bi bi-printer display-6 d-block mb-2"></i>
-                                    Masukkan kombinasi SKU di atas untuk melihat preview stiker.
+                                    Pilih kombinasi SKU di atas untuk melihat preview stiker barcode.
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -161,10 +187,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="assets/js/scripts.js"></script>
 
 </body>

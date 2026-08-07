@@ -10,6 +10,8 @@ include 'controllers/query_dashboard.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - HR Warehouse</title>
     
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -86,8 +88,8 @@ include 'controllers/query_dashboard.php';
                     <div class="col-md-6">
                         <div class="chart-container">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="fw-bold m-0" style="color: #1e293b;"><i class="me-2 text-primary"></i>Stok Warehouse Active</h6>
-                                <span class="badge bg-light text-success border">Active (Tersedia)</span>
+                                <h6 class="fw-bold m-0" style="color: #1e293b;"><i class="me-2 text-primary"></i>Remaining Stok (Current)</h6>
+                                <span class="badge bg-light text-success border">Available (Active)</span>
                             </div>
                             
                             <!-- Placeholder Grafik Active Dinamis -->
@@ -110,8 +112,8 @@ include 'controllers/query_dashboard.php';
                     <div class="col-md-6">
                         <div class="chart-container">
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="fw-bold m-0" style="color: #1e293b;"><i class="me-2 text-secondary"></i>Stok Warehouse Inactive</h6>
-                                <span class="badge bg-light text-danger border">Inactive (Nonaktif)</span>
+                                <h6 class="fw-bold m-0" style="color: #1e293b;"><i class="me-2 text-secondary"></i>Returned Stok</h6>
+                                <span class="badge bg-light text-danger border">Available (Inactive)</span>
                             </div>
                             
                             <!-- Placeholder Grafik Inactive Dinamis -->

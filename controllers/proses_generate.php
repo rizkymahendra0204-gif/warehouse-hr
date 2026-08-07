@@ -1,4 +1,9 @@
 <?php
+// Pastikan session sudah diaktifkan untuk pencatatan Audit Log
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../includes/db.php';
 
 // =========================================================================
@@ -42,7 +47,7 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
                 continue; // Skip jika format tidak 9 digit angka
             }
 
-            // Cek Duplikasi Barcode
+            // Cek Duplikasi Barcode di Database
             $stmtCek->execute([$code]);
             $exists = $stmtCek->fetchColumn();
 
@@ -60,13 +65,13 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
             $tipe   = $typeMap[$typeCode]   ?? 'Item';
             $size   = $sizeMap[$sizeCode]   ?? 'Unknown';
 
-            // Insert ke Stok Barang
+            // Insert ke Tabel Stok Barang
             $stmtInsert->execute([$code, $gender, $tipe, $size]);
             $insertedCount++;
         }
 
         if ($insertedCount > 0) {
-            // Pencatatan Audit Log Activity (PDO)
+            // Pencatatan Audit Log Activity
             $user_id   = $_SESSION['user_id'] ?? 1;
             $nama_user = $_SESSION['nama_user'] ?? ($_SESSION['nama_lengkap'] ?? 'Staff');
             $role      = $_SESSION['role'] ?? 'User';
@@ -104,52 +109,110 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
 }
 
 // =========================================================================
-// 2. AKSI FORM POST: GENERATE PREVIEW LABEL BARCODE
+// 2. LOGIKA FORM PROCESS & RUNNING NUMBER CHECKING
 // =========================================================================
 $success_msg = "";
-$error_msg = "";
+$error_msg   = "";
+$info_msg    = "";
 $generated_barcodes = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_range') {
-    $tipe        = isset($_POST['tipe']) ? trim($_POST['tipe']) : '';
-    $gender      = isset($_POST['gender']) ? trim($_POST['gender']) : '';
-    $ukuran      = isset($_POST['ukuran']) ? trim($_POST['ukuran']) : '';
-    $range_awal  = isset($_POST['range_awal']) ? (int)$_POST['range_awal'] : 1;
-    $range_akhir = isset($_POST['range_akhir']) ? (int)$_POST['range_akhir'] : 1;
+// Tangkap nilai input POST agar tidak ter-reset di halaman tampilan
+$gender = $_POST['gender'] ?? '';
+$tipe   = $_POST['tipe']   ?? '';
+$ukuran = $_POST['ukuran'] ?? '';
 
-    // Pemetaan Singkatan SKU (Format 9 Digit: [Gender:1][Tipe:2][Ukuran:2][Running:4])
-    $gender_code = ($gender === 'Pria') ? '1' : '2';
+// Default awal running number
+$last_number = 0;
+$range_awal  = 1;
+$range_akhir = 10;
 
-    $tipe_code = '';
-    if ($tipe === 'Baju') $tipe_code = '01';
-    elseif ($tipe === 'Celana') $tipe_code = '02';
+// Pemetaan Singkatan SKU (Format 9 Digit: [Gender:1][Tipe:2][Ukuran:2][Running:4])
+$gender_code = ($gender === 'Pria') ? '1' : (($gender === 'Wanita') ? '2' : '');
 
-    $ukuran_code = '';
-    if ($ukuran === 'S') $ukuran_code = '01';
-    elseif ($ukuran === 'M') $ukuran_code = '02';
-    elseif ($ukuran === 'L') $ukuran_code = '03';
-    elseif ($ukuran === 'XL') $ukuran_code = '04';
-    elseif ($ukuran === '28') $ukuran_code = '28';
-    elseif ($ukuran === '30') $ukuran_code = '30';
-    elseif ($ukuran === '32') $ukuran_code = '32';
-    elseif ($ukuran === '34') $ukuran_code = '34';
-    elseif ($ukuran === '36') $ukuran_code = '36';    
+$tipe_code = '';
+if ($tipe === 'Baju') $tipe_code = '01';
+elseif ($tipe === 'Celana') $tipe_code = '02';
 
-    // Validasi Form
-    if (empty($tipe) || empty($gender) || empty($ukuran)) {
-        $error_msg = "Semua parameter SKU wajib diisi!";
-    } elseif ($range_awal > $range_akhir) {
-        $error_msg = "Range awal tidak boleh lebih besar dari range akhir!";
-    } elseif (($range_akhir - $range_awal) > 300) {
-        $error_msg = "Batasi pembuatan maksimal 300 barcode per sesi cetak.";
-    } else {
-        // Murni me-looping dan membuat kode stiker
-        for ($i = $range_awal; $i <= $range_akhir; $i++) {
-            $running_number = sprintf("%04d", $i);
-            $barcode_comb = $gender_code . $tipe_code . $ukuran_code . $running_number;
-            $generated_barcodes[] = $barcode_comb;
+$ukuran_code = '';
+if ($ukuran === 'S') $ukuran_code = '01';
+elseif ($ukuran === 'M') $ukuran_code = '02';
+elseif ($ukuran === 'L') $ukuran_code = '03';
+elseif ($ukuran === 'XL') $ukuran_code = '04';
+elseif (in_array($ukuran, ['28', '30', '32', '34', '36'])) $ukuran_code = $ukuran;
+
+// Tentukan Prefix Barcode (5 Digit Pertama)
+$prefix = $gender_code . $tipe_code . $ukuran_code;
+
+// Otomatis Hitung Running Number Terakhir dari DB jika Parameter SKU Lengkap
+if (!empty($prefix) && strlen($prefix) === 5) {
+    try {
+        $stmt_last = $pdo->prepare("SELECT MAX(RIGHT(barcode, 4)) FROM master_item WHERE barcode LIKE :prefix");
+        $stmt_last->execute(['prefix' => $prefix . '%']);
+        $raw_last = $stmt_last->fetchColumn();
+
+        $last_number = $raw_last !== null ? (int)$raw_last : 0;
+        $range_awal  = $last_number + 1; // Otomatis mulai dari nomor urut berikutnya
+    } catch (PDOException $e) {
+        $error_msg = "Terjadi kesalahan database: " . $e->getMessage();
+    }
+}
+
+// Proses Aksi Form POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+
+    // Aksi 1: Cek Running Number Terakhir
+    if ($action === 'check_last') {
+        if (empty($gender) || empty($tipe) || empty($ukuran)) {
+            $error_msg = "Harap pilih Gender, Tipe, dan Ukuran terlebih dahulu!";
+        } else {
+            if ($last_number > 0) {
+                $last_barcode_full = $prefix . sprintf("%04d", $last_number);
+                $info_msg = "Barcode terakhir di database untuk SKU ini adalah <strong>{$last_barcode_full}</strong>. Running number berikutnya otomatis dimulai dari <strong>" . sprintf("%04d", $range_awal) . "</strong>.";
+            } else {
+                $info_msg = "Belum ada barcode di database untuk SKU ini. Running number dimulai dari <strong>0001</strong>.";
+            }
         }
-        $success_msg = "Berhasil membuat <strong>" . count($generated_barcodes) . "</strong> label barcode siap cetak!";
+    } 
+    // Aksi 2: Generate Preview Range Barcode
+    elseif ($action === 'generate_range') {
+        if (empty($gender) || empty($tipe) || empty($ukuran)) {
+            $error_msg = "Semua parameter SKU (Gender, Tipe, Ukuran) wajib diisi!";
+        } else {
+            // Hitung range_akhir & jumlah cetak
+            if (isset($_POST['jumlah_cetak']) && (int)$_POST['jumlah_cetak'] > 0) {
+                $jumlah_cetak = (int)$_POST['jumlah_cetak'];
+                $range_akhir  = $range_awal + $jumlah_cetak - 1;
+            } else {
+                $user_r_akhir = isset($_POST['range_akhir']) ? (int)$_POST['range_akhir'] : 0;
+                
+                if ($user_r_akhir >= $range_awal) {
+                    $range_akhir  = $user_r_akhir;
+                    $jumlah_cetak = ($range_akhir - $range_awal) + 1;
+                } else {
+                    // Jika input 'Sampai' lebih kecil dari range_awal otomatis,
+                    // Dianggap pengguna memasukkan "Jumlah Qty" yang ingin dicetak
+                    $jumlah_cetak = $user_r_akhir > 0 ? $user_r_akhir : 10;
+                    $range_akhir  = $range_awal + $jumlah_cetak - 1;
+                }
+            }
+
+            // Validasi Batas Pembuatan
+            if ($jumlah_cetak <= 0) {
+                $error_msg = "Jumlah barcode yang dibuat minimal 1!";
+            } elseif ($jumlah_cetak > 300) {
+                $error_msg = "Batasi pembuatan maksimal 300 barcode per sesi cetak.";
+            } else {
+                // Looping Pembuatan Array Kode Barcode
+                for ($i = $range_awal; $i <= $range_akhir; $i++) {
+                    $running_number = sprintf("%04d", $i);
+                    $barcode_comb   = $prefix . $running_number;
+                    $generated_barcodes[] = $barcode_comb;
+                }
+
+                $success_msg = "Berhasil membuat <strong>" . count($generated_barcodes) . "</strong> label barcode siap cetak! (Urutan #" . sprintf("%04d", $range_awal) . " s/d #" . sprintf("%04d", $range_akhir) . ")";
+            }
+        }
     }
 }
 ?>

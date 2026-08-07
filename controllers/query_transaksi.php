@@ -34,9 +34,9 @@ if ($is_auto && !$conn->connect_error) {
         $nama_sa      = $row['nama_sa'];
         $gender_txt   = ($row['gender'] === 'male') ? 'SA Pria' : 'SA Wanita';
         $qty_top      = $row['qty_top'];
-        $size_top     = $row['size_top'];
+        //$size_top     = $row['size_top'];
         $qty_bottoms  = $row['qty_bottoms'];
-        $size_bottoms = $row['size_bottoms'];
+        //$size_bottoms = $row['size_bottoms'];
         $total_qty    = $qty_top + $qty_bottoms;
     }
     $stmt->close();

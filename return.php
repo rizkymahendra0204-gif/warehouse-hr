@@ -36,6 +36,8 @@ if ($is_auto) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proses Return - HR Warehouse</title>
+
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -71,7 +73,7 @@ if ($is_auto) {
                     <div style="width: 280px;">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="searchTrx" class="form-control border-start-0 ps-0" placeholder="Cari No. Transaksi / Perusahaan..." onkeyup="filterTable()">
+                            <input type="text" id="searchTrx" class="form-control border-start-0 ps-0" placeholder="Cari ..." onkeyup="filterTable()">
                         </div>
                     </div>
                 </div>
@@ -82,7 +84,9 @@ if ($is_auto) {
                             <thead class="text-secondary small fw-bold border-bottom">
                                 <tr>
                                     <th style="width: 15%; text-align: center;">NO. TRANSAKSI</th>
-                                    <th style="width: 45%;">DETAIL ITEM TRANSAKSI</th>
+                                    <th style="width: 10%; text-align: center;">BRAND</th>
+                                    <th style="width: 10%; text-align: center;">ID SALES</th>
+                                    <th style="width: 40%;">DETAIL ITEM TRANSAKSI</th>
                                     <th style="width: 20%; text-align: center;">STATUS</th>
                                     <th style="width: 20%; text-align: center;">AKSI</th>
                                 </tr>
@@ -150,13 +154,18 @@ if ($is_auto) {
                                     $detail_with_barcode = htmlspecialchars($detail_item . " (" . $barcode_item . ")", ENT_QUOTES, 'UTF-8');
                             ?>
                                     <tr class="border-bottom">
-                                        <td class="text-center"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
+                                        <td class="text-center small"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
+
+                                        <td class="text-center"><span><?php echo addslashes($row['brand']); ?></span></td>
+
+                                        <td class="text-center"><span><?php echo addslashes($row['id_sales']); ?></span></td>
                                         
                                         <td>
-                                            <div class="fw-bold"><?php echo htmlspecialchars($row['brand']); ?> (<?php echo htmlspecialchars($row['nama_sa']); ?>)</div>
-                                            <div class="text-muted small">
+                                            <div class="fw-bold">
+                                            <div class="text-muted">
                                                 <i class="bi bi-box-seam me-1"></i> <b>[<?php echo $barcode_item; ?>]</b> <?php echo $detail_item; ?> &nbsp;|&nbsp; 
                                                 <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
+                                            </div>
                                             </div>
                                         </td>
                                         

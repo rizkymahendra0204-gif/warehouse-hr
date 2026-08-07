@@ -9,6 +9,8 @@ include 'controllers/query_stokbarang.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stok Barang - HR Warehouse</title>
+
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -40,9 +42,9 @@ include 'controllers/query_stokbarang.php';
                 </div>
                 <div class="d-flex gap-3">
                     <!-- Memicu Jendela Modal Tambah Barang -->
-                    <button class="btn btn-tambah-custom text-white fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
+                    <!-- <button class="btn btn-tambah-custom text-white fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
                         <i class="bi bi-plus-lg me-2"></i>Tambah Barang
-                    </button>
+                    </button> -->
                 </div>
             </div>
 
