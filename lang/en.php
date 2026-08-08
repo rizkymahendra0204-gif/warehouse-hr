@@ -4,7 +4,7 @@ return [
     // ==========================================
     // 1. HEADER, SIDEBAR & GENERAL
     // ==========================================
-    'dashboard_title'       => 'Statistics Page',
+    'dashboard_title'       => 'Dashboard',
     'dashboard_subtitle'    => 'View item transaction statistical data',
     'menu_dashboard'        => 'Dashboard',
     'menu_pending'          => 'Pending',
