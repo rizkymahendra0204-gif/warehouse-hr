@@ -7,11 +7,11 @@ $is_audit_active = true;
 include 'controllers/query_audit.php';
 ?>
 <!DOCTYPE html>
-<html lang="id">
+<html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audit & Kelola Status Stok - HR Warehouse</title>
+    <title><?php echo $lang['audit_page_title'] ?? 'Audit & Kelola Status Stok'; ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
@@ -31,8 +31,8 @@ include 'controllers/query_audit.php';
             <!-- Header & Tombol Action Toggle Audit -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">Closing</h4>
-                    <p class="text-muted small mb-0">Evaluasi barang return untuk dikembalikan</p>
+                    <h4 class="fw-bold mb-1"><?php echo $lang['menu_closing'] ?? 'Closing'; ?></h4>
+                    <p class="text-muted small mb-0"><?php echo $lang['audit_subtitle'] ?? 'Evaluasi barang return untuk dikembalikan'; ?></p>
                 </div>
                 
                 <!-- Tombol Toggle Mode Audit -->
@@ -41,13 +41,13 @@ include 'controllers/query_audit.php';
                     <input type="hidden" name="action_type" value="toggle_audit">
                     <?php if ($is_audit_active): ?>
                         <input type="hidden" name="audit_status" value="0">
-                        <button type="submit" class="btn btn-proses fw-bold shadow-sm" onclick="return confirm('Tutup periode audit?')">
-                            <i class="bi bi-unlock-fill me-1"></i> Tutup Periode
+                        <button type="submit" class="btn btn-proses fw-bold shadow-sm" onclick="return confirm('<?php echo addslashes($lang['confirm_close_period'] ?? 'Tutup periode audit?'); ?>')">
+                            <i class="bi bi-unlock-fill me-1"></i> <?php echo $lang['btn_close_period'] ?? 'Tutup Periode'; ?>
                         </button>
                     <?php else: ?>
                         <input type="hidden" name="audit_status" value="1">
-                        <button type="submit" class="btn btn-proses-custom fw-bold shadow-sm" onclick="return confirm('Buka periode audit?')">
-                            <i class="bi bi-lock-fill me-1"></i> Buka Periode
+                        <button type="submit" class="btn btn-proses-custom fw-bold shadow-sm" onclick="return confirm('<?php echo addslashes($lang['confirm_open_period'] ?? 'Buka periode audit?'); ?>')">
+                            <i class="bi bi-lock-fill me-1"></i> <?php echo $lang['btn_open_period'] ?? 'Buka Periode'; ?>
                         </button>
                     <?php endif; ?>
                 </form>
@@ -59,14 +59,14 @@ include 'controllers/query_audit.php';
                 <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
                     <i class="bi bi-lock-fill me-2 fs-5"></i>
                     <div>
-                        <strong>Periode Closing Ditutup:</strong> Perubahan status barang dikunci sementara.
+                        <?php echo $lang['audit_banner_closed'] ?? '<strong>Periode Closing Ditutup:</strong> Perubahan status barang dikunci sementara.'; ?>
                     </div>
                 </div>
             <?php else: ?>
                 <div class="alert alert-success d-flex align-items-center mb-3" role="alert">
                     <i class="bi bi-check-circle-fill me-2 fs-5"></i>
                     <div>
-                        <strong>Mode Closing Aktif:</strong> Silakan lakukan perubahan status.
+                        <?php echo $lang['audit_banner_active'] ?? '<strong>Mode Closing Aktif:</strong> Silakan lakukan perubahan status.'; ?>
                     </div>
                 </div>
             <?php endif; ?>
@@ -92,10 +92,10 @@ include 'controllers/query_audit.php';
                     <table class="table table-hover align-middle m-0" style="font-size: 14px;">
                         <thead class="text-secondary small border-bottom bg-light">
                             <tr>
-                                <th class="py-3 text-center">BARCODE</th>
-                                <th class="py-3">DETAIL ITEM</th>
-                                <th class="py-3 text-center">STATUS</th>
-                                <th class="py-3 text-center">AKSI</th>
+                                <th class="py-3 text-center"><?php echo $lang['th_barcode'] ?? 'BARCODE'; ?></th>
+                                <th class="py-3"><?php echo $lang['th_detail_item'] ?? 'DETAIL ITEM'; ?></th>
+                                <th class="py-3 text-center"><?php echo $lang['table_status'] ?? 'STATUS'; ?></th>
+                                <th class="py-3 text-center"><?php echo $lang['table_action'] ?? 'AKSI'; ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,23 +126,23 @@ include 'controllers/query_audit.php';
                                                         data-bs-toggle="modal" 
                                                         data-bs-target="#modalAudit"
                                                         onclick="setAuditData('<?php echo $barcode; ?>', '<?php echo addslashes($detail); ?>', '<?php echo $st_tx; ?>', '<?php echo $st_brg; ?>')">
-                                                    <i class="bi bi-pencil-square me-1"></i> Ubah Status
+                                                    <i class="bi bi-pencil-square me-1"></i> <?php echo $lang['btn_change_status'] ?? 'Ubah Status'; ?>
                                                 </button>
                                             <?php elseif (!$is_audit_active): ?>
                                                 <!-- JIKA AUDIT DITUTUP -->
                                                 <button type="button" 
                                                         class="btn btn-proses fw-bold px-3" 
                                                         disabled 
-                                                        title="Akses dikunci: Periode audit sedang ditutup">
-                                                    <i class="bi bi-lock-fill me-1"></i> Terkunci
+                                                        title="<?php echo $lang['title_access_locked'] ?? 'Akses dikunci: Periode audit sedang ditutup'; ?>">
+                                                    <i class="bi bi-lock-fill me-1"></i> <?php echo $lang['badge_locked'] ?? 'Terkunci'; ?>
                                                 </button>
                                             <?php else: ?>
                                                 <!-- JIKA AUDIT BUKA TAPI BARANG TIDAK ELIGIBLE -->
                                                 <button type="button" 
                                                         class="btn btn-sm btn-light text-muted fw-bold px-3" 
                                                         disabled 
-                                                        title="Hanya status Available (Inactive) yang dapat diubah">
-                                                    <i class="bi bi-check2-circle me-1"></i> Sesuai
+                                                        title="<?php echo $lang['title_eligible_only'] ?? 'Hanya status Available (Inactive) yang dapat diubah'; ?>">
+                                                    <i class="bi bi-check2-circle me-1"></i> <?php echo $lang['badge_compliant'] ?? 'Sesuai'; ?>
                                                 </button>
                                             <?php endif; ?>
                                         </td>
@@ -150,7 +150,7 @@ include 'controllers/query_audit.php';
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">Tidak ada data item ditemukan.</td>
+                                    <td colspan="4" class="text-center py-4 text-muted"><?php echo $lang['no_item_data'] ?? 'Tidak ada data item ditemukan.'; ?></td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -170,39 +170,39 @@ include 'controllers/query_audit.php';
                 <input type="hidden" name="barcode" id="modal_barcode">
 
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-box-seam me-2"></i>Audit Status Item</h5>
+                    <h5 class="modal-title fw-bold"><i class="bi bi-box-seam me-2"></i><?php echo $lang['modal_audit_title'] ?? 'Audit Status Item'; ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
                 <div class="modal-body">
                     <div class="mb-3 bg-light p-3 rounded border">
-                        <small class="text-muted d-block mb-1">Target Item:</small>
+                        <small class="text-muted d-block mb-1"><?php echo $lang['modal_target_item'] ?? 'Target Item:'; ?></small>
                         <div class="fw-bold text-primary" id="modal_barcode_display">#102320001</div>
                         <div class="small fw-semibold" id="modal_detail_display">Celana Pria - Size 32</div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-secondary">Status Transaksi</label>
+                        <label class="form-label fw-bold small text-secondary"><?php echo $lang['lbl_status_transaksi'] ?? 'Status Transaksi'; ?></label>
                         <select class="form-select" name="status_transaksi" id="modal_status_tx" required>
-                            <option value="Available">Available (Siap Dijual / Direquest)</option>
-                            <option value="Sold Out">Sold Out (Sudah Terjual)</option>
+                            <option value="Available"><?php echo $lang['opt_available'] ?? 'Available (Siap Dijual / Direquest)'; ?></option>
+                            <option value="Sold Out"><?php echo $lang['opt_sold_out'] ?? 'Sold Out (Sudah Terjual)'; ?></option>
                         </select>
-                        <div class="form-text small">Pilih <b>Available</b> agar barang bisa dipilih kembali pada transaksi baru.</div>
+                        <div class="form-text small"><?php echo $lang['help_status_tx'] ?? 'Pilih <b>Available</b> agar barang bisa dipilih kembali pada transaksi baru.'; ?></div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-secondary">Status Barang (Kondisi fisik)</label>
+                        <label class="form-label fw-bold small text-secondary"><?php echo $lang['lbl_status_barang'] ?? 'Status Barang (Kondisi fisik)'; ?></label>
                         <select class="form-select" name="status_barang" id="modal_status_brg" required>
-                            <option value="Active">Active (Layak Pakai / Bagus)</option>
-                            <option value="Inactive">Inactive (Rusak / Afkir / Perlu Perbaikan)</option>
+                            <option value="Active"><?php echo $lang['opt_active'] ?? 'Active (Layak Pakai / Bagus)'; ?></option>
+                            <option value="Inactive"><?php echo $lang['opt_inactive'] ?? 'Inactive (Rusak / Afkir / Perlu Perbaikan)'; ?></option>
                         </select>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-light border fw-bold" data-bs-dismiss="modal"><?php echo $lang['btn_cancel'] ?? 'Batal'; ?></button>
                     <button type="submit" class="btn btn-primary fw-bold" style="background-color: #556ee6;">
-                        <i class="bi bi-check-circle me-1"></i> Simpan Hasil Audit
+                        <i class="bi bi-check-circle me-1"></i> <?php echo $lang['btn_save_audit'] ?? 'Simpan Hasil Audit'; ?>
                     </button>
                 </div>
             </form>

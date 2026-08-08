@@ -126,24 +126,39 @@ $last_number = 0;
 $range_awal  = 1;
 $range_akhir = 10;
 
-// Pemetaan Singkatan SKU (Format 9 Digit: [Gender:1][Tipe:2][Ukuran:2][Running:4])
-$gender_code = ($gender === 'Pria') ? '1' : (($gender === 'Wanita') ? '2' : '');
+// 🔧 PEMETAAN FLEXIBEL SKU (Mendukung Kode Digit Maupun Teks Alfabet)
+$gender_code = '';
+if (in_array((string)$gender, ['1', 'Pria', 'pria', 'male', 'Pria (1)'])) {
+    $gender_code = '1';
+} elseif (in_array((string)$gender, ['2', 'Wanita', 'wanita', 'female', 'Wanita (2)'])) {
+    $gender_code = '2';
+}
 
 $tipe_code = '';
-if ($tipe === 'Baju') $tipe_code = '01';
-elseif ($tipe === 'Celana') $tipe_code = '02';
+if (in_array((string)$tipe, ['01', '1', 'Baju', 'baju', 'Baju (01)'])) {
+    $tipe_code = '01';
+} elseif (in_array((string)$tipe, ['02', '2', 'Celana', 'celana', 'Celana (02)'])) {
+    $tipe_code = '02';
+}
 
 $ukuran_code = '';
-if ($ukuran === 'S') $ukuran_code = '01';
-elseif ($ukuran === 'M') $ukuran_code = '02';
-elseif ($ukuran === 'L') $ukuran_code = '03';
-elseif ($ukuran === 'XL') $ukuran_code = '04';
-elseif (in_array($ukuran, ['28', '30', '32', '34', '36'])) $ukuran_code = $ukuran;
+$ukuran_upper = strtoupper((string)$ukuran);
+if (in_array($ukuran_upper, ['01', 'S'])) {
+    $ukuran_code = '01';
+} elseif (in_array($ukuran_upper, ['02', 'M'])) {
+    $ukuran_code = '02';
+} elseif (in_array($ukuran_upper, ['03', 'L'])) {
+    $ukuran_code = '03';
+} elseif (in_array($ukuran_upper, ['04', 'XL'])) {
+    $ukuran_code = '04';
+} elseif (in_array($ukuran, ['28', '30', '32', '34', '36'])) {
+    $ukuran_code = $ukuran;
+}
 
 // Tentukan Prefix Barcode (5 Digit Pertama)
 $prefix = $gender_code . $tipe_code . $ukuran_code;
 
-// Otomatis Hitung Running Number Terakhir dari DB jika Parameter SKU Lengkap
+// Otomatis Hitung Running Number Terakhir dari DB jika Parameter SKU Lengkap (5 Digit)
 if (!empty($prefix) && strlen($prefix) === 5) {
     try {
         $stmt_last = $pdo->prepare("SELECT MAX(RIGHT(barcode, 4)) FROM master_item WHERE barcode LIKE :prefix");
@@ -203,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             } elseif ($jumlah_cetak > 300) {
                 $error_msg = "Batasi pembuatan maksimal 300 barcode per sesi cetak.";
             } else {
-                // Looping Pembuatan Array Kode Barcode
+                // Looping Pembuatan Array Kode Barcode (9 Digit)
                 for ($i = $range_awal; $i <= $range_akhir; $i++) {
                     $running_number = sprintf("%04d", $i);
                     $barcode_comb   = $prefix . $running_number;

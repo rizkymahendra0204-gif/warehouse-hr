@@ -142,12 +142,15 @@ include 'controllers/query_transaksi.php';
                                             <label class="form-label fw-bold text-dark m-0" style="font-size: 13px;"><?= $lang['trx_lbl_id_sales'] ?? 'ID Sales' ?></label>
                                             <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size: 10px;"><?= $lang['trx_badge_wajib'] ?? 'Wajib' ?></span>
                                         </div>
-                                        <input type="number" 
-                                            class="form-control" 
-                                            id="id_sales" 
-                                            name="id_sales" 
-                                            placeholder="<?= $lang['trx_plc_id_sales'] ?? 'Masukkan ID Sales' ?>" 
-                                            required>
+                                        <input type="text" 
+                                                class="form-control" 
+                                                id="id_sales" 
+                                                name="id_sales" 
+                                                placeholder="<?= $lang['trx_plc_id_sales'] ?? 'Masukkan ID Sales' ?>" 
+                                                inputmode="numeric"
+                                                pattern="[0-9]*"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                                required>
                                     </div>
 
                                 </div>
@@ -185,7 +188,10 @@ include 'controllers/query_transaksi.php';
 
                             <!-- Tombol Aksi Bawah -->
                             <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
-                                <button type="reset" class="btn-submit border fw-bold px-4 text-white" style="border-radius: 6px;" onclick="resetForm()"><?= $lang['btn_cancel'] ?? 'Batal' ?></button>
+                                <button type="button" class="btn-submit border fw-bold px-4 text-white" style="border-radius: 6px;" onclick="window.location.href='pending.php'">
+                                    <?= $lang['btn_cancel'] ?? 'Batal' ?>
+                                </button>
+
                                 <button type="submit" id="btnProses" class="btn-proses-custom fw-bold px-4 text-white" disabled>
                                     <?= $lang['btn_proses_trx'] ?? 'Proses Transaksi' ?>
                                 </button>

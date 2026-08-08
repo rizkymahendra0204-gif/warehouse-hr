@@ -156,10 +156,10 @@ include 'controllers/query_dashboard.php';
                             </div>
 
                             <!-- Total Inactive Banner -->
-                            <div class="p-3 bg-danger-subtle rounded-3 mb-3 border border-danger-subtle d-flex justify-content-center align-items-center text-center">
-                                <h3 class="fw-bold text-danger m-0">
-                                    <?= number_format($inactive_stock['total'] ?? 0) ?> 
-                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
+                            <div class="p-3 rounded-3 mb-3 border d-flex justify-content-center align-items-center text-center" style="<?= $card_style ?>">
+                                <h3 class="fw-bold <?= $text_class ?> m-0">
+                                    <?= number_format($total_return) ?> 
+                                    <small class="fs-6 fw-normal <?= $unit_class ?>"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
                                 </h3>
                             </div>
 

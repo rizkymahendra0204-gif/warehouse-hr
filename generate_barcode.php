@@ -85,13 +85,30 @@ if (session_status() === PHP_SESSION_NONE) {
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_ukuran'] ?? 'Ukuran' ?></label>
-                                <select class="form-select" name="ukuran" required>
+                                <select class="form-select" id="select_ukuran" name="ukuran" required>
                                     <option value=""><?= $lang['gen_plc_ukuran'] ?? '-- Pilih Ukuran --' ?></option>
                                     <?php 
-                                        $opts = ['S','M','L','XL','28','30','32','34','36'];
-                                        foreach($opts as $opt): 
+                                        $optsAlfabet    = ['01' => 'S', '02' => 'M', '03' => 'L', '04' => 'XL'];
+                                        $optsCelanaPria = ['28' => '28', '30' => '30', '32' => '32', '34' => '34', '36' => '36'];
+
+                                        $isPria   = isset($gender) && ($gender === '1' || strtolower($gender) === 'pria' || strtolower($gender) === 'male');
+                                        $isCelana = isset($tipe) && ($tipe === '02' || strtolower($tipe) === 'celana');
+
+                                        if ($isPria && $isCelana) {
+                                            $opts = $optsCelanaPria;
+                                        } elseif (isset($tipe) && $tipe !== '') {
+                                            $opts = $optsAlfabet;
+                                        } else {
+                                            $opts = array_merge($optsAlfabet, $optsCelanaPria);
+                                        }
+
+                                        // Normalisasi jika variabel $ukuran berisi huruf "S", "M", "L", "XL"
+                                        $sizeMap = ['S' => '01', 'M' => '02', 'L' => '03', 'XL' => '04'];
+                                        $currentUkuran = $sizeMap[$ukuran ?? ''] ?? ($ukuran ?? '');
+
+                                        foreach($opts as $val => $label): 
                                     ?>
-                                        <option value="<?= $opt ?>" <?= $ukuran === $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                                        <option value="<?= $val ?>" <?= ($currentUkuran === (string)$val) ? 'selected' : '' ?>><?= $label ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>

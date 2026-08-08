@@ -26,7 +26,16 @@ if (!isset($pdo)) {
     }
 }
 
-// 4. Query Ambil Data Pending Request
+// 4. LOGIKA PENTING: Jaga parameter URL aktif saat ganti bahasa
+$queryParams = $_GET;
+
+$queryParams['lang'] = 'id';
+$url_lang_id = '?' . http_build_query($queryParams);
+
+$queryParams['lang'] = 'en';
+$url_lang_en = '?' . http_build_query($queryParams);
+
+// 5. Query Ambil Data Pending Request
 $notif_items = [];
 $total_pending = 0;
 
@@ -68,7 +77,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
     <div class="profile-section d-flex align-items-center gap-3">
 
-
         <!-- DROPDOWN PENGATURAN BAHASA -->
         <div class="dropdown me-3">
             <button class="btn btn-sm btn-light border dropdown-toggle fw-bold d-flex align-items-center gap-2" 
@@ -79,7 +87,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 13px;">
                 <li>
                     <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'id' ? 'fw-bold active' : '' ?>" 
-                    href="?lang=id">
+                    href="<?= htmlspecialchars($url_lang_id) ?>">
                         <span>🇮🇩 Bahasa Indonesia</span>
                         <?php if (($_SESSION['lang'] ?? 'id') === 'id'): ?>
                             <i class="bi bi-check2 ms-2"></i>
@@ -87,8 +95,8 @@ if (isset($pdo) && $pdo instanceof PDO) {
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'en' ? 'fw-bold active' : '' ?>" 
-                    href="?lang=en">
+                    <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'id' ? '' : 'fw-bold active' ?>" 
+                    href="<?= htmlspecialchars($url_lang_en) ?>">
                         <span>🇬🇧 English</span>
                         <?php if (($_SESSION['lang'] ?? 'id') === 'en'): ?>
                             <i class="bi bi-check2 ms-2"></i>
@@ -193,6 +201,21 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 </li>
             </ul>
         </div>
+
+    <script>
+        // Passing PHP language array to Javascript Global Object
+        window.I18N = <?php echo json_encode($lang); ?>;
+
+        // Helper Function untuk Translate di JS + mengganti placeholder dinamis {var}
+        function t(key, params = {}) {
+            let text = (window.I18N && window.I18N[key]) ? window.I18N[key] : key;
+            for (let [paramKey, value] of Object.entries(params)) {
+                text = text.replace(new RegExp(`{${paramKey}}`, 'g'), value);
+            }
+            return text;
+        }
+    </script>
+    <script src="path/to/scripts.js"></script>
 
     </div>
 </header>
