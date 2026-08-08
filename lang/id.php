@@ -55,6 +55,8 @@ return [
     'badge_done'             => 'Selesai',
     'btn_view_details'        => 'Lihat Detail',
     'modal_trx_selesai'     => 'Transaksi Selesai',
+    'modal_approve_trx'      => 'Setujui Transaksi',
+    'modal_detail_request' => 'Detail Permintaan',
 
     // ==========================================
     // 4. HALAMAN TRANSAKSI

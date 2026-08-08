@@ -55,6 +55,8 @@ return [
     'badge_done'             => 'Completed',
     'btn_view_details'        => 'View Details',
     'modal_trx_selesai'     => 'Transaction Completed',
+    'modal_approve_trx'      => 'Approve Transaction',
+    'modal_detail_request' => 'Request Details',
 
     // ==========================================
     // 4. HALAMAN TRANSAKSI
