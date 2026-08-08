@@ -8,7 +8,7 @@ include 'controllers/query_log.php'; // Controller PDO
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log Activity - HR Warehouse</title>
+    <title><?= $lang['menu_log_activity'] ?? 'Log Activity' ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
@@ -33,8 +33,8 @@ include 'controllers/query_log.php'; // Controller PDO
             <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="fw-bold m-0" style="color: #1e293b;">Log Activity</h4>
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Riwayat aktivitas dan transaksi sistem</p>
+                    <h4 class="fw-bold m-0" style="color: #1e293b;"><?= $lang['menu_log_activity'] ?? 'Log Activity' ?></h4>
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['log_subtitle'] ?? 'Riwayat aktivitas dan transaksi sistem' ?></p>
                 </div>
             </div>
 
@@ -44,10 +44,10 @@ include 'controllers/query_log.php'; // Controller PDO
                 <!-- Filter Tanggal (Date Range) -->
                 <div class="date-filter-group shadow-sm">
                     <i class="bi bi-calendar3 text-secondary me-2"></i>
-                    <input type="date" name="start_date" value="<?php echo htmlspecialchars($start_date ?? ''); ?>" title="Mulai Tanggal">
+                    <input type="date" name="start_date" value="<?php echo htmlspecialchars($start_date ?? ''); ?>" title="<?= $lang['lbl_mulai_tanggal'] ?? 'Mulai Tanggal' ?>">
                     <span class="date-separator px-2 text-muted">-</span>
-                    <input type="date" name="end_date" value="<?php echo htmlspecialchars($end_date ?? ''); ?>" title="Sampai Tanggal">
-                    <button type="submit" class="btn btn-light border-0 ms-2 text-primary fw-bold" title="Terapkan Filter">
+                    <input type="date" name="end_date" value="<?php echo htmlspecialchars($end_date ?? ''); ?>" title="<?= $lang['lbl_sampai_tanggal'] ?? 'Sampai Tanggal' ?>">
+                    <button type="submit" class="btn btn-action-icon border-0 ms-2 text-primary fw-bold" title="<?= $lang['btn_terapkan_filter'] ?? 'Terapkan Filter' ?>">
                         <i class="bi bi-funnel-fill"></i>
                     </button>
                 </div>
@@ -56,9 +56,9 @@ include 'controllers/query_log.php'; // Controller PDO
                 <div class="input-group shadow-sm" style="width: 320px; border-radius: 8px; overflow: hidden;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
                     <input type="text" name="search" class="form-control border-start-0 ps-0" 
-                           placeholder="Cari aktivitas, user, atau ket..." 
+                           placeholder="<?= $lang['log_search_placeholder'] ?? 'Cari aktivitas...' ?>" 
                            value="<?php echo htmlspecialchars($search ?? ''); ?>">
-                    <button class="btn btn-primary" type="submit">Cari</button>
+                    <button class="btn btn-proses-custom" type="submit"><?= $lang['btn_search'] ?? 'Cari' ?></button>
                 </div>
             </form>
             
@@ -68,10 +68,10 @@ include 'controllers/query_log.php'; // Controller PDO
                     <table class="table align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th scope="col" width="18%" class="py-3 ps-3">Waktu</th>
-                                <th scope="col" width="22%" class="py-3">Pengguna</th>
-                                <th scope="col" width="45%" class="py-3">Aktivitas</th>
-                                <th scope="col" width="15%" class="py-3 text-center">Modul</th>
+                                <th scope="col" width="18%" class="py-3 ps-3"><?= $lang['th_waktu'] ?? 'Waktu' ?></th>
+                                <th scope="col" width="22%" class="py-3"><?= $lang['th_pengguna'] ?? 'Pengguna' ?></th>
+                                <th scope="col" width="45%" class="py-3"><?= $lang['th_aktivitas'] ?? 'Aktivitas' ?></th>
+                                <th scope="col" width="15%" class="py-3 text-center"><?= $lang['th_modul'] ?? 'Modul' ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,7 +126,7 @@ include 'controllers/query_log.php'; // Controller PDO
                                 <tr>
                                     <td colspan="4" class="text-center py-4 text-muted">
                                         <i class="bi bi-inbox display-6 d-block mb-2"></i>
-                                        Tidak ada riwayat aktivitas ditemukan pada periode ini.
+                                        <?= $lang['log_empty'] ?? 'Tidak ada riwayat aktivitas ditemukan pada periode ini.' ?>
                                     </td>
                                 </tr>
                             <?php endif; ?>

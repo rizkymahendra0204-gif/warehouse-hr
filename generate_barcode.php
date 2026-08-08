@@ -14,7 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
 
-    <title>Cetak Label SKU - HR Warehouse</title>
+    <title><?= $lang['gen_title'] ?? 'Generate Barcode' ?> - HR Warehouse</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -29,8 +29,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <main class="content-area p-4">
             <div>
-                <h4 class="page-title mb-1">Generate Barcode</h4>
-                <p class="text-muted small mb-3">Pembuatan Barcode untuk penamaan item</p>
+                <h4 class="page-title mb-1"><?= $lang['gen_title'] ?? 'Generate Barcode' ?></h4>
+                <p class="text-muted small mb-3"><?= $lang['gen_subtitle'] ?? 'Pembuatan Barcode untuk penamaan item' ?></p>
             </div>
 
             <!-- AREA ALERT -->
@@ -63,30 +63,30 @@ if (session_status() === PHP_SESSION_NONE) {
                     <!-- CARD 1: PARAMETER SKU -->
                     <div class="col-md-6 mb-3">
                         <div class="card shadow-sm border-0 p-4 h-100" style="border-radius: 12px;">
-                            <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-sliders me-2 text-primary"></i>1. Barcode Prefiks</h5>
+                            <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-sliders me-2 text-primary"></i><?= $lang['gen_sect_prefix'] ?? '1. Barcode Prefiks' ?></h5>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">Gender</label>
+                                <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_gender'] ?? 'Gender' ?></label>
                                 <select class="form-select" name="gender" required>
-                                    <option value="">-- Pilih Gender --</option>
+                                    <option value=""><?= $lang['gen_plc_gender'] ?? '-- Pilih Gender --' ?></option>
                                     <option value="Pria" <?= $gender === 'Pria' ? 'selected' : '' ?>>Pria (1)</option>
                                     <option value="Wanita" <?= $gender === 'Wanita' ? 'selected' : '' ?>>Wanita (2)</option>
                                 </select>
                             </div>
                             
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">Tipe Pakaian</label>
+                                <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_tipe'] ?? 'Tipe Pakaian' ?></label>
                                 <select class="form-select" name="tipe" required>
-                                    <option value="">-- Pilih Tipe --</option>
+                                    <option value=""><?= $lang['gen_plc_tipe'] ?? '-- Pilih Tipe --' ?></option>
                                     <option value="Baju" <?= $tipe === 'Baju' ? 'selected' : '' ?>>Baju (01)</option>
                                     <option value="Celana" <?= $tipe === 'Celana' ? 'selected' : '' ?>>Celana (02)</option>
                                 </select>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary">Ukuran</label>
+                                <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_ukuran'] ?? 'Ukuran' ?></label>
                                 <select class="form-select" name="ukuran" required>
-                                    <option value="">-- Pilih Ukuran --</option>
+                                    <option value=""><?= $lang['gen_plc_ukuran'] ?? '-- Pilih Ukuran --' ?></option>
                                     <?php 
                                         $opts = ['S','M','L','XL','28','30','32','34','36'];
                                         foreach($opts as $opt): 
@@ -97,7 +97,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
 
                             <button type="submit" name="action" value="check_last" class="btn btn-proses-custom w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                                <i class="bi bi-search me-2"></i>Cek Running Terakhir
+                                <i class="bi bi-search me-2"></i><?= $lang['btn_cek_running'] ?? 'Cek Running Terakhir' ?>
                             </button>
                         </div>
                     </div>
@@ -105,14 +105,14 @@ if (session_status() === PHP_SESSION_NONE) {
                     <!-- CARD 2: RUNNING NUMBER RANGE -->
                     <div class="col-md-6 mb-3">
                         <div class="card shadow-sm border-0 p-4 h-100" style="border-radius: 12px;">
-                            <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-hash me-2 text-primary"></i>2. Range Running Number</h5>
+                            <h5 class="fw-bold mb-4" style="color: #1e293b;"><i class="bi bi-hash me-2 text-primary"></i><?= $lang['gen_sect_range'] ?? '2. Range Running Number' ?></h5>
 
                             <div class="mb-4">
-                                <label class="form-label fw-semibold text-secondary">Range Running Number (4 Digit)</label>
+                                <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_range'] ?? 'Range Running Number (4 Digit)' ?></label>
                                 <div class="row g-2">
                                     <div class="col-6">
                                         <div class="input-group">
-                                            <span class="input-group-text bg-light" style="font-size: 12px;">Mulai</span>
+                                            <span class="input-group-text bg-light" style="font-size: 12px;"><?= $lang['gen_lbl_mulai'] ?? 'Mulai' ?></span>
                                             <!-- Input Tampilan Disabled -->
                                             <input type="text" class="form-control bg-light fw-bold text-primary" value="<?= sprintf("%04d", $range_awal) ?>" disabled>
                                             <!-- Hidden Input untuk dikirim via form -->
@@ -121,19 +121,16 @@ if (session_status() === PHP_SESSION_NONE) {
                                     </div>
                                     <div class="col-6">
                                         <div class="input-group">
-                                            <span class="input-group-text bg-light" style="font-size: 12px;">Sampai</span>
+                                            <span class="input-group-text bg-light" style="font-size: 12px;"><?= $lang['gen_lbl_sampai'] ?? 'Sampai' ?></span>
                                             <input type="number" class="form-control fw-bold" name="range_akhir" min="<?= $range_awal ?>" max="9999" value="<?= max($range_akhir, $range_awal) ?>" required>
                                         </div>
                                     </div>
                                 </div>
-                                <!--<small class="text-muted d-block mt-2">
-                                    *Nomor urut <strong>Mulai</strong> otomatis didapat dari stok terakhir (+1) di database.
-                                </small> -->
                             </div>
 
                             <div class="mt-auto">
                                 <button type="submit" name="action" value="generate_range" class="btn btn-proses-custom text-white w-100 fw-bold py-2 shadow-sm" style="border-radius: 8px;">
-                                    <i class="bi bi-eye-fill me-2"></i>Preview Label Barcode
+                                    <i class="bi bi-eye-fill me-2"></i><?= $lang['btn_preview_label'] ?? 'Preview Label Barcode' ?>
                                 </button>
                             </div>
                         </div>
@@ -146,14 +143,14 @@ if (session_status() === PHP_SESSION_NONE) {
                 <div class="col-12">
                     <div class="card shadow-sm border-0 p-4" style="border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold m-0" style="color: #1e293b;"><i class="bi bi-layout-three-columns me-2 text-success"></i>Lembar Cetak</h5>
+                            <h5 class="fw-bold m-0" style="color: #1e293b;"><i class="bi bi-layout-three-columns me-2 text-success"></i><?= $lang['gen_sect_cetak'] ?? 'Lembar Cetak' ?></h5>
                             <?php if (!empty($generated_barcodes)): ?>
                                 <div>
                                     <button type="button" onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
-                                        <i class="bi bi-printer-fill me-1"></i> Cetak ke Kertas Stiker
+                                        <i class="bi bi-printer-fill me-1"></i> <?= $lang['btn_cetak_stiker'] ?? 'Cetak ke Kertas Stiker' ?>
                                     </button>
                                     <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none" disabled>
-                                        <i class="bi bi-box-arrow-in-down me-1"></i> Simpan ke Stok Barang
+                                        <i class="bi bi-box-arrow-in-down me-1"></i> <?= $lang['btn_simpan_stok_batch'] ?? 'Simpan ke Stok Barang' ?>
                                     </button>
                                 </div>
                             <?php endif; ?>
@@ -174,7 +171,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?php else: ?>
                                 <div class="text-center py-5 border rounded bg-light text-secondary">
                                     <i class="bi bi-printer display-6 d-block mb-2"></i>
-                                    Pilih kombinasi SKU di atas untuk melihat preview stiker barcode.
+                                    <?= $lang['gen_info_cetak'] ?? 'Pilih kombinasi SKU di atas untuk melihat preview stiker barcode.' ?>
                                 </div>
                             <?php endif; ?>
                         </div>

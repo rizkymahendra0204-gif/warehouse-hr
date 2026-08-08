@@ -32,59 +32,64 @@ if ($res_return) {
     $kpi_return = (int)$row['total'];
 }
 
+// ==========================================
+// 2. QUERY STOK WAREHOUSE ACTIVE (Status: Available)
+// ==========================================
+$active_stock = [
+    'total'     => 0,
+    'baju_pria' => 0,
+    'celana_pria'  => 0,
+    'baju_wanita'  => 0,
+    'celana_wanita'   => 0
+];
 
-// ==========================================
-// 2. QUERY GRAFIK STOK WAREHOUSE ACTIVE (Status: Tersedia)
-// ==========================================
-$active_stock = ['baju_pria' => 0, 'cln_pria' => 0, 'baju_wnt' => 0, 'cln_wnt' => 0];
 $sql_active = "SELECT 
-    SUM(CASE WHEN tipe = 'Baju' AND gender = 'Pria' THEN 1 ELSE 0 END) as baju_pria,
-    SUM(CASE WHEN tipe = 'Celana' AND gender = 'Pria' THEN 1 ELSE 0 END) as cln_pria,
-    SUM(CASE WHEN tipe = 'Baju' AND gender = 'Wanita' THEN 1 ELSE 0 END) as baju_wnt,
-    SUM(CASE WHEN tipe = 'Celana' AND gender = 'Wanita' THEN 1 ELSE 0 END) as cln_wnt
-    FROM master_item WHERE status_transaksi = 'Available'";
+    COUNT(barcode) AS total,
+    SUM(CASE WHEN tipe = 'Baju' AND (gender = 'Pria' OR gender = 'male' OR gender = '1') THEN 1 ELSE 0 END) AS baju_pria,
+    SUM(CASE WHEN tipe = 'Celana' AND (gender = 'Pria' OR gender = 'male' OR gender = '1') THEN 1 ELSE 0 END) AS celana_pria,
+    SUM(CASE WHEN tipe = 'Baju' AND (gender = 'Wanita' OR gender = 'female' OR gender = '2') THEN 1 ELSE 0 END) AS baju_wanita,
+    SUM(CASE WHEN (tipe = 'Celana' OR tipe = 'Rok') AND (gender = 'Wanita' OR gender = 'female' OR gender = '2') THEN 1 ELSE 0 END) AS celana_wanita
+FROM master_item 
+WHERE status_transaksi = 'available'";
 
 $res_active = $conn->query($sql_active);
 if ($res_active) {
     $row = $res_active->fetch_assoc();
+    $active_stock['total']     = (int)($row['total'] ?? 0);
     $active_stock['baju_pria'] = (int)($row['baju_pria'] ?? 0);
-    $active_stock['cln_pria'] = (int)($row['cln_pria'] ?? 0);
-    $active_stock['baju_wnt'] = (int)($row['baju_wnt'] ?? 0);
-    $active_stock['cln_wnt'] = (int)($row['cln_wnt'] ?? 0);
+    $active_stock['celana_pria']  = (int)($row['celana_pria'] ?? 0);
+    $active_stock['baju_wanita']  = (int)($row['baju_wanita'] ?? 0);
+    $active_stock['celana_wanita']   = (int)($row['celana_wanita'] ?? 0);
 }
 
-// Hitung persentase tinggi grafik Active secara proporsional
-$max_active = max(1, max($active_stock));
-$h_active_baju_pria = ($active_stock['baju_pria'] / $max_active) * 100;
-$h_active_cln_pria = ($active_stock['cln_pria'] / $max_active) * 100;
-$h_active_baju_wnt  = ($active_stock['baju_wnt'] / $max_active) * 100;
-$h_active_cln_wnt  = ($active_stock['cln_wnt'] / $max_active) * 100;
-
 
 // ==========================================
-// 3. QUERY GRAFIK STOK WAREHOUSE INACTIVE (Status: Nonaktif)
+// 3. QUERY STOK WAREHOUSE INACTIVE (Status: Inactive / Retur)
 // ==========================================
-$inactive_stock = ['baju_pria' => 0, 'cln_pria' => 0, 'baju_wnt' => 0, 'cln_wnt' => 0];
+$inactive_stock = [
+    'total'     => 0,
+    'baju_pria' => 0,
+    'celana_pria'  => 0,
+    'baju_wanita'  => 0,
+    'celana_wanita'   => 0
+];
+
 $sql_inactive = "SELECT 
-    SUM(CASE WHEN tipe = 'Baju' AND gender = 'Pria' THEN 1 ELSE 0 END) as baju_pria,
-    SUM(CASE WHEN tipe = 'Celana' AND gender = 'Pria' THEN 1 ELSE 0 END) as cln_pria,
-    SUM(CASE WHEN tipe = 'Baju' AND gender = 'Wanita' THEN 1 ELSE 0 END) as baju_wnt,
-    SUM(CASE WHEN (tipe = 'Celana' OR tipe = 'Rok') AND gender = 'Wanita' THEN 1 ELSE 0 END) as cln_wnt
-    FROM master_item WHERE status_barang = 'Inactive'";
+    COUNT(barcode) AS total,
+    SUM(CASE WHEN tipe = 'Baju' AND (gender = 'Pria' OR gender = 'male' OR gender = '1') THEN 1 ELSE 0 END) AS baju_pria,
+    SUM(CASE WHEN tipe = 'Celana' AND (gender = 'Pria' OR gender = 'male' OR gender = '1') THEN 1 ELSE 0 END) AS celana_pria,
+    SUM(CASE WHEN tipe = 'Baju' AND (gender = 'Wanita' OR gender = 'female' OR gender = '2') THEN 1 ELSE 0 END) AS baju_wanita,
+    SUM(CASE WHEN (tipe = 'Celana' OR tipe = 'Rok') AND (gender = 'Wanita' OR gender = 'female' OR gender = '2') THEN 1 ELSE 0 END) AS celana_wanita
+FROM master_item 
+WHERE status_barang = 'inactive'";
 
 $res_inactive = $conn->query($sql_inactive);
 if ($res_inactive) {
     $row = $res_inactive->fetch_assoc();
+    $inactive_stock['total']     = (int)($row['total'] ?? 0);
     $inactive_stock['baju_pria'] = (int)($row['baju_pria'] ?? 0);
-    $inactive_stock['cln_pria'] = (int)($row['cln_pria'] ?? 0);
-    $inactive_stock['baju_wnt'] = (int)($row['baju_wnt'] ?? 0);
-    $inactive_stock['cln_wnt'] = (int)($row['cln_wnt'] ?? 0);
+    $inactive_stock['celana_pria']  = (int)($row['celana_pria'] ?? 0);
+    $inactive_stock['baju_wanita']  = (int)($row['baju_wanita'] ?? 0);
+    $inactive_stock['celana_wanita']   = (int)($row['celana_wanita'] ?? 0);
 }
-
-// Hitung persentase tinggi grafik Inactive secara proporsional
-$max_inactive = max(1, max($inactive_stock));
-$h_inactive_baju_pria = ($inactive_stock['baju_pria'] / $max_inactive) * 100;
-$h_inactive_cln_pria = ($inactive_stock['cln_pria'] / $max_inactive) * 100;
-$h_inactive_baju_wnt  = ($inactive_stock['baju_wnt'] / $max_inactive) * 100;
-$h_inactive_cln_wnt  = ($inactive_stock['cln_wnt'] / $max_inactive) * 100;
 ?>

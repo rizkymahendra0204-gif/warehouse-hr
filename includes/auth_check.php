@@ -3,6 +3,9 @@ require_once __DIR__ . '/db.php';
 $is_audit_active = true; 
 include __DIR__ . '/../controllers/query_audit.php';
 
+// Load sistem bahasa secara global untuk semua halaman
+require_once __DIR__ . '/language.php';
+
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

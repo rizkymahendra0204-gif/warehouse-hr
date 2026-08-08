@@ -35,13 +35,12 @@ include 'controllers/query_dashboard.php';
             
             <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title">Dashboard
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Melihat data statistik transaksi item</p>
+                <div class="page-title">
+                    <h4 class="fw-bold m-0"><?= $lang['dashboard_title'] ?? 'Halaman Statistik' ?></h4>
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['dashboard_subtitle'] ?? 'Melihat data statistik transaksi item' ?></p>
                 </div>
                 <div class="d-flex gap-2">
-                    <button onclick="window.location.reload();" class="btn fw-bold text-white shadow-sm" style="background-color: #556ee6; border-radius: 8px; font-size: 14px;">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
-                    </button>
+                    <!-- Refresh Button (Optional) -->
                 </div>
             </div>
             
@@ -54,7 +53,7 @@ include 'controllers/query_dashboard.php';
                         <div class="kpi-card">
                             <div class="kpi-icon kpi-pending"><i class="bi bi-hourglass-split"></i></div>
                             <div>
-                                <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Pending Request</div>
+                                <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><?= $lang['kpi_pending'] ?? 'PENDING REQUEST' ?></div>
                                 <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_pending; ?></h2>
                             </div>
                         </div>
@@ -64,8 +63,8 @@ include 'controllers/query_dashboard.php';
                         <div class="kpi-card">
                             <div class="kpi-icon kpi-success"><i class="bi bi-check2-all"></i></div>
                             <div>
-                                <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Total Transaksi</div>
-                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_transaksi; ?> <span style="font-size: 13px; font-weight: 500; color: #64748b;" class="ms-1">Pcs</span></h2>
+                                <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><?= $lang['kpi_transaksi'] ?? 'TOTAL TRANSAKSI' ?></div>
+                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_transaksi; ?> <span style="font-size: 13px; font-weight: 500; color: #64748b;" class="ms-1"><?= $lang['unit_pcs'] ?? 'Pcs' ?></span></h2>
                             </div>
                         </div>
                     </div>
@@ -74,69 +73,138 @@ include 'controllers/query_dashboard.php';
                         <div class="kpi-card">
                             <div class="kpi-icon kpi-danger"><i class="bi bi-arrow-counterclockwise"></i></div>
                             <div>
-                                <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Total Return</div>
+                                <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><?= $lang['kpi_return'] ?? 'TOTAL RETURN' ?></div>
                                 <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_return; ?></h2>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ROW 2: CHARTS -->
-                <div class="row g-4">
+                <!-- AREA CONTAINER STOK STATISTIK -->
+                <div class="row g-4 mb-4">
                     
-                    <!-- Chart Kiri: Stok Active -->
+                    <!-- 1. REMAINING STOK (CURRENT / ACTIVE) -->
                     <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="fw-bold m-0" style="color: #1e293b;"><i class="me-2 text-primary"></i>Remaining Stok (Current)</h6>
-                                <span class="badge bg-light text-success border">Available (Active)</span>
+                        <div class="bg-white border rounded-3 p-4 h-100 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark"><?= $lang['remaining_stock_title'] ?? 'Remaining Stok (Current)' ?></h6>
+                                    <small class="text-muted"><?= $lang['remaining_stock_desc'] ?? 'Total barang aktif yang siap digunakan' ?></small>
+                                </div>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold" style="font-size: 12px;">
+                                    <?= $lang['badge_active'] ?? 'Available (Active)' ?>
+                                </span>
                             </div>
-                            
-                            <!-- Placeholder Grafik Active Dinamis -->
-                            <div class="chart-placeholder">
-                                <div class="bar-active" style="height: <?php echo $h_active_baju_pria; ?>%;" title="Kemeja Pria: <?php echo $active_stock['baju_pria']; ?> Pcs"></div>
-                                <div class="bar-active" style="height: <?php echo $h_active_cln_pria; ?>%;" title="Celana Pria: <?php echo $active_stock['cln_pria']; ?> Pcs"></div>
-                                <div class="bar-active" style="height: <?php echo $h_active_baju_wnt; ?>%;" title="Kemeja Wanita: <?php echo $active_stock['baju_wnt']; ?> Pcs"></div>
-                                <div class="bar-active" style="height: <?php echo $h_active_cln_wnt; ?>%;" title="Bawahan Wanita: <?php echo $active_stock['cln_wnt']; ?> Pcs"></div>
+
+                            <!-- Total Active Banner -->
+                            <div class="p-3 bg-primary-subtle rounded-3 mb-3 border border-primary-subtle d-flex justify-content-center align-items-center text-center">
+                                <h3 class="fw-bold text-primary m-0">
+                                    <?= number_format($active_stock['total'] ?? 0) ?> 
+                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
+                                </h3>
                             </div>
-                            <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                                <span>Bj. Pria (<?php echo $active_stock['baju_pria']; ?>)</span>
-                                <span>Cln. Pria (<?php echo $active_stock['cln_pria']; ?>)</span>
-                                <span>Bj. Wnt (<?php echo $active_stock['baju_wnt']; ?>)</span>
-                                <span>Cln. Wnt (<?php echo $active_stock['cln_wnt']; ?>)</span>
+
+                            <!-- Grid 2x2 Active -->
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_baju_pria'] ?? 'Baju Pria' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($active_stock['baju_pria'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_celana_pria'] ?? 'Celana Pria' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($active_stock['celana_pria'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_baju_wanita'] ?? 'Baju Wanita' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($active_stock['baju_wanita'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_celana_wanita'] ?? 'Celana Wanita' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($active_stock['celana_wanita'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Chart Kanan: Stok Inactive -->
+                    <!-- 2. RETURNED STOK (INACTIVE) -->
                     <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h6 class="fw-bold m-0" style="color: #1e293b;"><i class="me-2 text-secondary"></i>Returned Stok</h6>
-                                <span class="badge bg-light text-danger border">Available (Inactive)</span>
+                        <div class="bg-white border rounded-3 p-4 h-100 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark"><?= $lang['returned_stock_title'] ?? 'Returned Stok' ?></h6>
+                                    <small class="text-muted"><?= $lang['returned_stock_desc'] ?? 'Total barang dikembalikan/tidak aktif' ?></small>
+                                </div>
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-bold" style="font-size: 12px;">
+                                    <?= $lang['badge_inactive'] ?? 'Available (Inactive)' ?>
+                                </span>
                             </div>
-                            
-                            <!-- Placeholder Grafik Inactive Dinamis -->
-                            <div class="chart-placeholder">
-                                <div class="bar-inactive" style="height: <?php echo $h_inactive_baju_pria; ?>%;" title="Kemeja Pria: <?php echo $inactive_stock['baju_pria']; ?> Pcs"></div>
-                                <div class="bar-inactive" style="height: <?php echo $h_inactive_cln_pria; ?>%;" title="Celana Pria: <?php echo $inactive_stock['cln_pria']; ?> Pcs"></div>
-                                <div class="bar-inactive" style="height: <?php echo $h_inactive_baju_wnt; ?>%;" title="Kemeja Wanita: <?php echo $inactive_stock['baju_wnt']; ?> Pcs"></div>
-                                <div class="bar-inactive" style="height: <?php echo $h_inactive_cln_wnt; ?>%;" title="Bawahan Wanita: <?php echo $inactive_stock['cln_wnt']; ?> Pcs"></div>
+
+                            <!-- Total Inactive Banner -->
+                            <div class="p-3 bg-danger-subtle rounded-3 mb-3 border border-danger-subtle d-flex justify-content-center align-items-center text-center">
+                                <h3 class="fw-bold text-danger m-0">
+                                    <?= number_format($inactive_stock['total'] ?? 0) ?> 
+                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
+                                </h3>
                             </div>
-                            <div class="d-flex justify-content-around mt-3 text-secondary" style="font-size: 12px; font-weight: 600;">
-                                <span>Bj. Pria (<?php echo $inactive_stock['baju_pria']; ?>)</span>
-                                <span>Cln. Pria (<?php echo $inactive_stock['cln_pria']; ?>)</span>
-                                <span>Bj. Wnt (<?php echo $inactive_stock['baju_wnt']; ?>)</span>
-                                <span>Cln. Wnt (<?php echo $inactive_stock['cln_wnt']; ?>)</span>
+
+                            <!-- Grid 2x2 Inactive -->
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_baju_pria'] ?? 'Baju Pria' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($inactive_stock['baju_pria'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_celana_pria'] ?? 'Celana Pria' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($inactive_stock['celana_pria'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_baju_wanita'] ?? 'Baju Wanita' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($inactive_stock['baju_wanita'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded-3 p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-secondary d-block fw-semibold" style="font-size: 12px;"><?= $lang['item_celana_wanita'] ?? 'Celana Wanita' ?></small>
+                                            <span class="fw-bold text-dark fs-6"><?= number_format($inactive_stock['celana_wanita'] ?? 0) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                 </div>
-                
+
             </div>
         </main>
-        
     </div>
 </div>
 
@@ -148,7 +216,8 @@ include 'controllers/query_dashboard.php';
 </html>
 
 <?php 
-if (isset($conn)) {
-    $conn->close();
+// Penutupan koneksi PDO (opsional)
+if (isset($pdo)) {
+    $pdo = null;
 }
 ?>

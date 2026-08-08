@@ -26,7 +26,7 @@ if (!isset($requests_done)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Request - HR Warehouse</title>
+    <title><?= $lang['pending_title'] ?? 'Manajemen Request' ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
@@ -52,13 +52,13 @@ if (!isset($requests_done)) {
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="page-title">
-                    <h4 class="fw-bold m-0">Manajemen Request Seragam</h4>
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;">Pengolahan dan riwayat status pengajuan seragam SA</p>
+                    <h4 class="fw-bold m-0"><?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?></h4>
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['pending_subtitle'] ?? 'Pengolahan dan riwayat status pengajuan seragam SA' ?></p>
                 </div>
                 
                 <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="Cari ...">
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
                 </div>
             </div>
 
@@ -66,14 +66,14 @@ if (!isset($requests_done)) {
             <ul class="nav nav-tabs custom-tabs mb-3" id="requestTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active fw-bold" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-panel" type="button" role="tab">
-                        <i class="bi bi-clock-history me-2 text-warning"></i>Pending Request 
+                        <i class="bi bi-clock-history me-2 text-warning"></i><?= $lang['tab_pending_req'] ?? 'Permintaan Tertunda' ?> 
                         <!-- ID untuk Auto-Update Badge Count -->
                         <span class="badge bg-warning text-dark ms-2" id="badge-pending-count"><?= count($requests_pending) ?></span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link fw-bold" id="done-tab" data-bs-toggle="tab" data-bs-target="#done-panel" type="button" role="tab">
-                        <i class="bi bi-check-circle-fill me-2 text-success"></i>Request Selesai (Done)
+                        <i class="bi bi-check-circle-fill me-2 text-success"></i><?= $lang['tab_req_done'] ?? 'Permintaan Selesai' ?>
                         <span class="badge bg-success ms-2" id="badge-done-count"><?= count($requests_done) ?></span>
                     </button>
                 </li>
@@ -91,10 +91,10 @@ if (!isset($requests_done)) {
                                 <table class="table align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th scope="col" width="15%">No. Request</th>
-                                            <th scope="col" width="45%">Detail Karyawan & Item</th>
-                                            <th scope="col" width="15%" class="text-center">Status</th>
-                                            <th scope="col" width="25%" class="text-center">Aksi</th>
+                                            <th scope="col" width="15%"><?= $lang['th_no_request'] ?? 'No. Request' ?></th>
+                                            <th scope="col" width="45%"><?= $lang['th_detail_karyawan'] ?? 'Detail Karyawan & Item' ?></th>
+                                            <th scope="col" width="15%" class="text-center"><?= $lang['table_status'] ?? 'Status' ?></th>
+                                            <th scope="col" width="25%" class="text-center"><?= $lang['table_action'] ?? 'Aksi' ?></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -102,7 +102,8 @@ if (!isset($requests_done)) {
                                             <?php foreach ($requests_pending as $row): 
                                                 $req_id     = $row['request_id'];
                                                 $pt         = htmlspecialchars($row['perusahaan']);
-                                                $gender_txt = ($row['gender'] === 'male') ? 'SA Pria' : 'SA Wanita';
+                                                // Menerapkan kamus bahasa untuk jenis request
+                                                $req_title  = ($row['gender'] === 'male') ? ($lang['req_sa_pria'] ?? 'Request Seragam SA Pria') : ($lang['req_sa_wanita'] ?? 'Request Seragam SA Wanita');
                                                 $tgl        = date('d M Y', strtotime($row['tgl_request']));
                                                 $total_qty  = $row['qty_top'] + $row['qty_bottoms'];
                                                 $file_path  = !empty($row['upload']) ? '/Request.Form.2/upload/' . basename($row['upload']) : '#';
@@ -113,17 +114,17 @@ if (!isset($requests_done)) {
                                                     <td>
                                                         <div class="fw-bold text-dark" style="font-size: 15px;"><?= $pt ?></div>
                                                         <div class="text-secondary mt-1" style="font-size: 13px;">
-                                                            <i class="bi bi-box-seam me-1"></i> Request Seragam <?= $gender_txt ?>
+                                                            <i class="bi bi-box-seam me-1"></i> <?= $req_title ?>
                                                             <span class="mx-2 text-muted">|</span> 
                                                             <i class="bi bi-calendar-event me-1"></i> <?= $tgl ?>
                                                         </div>
                                                     </td>
                                                     <td class="text-center">
-                                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i> Pending</span>
+                                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i><?= $lang['badge_pending'] ?? 'Tertunda' ?></span>
                                                     </td>
                                                     <td class="text-center">
                                                         <button type="button" class="btn btn-proses w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#reviewPopup_<?= htmlspecialchars($req_id) ?>">
-                                                            Proses <i class="bi bi-arrow-right-circle ms-2"></i>
+                                                            <?= $lang['btn_process'] ?? 'Proses' ?> <i class="bi bi-arrow-right-circle ms-2"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -136,33 +137,33 @@ if (!isset($requests_done)) {
                                                     <div class="modal-dialog modal-xl modal-dialog-centered">
                                                         <div class="modal-content">
                                                             <div class="modal-header border-0 pb-0 pt-4 px-4">
-                                                                <h5 class="modal-title fw-bold" style="color: #4b5563;">Detail Request #<?= htmlspecialchars($req_id) ?></h5>
+                                                                <h5 class="modal-title fw-bold" style="color: #4b5563;"><?= $lang['modal_detail_request'] ?? 'Detail Request' ?> #<?= htmlspecialchars($req_id) ?></h5>
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                             </div>
                                                             <div class="modal-body p-4">
                                                                 <div class="row g-4">
                                                                     <div class="col-lg-7">
                                                                         <div class="panel-card p-3 border rounded-3">
-                                                                            <h6 class="fw-bold text-danger mb-3">RINGKASAN PESANAN</h6>
+                                                                            <h6 class="fw-bold text-danger mb-3"><?= $lang['modal_ringkasan_pesanan'] ?? 'RINGKASAN PESANAN' ?></h6>
                                                                             <table class="table table-borderless summary-table m-0">
-                                                                                <tr><th>Perusahaan</th><td>: <?= $pt ?></td></tr>
-                                                                                <tr><th>Nama SA</th><td>: <?= htmlspecialchars($row['nama_sa']) ?></td></tr>
+                                                                                <tr><th><?= $lang['modal_perusahaan'] ?? 'Perusahaan' ?></th><td>: <?= $pt ?></td></tr>
+                                                                                <tr><th><?= $lang['th_nama_sa'] ?? 'Nama SA' ?></th><td>: <?= htmlspecialchars($row['nama_sa']) ?></td></tr>
                                                                                 <?php if ($row['qty_top'] > 0): ?>
-                                                                                    <tr><th>Item Atasan</th><td>: Baju <?= $gender_txt ?> - <?= htmlspecialchars($row['qty_top']) ?> Pcs</td></tr>
+                                                                                    <tr><th><?= $lang['modal_item_atasan'] ?? 'Item Atasan' ?></th><td>: <?= ($row['gender'] === 'male') ? ($lang['item_baju_pria'] ?? 'Baju Pria') : ($lang['item_baju_wanita'] ?? 'Baju Wanita') ?> - <?= htmlspecialchars($row['qty_top']) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></td></tr>
                                                                                 <?php endif; ?>
                                                                                 <?php if ($row['qty_bottoms'] > 0): ?>
-                                                                                    <tr><th>Item Bawahan</th><td>: Celana <?= $gender_txt ?> - <?= htmlspecialchars($row['qty_bottoms']) ?> Pcs</td></tr>
+                                                                                    <tr><th><?= $lang['modal_item_bawahan'] ?? 'Item Bawahan' ?></th><td>: <?= ($row['gender'] === 'male') ? ($lang['item_celana_pria'] ?? 'Celana Pria') : ($lang['item_celana_wanita'] ?? 'Celana Wanita') ?> - <?= htmlspecialchars($row['qty_bottoms']) ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></td></tr>
                                                                                 <?php endif; ?>
-                                                                                <tr><th>Total Jumlah</th><td class="fw-bold">: <?= $total_qty ?> Pcs</td></tr>
-                                                                                <tr><th>Total Harga</th><td class="fw-bold text-danger">: Rp<?= number_format($row['total_harga'], 0, ',', '.') ?></td></tr>
+                                                                                <tr><th><?= $lang['modal_total_jumlah'] ?? 'Total Jumlah' ?></th><td class="fw-bold">: <?= $total_qty ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></td></tr>
+                                                                                <tr><th><?= $lang['modal_total_harga'] ?? 'Total Harga' ?></th><td class="fw-bold text-danger">: Rp<?= number_format($row['total_harga'], 0, ',', '.') ?></td></tr>
                                                                             </table>
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-lg-5">
                                                                         <div class="panel-card p-3 border rounded-3 d-flex flex-column h-100">
-                                                                            <h6 class="fw-bold text-danger mb-3">KONFIRMASI</h6>
+                                                                            <h6 class="fw-bold text-danger mb-3"><?= $lang['modal_konfirmasi'] ?? 'KONFIRMASI' ?></h6>
                                                                             <p class="fw-bold mb-3" style="font-size: 14px; color: #1f2937;">
-                                                                                Metode Pembayaran: 
+                                                                                <?= $lang['modal_metode_pembayaran'] ?? 'Metode Pembayaran:' ?> 
                                                                                 <span class="text-danger"><?= strtoupper(str_replace('_', ' ', $row['pembayaran'])) ?></span>
                                                                             </p>
 
@@ -181,7 +182,7 @@ if (!isset($requests_done)) {
                                                                                         <?php else: ?>
                                                                                             <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e2e8f0;">
                                                                                                 <i class="bi bi-file-earmark-pdf-fill text-danger d-block mb-2" style="font-size: 40px;"></i>
-                                                                                                <span class="fw-bold text-secondary" style="font-size: 13px;">Dokumen <?= strtoupper($ext) ?></span>
+                                                                                                <span class="fw-bold text-secondary" style="font-size: 13px;"><?= $lang['modal_dokumen'] ?? 'Dokumen' ?> <?= strtoupper($ext) ?></span>
                                                                                             </div>
                                                                                         <?php endif; ?>
 
@@ -190,12 +191,12 @@ if (!isset($requests_done)) {
                                                                                         </p>
 
                                                                                         <a href="<?= htmlspecialchars($file_path) ?>" target="_blank" class="btn btn-sm text-white fw-bold w-100 py-2 shadow-sm" style="background-color: #b91c1c; border-radius: 6px;">
-                                                                                            <i class="bi bi-box-arrow-up-right me-1"></i> Buka File
+                                                                                            <i class="bi bi-box-arrow-up-right me-1"></i> <?= $lang['modal_buka_file'] ?? 'Buka File' ?>
                                                                                         </a>
                                                                                     <?php else: ?>
                                                                                         <div class="py-3">
                                                                                             <i class="bi bi-file-earmark-x mb-2 d-block text-muted" style="font-size: 40px;"></i>
-                                                                                            <span class="text-danger fw-bold" style="font-size: 13px;">Bukti transfer belum diunggah / tidak ditemukan</span>
+                                                                                            <span class="text-danger fw-bold" style="font-size: 13px;"><?= $lang['modal_bukti_kosong'] ?? 'Bukti transfer belum diunggah / tidak ditemukan' ?></span>
                                                                                         </div>
                                                                                     <?php endif; ?>
                                                                                 </div>
@@ -203,7 +204,7 @@ if (!isset($requests_done)) {
 
                                                                             <div class="mt-auto pt-2">
                                                                                 <a href="transaksi.php?id=<?= urlencode($req_id) ?>&pt=<?= urlencode($row['perusahaan']) ?>" class="btn btn-aprove-custom fw-bold w-100 py-2 shadow-sm">
-                                                                                    <i class="bi bi-check-circle me-1"></i> Approve Request
+                                                                                    <i class="bi bi-check-circle me-1"></i> <?= $lang['modal_approve'] ?? 'Approve Request' ?>
                                                                                 </a>
                                                                             </div>
                                                                         </div>
@@ -220,7 +221,7 @@ if (!isset($requests_done)) {
                                             <tr>
                                                 <td colspan="4" class="text-center text-secondary py-5">
                                                     <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                                    Tidak ada request seragam yang pending saat ini.
+                                                    <?= $lang['empty_pending'] ?? 'Tidak ada request seragam yang pending saat ini.' ?>
                                                 </td>
                                             </tr>
                                         <?php endif; ?>
@@ -244,10 +245,10 @@ if (!isset($requests_done)) {
                             <table class="table align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th scope="col" width="15%">No. Request</th>
-                                        <th scope="col" width="45%">Detail Karyawan & Item</th>
-                                        <th scope="col" width="15%" class="text-center">Status</th>
-                                        <th scope="col" width="25%" class="text-center">Aksi</th>
+                                        <th scope="col" width="15%"><?= $lang['th_no_request'] ?? 'No. Request' ?></th>
+                                        <th scope="col" width="45%"><?= $lang['th_detail_karyawan'] ?? 'Detail Karyawan & Item' ?></th>
+                                        <th scope="col" width="15%" class="text-center"><?= $lang['table_status'] ?? 'Status' ?></th>
+                                        <th scope="col" width="25%" class="text-center"><?= $lang['table_action'] ?? 'Aksi' ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -255,7 +256,7 @@ if (!isset($requests_done)) {
                                         <?php foreach ($requests_done as $row_done): 
                                             $req_id     = $row_done['request_id'];
                                             $pt         = htmlspecialchars($row_done['perusahaan']);
-                                            $gender_txt = ($row_done['gender'] === 'male') ? 'SA Pria' : 'SA Wanita';
+                                            $req_title_done = ($row_done['gender'] === 'male') ? ($lang['req_sa_pria'] ?? 'Request Seragam SA Pria') : ($lang['req_sa_wanita'] ?? 'Request Seragam SA Wanita');
                                             $tgl_done   = !empty($row_done['tgl_transaksi']) ? date('d M Y', strtotime($row_done['tgl_transaksi'])) : '-';
                                             $total_qty  = $row_done['qty_top'] + $row_done['qty_bottoms'];
                                         ?>
@@ -264,17 +265,17 @@ if (!isset($requests_done)) {
                                                 <td>
                                                     <div class="fw-bold text-dark" style="font-size: 15px;"><?= $pt ?></div>
                                                     <div class="text-secondary mt-1" style="font-size: 13px;">
-                                                        <i class="bi bi-box-seam me-1"></i> Request Seragam <?= $gender_txt ?>
+                                                        <i class="bi bi-box-seam me-1"></i> <?= $req_title_done ?>
                                                         <span class="mx-2 text-muted">|</span> 
-                                                        <i class="bi bi-check2-square me-1 text-success"></i> Selesai: <?= $tgl_done ?>
+                                                        <i class="bi bi-check2-square me-1 text-success"></i> <?= $lang['text_selesai'] ?? 'Selesai:' ?> <?= $tgl_done ?>
                                                     </div>
                                                 </td>
                                                 <td class="text-center">
-                                                    <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-check-all me-1"></i> Done</span>
+                                                    <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-check-all me-1"></i> <?= $lang['badge_done'] ?? 'Selesai' ?></span>
                                                 </td>
                                                 <td class="text-center">
                                                     <button type="button" class="btn btn-cetak-custom w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#reviewPopup_<?= htmlspecialchars($req_id) ?>">
-                                                        <i class="bi bi-eye me-1"></i> Lihat Detail
+                                                        <i class="bi bi-eye me-1"></i> <?= $lang['btn_view_details'] ?? 'Lihat Detail' ?>
                                                     </button>
                                                 </td>
                                             </tr>
@@ -286,22 +287,22 @@ if (!isset($requests_done)) {
                                                 <div class="modal-dialog modal-lg modal-dialog-centered">
                                                     <div class="modal-content">
                                                         <div class="modal-header border-0 pb-0 pt-4 px-4">
-                                                            <h5 class="modal-title fw-bold text-success">Detail Request #<?= htmlspecialchars($req_id) ?> (Selesai)</h5>
+                                                            <h5 class="modal-title fw-bold text-success"><?= $lang['modal_detail_request'] ?? 'Detail Request' ?> #<?= htmlspecialchars($req_id) ?> (<?= $lang['text_selesai_badge'] ?? 'Selesai' ?>)</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
                                                         <div class="modal-body p-4">
                                                             <div class="panel-card p-3 border rounded-3">
                                                                 <table class="table table-borderless summary-table m-0">
-                                                                    <tr><th>Perusahaan</th><td>: <?= $pt ?></td></tr>
-                                                                    <tr><th>Nama SA</th><td>: <?= htmlspecialchars($row_done['nama_sa']) ?></td></tr>
-                                                                    <tr><th>Alamat</th><td>: <?= nl2br(htmlspecialchars($row_done['alamat'])) ?></td></tr>
-                                                                    <tr><th>Total Jumlah</th><td class="fw-bold">: <?= $total_qty ?> Pcs</td></tr>
-                                                                    <tr><th>Total Harga</th><td class="fw-bold text-success">: Rp<?= number_format($row_done['total_harga'], 0, ',', '.') ?></td></tr>
+                                                                    <tr><th><?= $lang['modal_perusahaan'] ?? 'Perusahaan' ?></th><td>: <?= $pt ?></td></tr>
+                                                                    <tr><th><?= $lang['th_nama_sa'] ?? 'Nama SA' ?></th><td>: <?= htmlspecialchars($row_done['nama_sa']) ?></td></tr>
+                                                                    <tr><th><?= $lang['modal_alamat'] ?? 'Alamat' ?></th><td>: <?= nl2br(htmlspecialchars($row_done['alamat'])) ?></td></tr>
+                                                                    <tr><th><?= $lang['modal_total_jumlah'] ?? 'Total Jumlah' ?></th><td class="fw-bold">: <?= $total_qty ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></td></tr>
+                                                                    <tr><th><?= $lang['modal_total_harga'] ?? 'Total Harga' ?></th><td class="fw-bold text-success">: Rp<?= number_format($row_done['total_harga'], 0, ',', '.') ?></td></tr>
                                                                 </table>
                                                                 <hr>
                                                                 <div class="text-end">
                                                                     <span class="badge bg-success-subtle text-success border border-success px-3 py-2">
-                                                                        <i class="bi bi-check-circle-fill me-1"></i> Transaksi Telah Diterbitkan
+                                                                        <i class="bi bi-check-circle-fill me-1"></i> <?= $lang['modal_trx_selesai'] ?? 'Transaksi Selesai' ?>
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -316,7 +317,7 @@ if (!isset($requests_done)) {
                                         <tr>
                                             <td colspan="4" class="text-center text-secondary py-5">
                                                 <i class="bi bi-check2-circle fs-1 d-block mb-2"></i>
-                                                Belum ada riwayat request yang selesai.
+                                                <?= $lang['empty_done'] ?? 'Belum ada riwayat request yang selesai.' ?>
                                             </td>
                                         </tr>
                                     <?php endif; ?>

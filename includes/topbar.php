@@ -67,6 +67,36 @@ if (isset($pdo) && $pdo instanceof PDO) {
     </button>
 
     <div class="profile-section d-flex align-items-center gap-3">
+
+
+        <!-- DROPDOWN PENGATURAN BAHASA -->
+        <div class="dropdown me-3">
+            <button class="btn btn-sm btn-light border dropdown-toggle fw-bold d-flex align-items-center gap-2" 
+                    type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 13px; border-radius: 8px;">
+                <i class="bi bi-globe text-primary"></i>
+                <span><?= strtoupper($_SESSION['lang'] ?? 'ID') ?></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 13px;">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'id' ? 'fw-bold active' : '' ?>" 
+                    href="?lang=id">
+                        <span>🇮🇩 Bahasa Indonesia</span>
+                        <?php if (($_SESSION['lang'] ?? 'id') === 'id'): ?>
+                            <i class="bi bi-check2 ms-2"></i>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'en' ? 'fw-bold active' : '' ?>" 
+                    href="?lang=en">
+                        <span>🇬🇧 English</span>
+                        <?php if (($_SESSION['lang'] ?? 'id') === 'en'): ?>
+                            <i class="bi bi-check2 ms-2"></i>
+                        <?php endif; ?>
+                    </a>
+                </li>
+            </ul>
+        </div>
         
         <!-- 1. Notification Dropdown -->
         <div class="dropdown">
