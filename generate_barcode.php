@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="id">
+<html lang="<?= $_SESSION['lang'] ?? 'id'; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,7 +102,6 @@ if (session_status() === PHP_SESSION_NONE) {
                                             $opts = array_merge($optsAlfabet, $optsCelanaPria);
                                         }
 
-                                        // Normalisasi jika variabel $ukuran berisi huruf "S", "M", "L", "XL"
                                         $sizeMap = ['S' => '01', 'M' => '02', 'L' => '03', 'XL' => '04'];
                                         $currentUkuran = $sizeMap[$ukuran ?? ''] ?? ($ukuran ?? '');
 
@@ -130,9 +129,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                     <div class="col-6">
                                         <div class="input-group">
                                             <span class="input-group-text bg-light" style="font-size: 12px;"><?= $lang['gen_lbl_mulai'] ?? 'Mulai' ?></span>
-                                            <!-- Input Tampilan Disabled -->
                                             <input type="text" class="form-control bg-light fw-bold text-primary" value="<?= sprintf("%04d", $range_awal) ?>" disabled>
-                                            <!-- Hidden Input untuk dikirim via form -->
                                             <input type="hidden" name="range_awal" value="<?= $range_awal ?>">
                                         </div>
                                     </div>
@@ -155,7 +152,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 </div>
             </form>
 
-            <!-- PREVIEW & TOMBOL PRINT -->
+            <!-- PREVIEW & TOMBOL PRINT & EXPORT -->
             <div class="row mt-2">
                 <div class="col-12">
                     <div class="card shadow-sm border-0 p-4" style="border-radius: 12px;">
@@ -163,9 +160,18 @@ if (session_status() === PHP_SESSION_NONE) {
                             <h5 class="fw-bold m-0" style="color: #1e293b;"><i class="bi bi-layout-three-columns me-2 text-success"></i><?= $lang['gen_sect_cetak'] ?? 'Lembar Cetak' ?></h5>
                             <?php if (!empty($generated_barcodes)): ?>
                                 <div>
+                                    <!-- Tombol 1: Cetak -->
                                     <button type="button" onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
                                         <i class="bi bi-printer-fill me-1"></i> <?= $lang['btn_cetak_stiker'] ?? 'Cetak ke Kertas Stiker' ?>
                                     </button>
+
+                                    <!-- Tombol 2: Export to Excel (Mengarah ke Backend Separate File) -->
+                                    <a href="controllers/export_excel.php?type=barcode&gender=<?= urlencode($gender) ?>&tipe=<?= urlencode($tipe) ?>&ukuran=<?= urlencode($ukuran) ?>&range_awal=<?= $range_awal ?>&range_akhir=<?= $range_akhir ?>" 
+                                        class="btn btn-cetak-excel fw-bold px-3 d-print-none me-2">
+                                        <i class="bi bi-file-earmark-excel-fill me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export ke Excel' ?>
+                                    </a>
+
+                                    <!-- Tombol 3: Simpan ke Stok -->
                                     <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none" disabled>
                                         <i class="bi bi-box-arrow-in-down me-1"></i> <?= $lang['btn_simpan_stok_batch'] ?? 'Simpan ke Stok Barang' ?>
                                     </button>
