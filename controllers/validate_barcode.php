@@ -2,6 +2,7 @@
 // controllers/validate_barcode.php
 header('Content-Type: application/json');
 require_once '../includes/db.php';
+require_once '../includes/language.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
 
@@ -36,7 +37,7 @@ if ($result->num_rows > 0) {
 } else {
     echo json_encode([
         'success' => false,
-        'message' => '❌ Barcode tidak terdaftar di database!'
+        'message' => $lang['err_barcode_not_found'] ?? '❌ Barcode tidak terdaftar di database!'
     ]);
 }
 

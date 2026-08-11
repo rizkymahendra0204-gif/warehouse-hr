@@ -14,7 +14,7 @@ return [
     'menu_generate_barcode' => 'Generate Barcode',
     'menu_laporan'          => 'Reports',
     'menu_log_activity'     => 'Activity Log',
-    'menu_closing'          => 'Closing',
+    'menu_closing'          => 'Internal Audit',
     'search_placeholder'    => 'Search ...',
     'btn_process'           => 'Process',
     'btn_cancel'            => 'Cancel',
@@ -166,6 +166,8 @@ return [
     'th_pengguna' => 'USER',
     'th_aktivitas' => 'ACTIVITY',
     'th_modul' => 'MODULE',
+    'btn_search'=> 'Search',
+    'log_subtitle' => 'System activity and transaction history',
 
     // ==========================================
     // 10. JAVASCRIPT & ALERT MESSAGES
@@ -193,6 +195,7 @@ return [
     'err_db_connect_barcode'   => 'Failed to connect to database for barcode <b>{barcode}</b>',
     'alert_no_barcode_input'   => 'No barcode entered yet',
     'alert_failed_db_val'      => '<strong>Database Validation Failed:</strong><br>• {errors}',
+    'err_barcode_not_found'    => '❌ Barcode not found in database!',
     'err_mixed_gender'         => 'You have entered <b>Men</b> and <b>Women</b> clothing simultaneously in one transaction.',
     'err_gender_mismatch'      => 'Item #{num} (<b>{type}</b>): Item gender (<b>{gender}</b>) does not match ticket order (<b>{target}</b>)',
     'err_qty_top_mismatch'     => 'Scanned Shirts count (<b>{scanned} Pcs</b>) does not match ticket order (<b>{target} Pcs</b>)',
@@ -218,8 +221,8 @@ return [
     'btn_open_period'       => 'Open Period',
     'confirm_close_period'  => 'Close audit period?',
     'confirm_open_period'   => 'Open audit period?',
-    'audit_banner_closed'   => '<strong>Closing Period Closed:</strong> Item status changes are temporarily locked.',
-    'audit_banner_active'   => '<strong>Closing Mode Active:</strong> Please proceed with status changes.',
+    'audit_banner_closed'   => '<strong>Audit Period Closed:</strong> Item status changes are temporarily locked.',
+    'audit_banner_active'   => '<strong>Audit Mode Active:</strong> Please proceed with status changes.',
     'btn_change_status'     => 'Change Status',
     'title_access_locked'   => 'Access locked: Audit period is closed',
     'badge_locked'          => 'Locked',

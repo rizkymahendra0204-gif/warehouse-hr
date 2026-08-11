@@ -118,7 +118,7 @@ include __DIR__ . '/controllers/query_laporan.php';
 
                                     <div class="col-sm-5 d-flex flex-column gap-1">
                                         <a href="controllers/export_excel.php?type=<?= $report_type ?>&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>" 
-                                           class="btn btn-cetak-custom btn-sm fw-bold w-100 text-center py-2" style="font-size: 12px;">
+                                           class="btn btn-cetak-excel btn-sm fw-bold w-100 text-center py-2" style="font-size: 12px;">
                                             <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
                                         </a>
                                         <button type="submit" class="btn btn-proses-custom btn-sm fw-bold w-100 py-2" style="font-size: 12px;">

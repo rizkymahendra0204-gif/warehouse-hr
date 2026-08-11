@@ -516,6 +516,21 @@ body {
   background-color: #166534 !important;
 }
 
+.btn-cetak-excel {
+  background-color: #355741 !important;
+  color: #ffffff !important;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-cetak-excel:hover {
+  background-color: #166534 !important;
+}
+
+.btn-cetak-custom:hover {
+  background-color: #166534 !important;
+}
+
 .btn-simpan-custom {
   background-color: #2563eb !important;
   color: #ffffff !important;
