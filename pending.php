@@ -50,7 +50,7 @@ if (!isset($requests_done)) {
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
                 <div class="page-title">
                     <h4 class="fw-bold m-0"><?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?></h4>
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['pending_subtitle'] ?? 'Pengolahan dan riwayat status pengajuan seragam SA' ?></p>

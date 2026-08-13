@@ -79,9 +79,10 @@ if ($is_auto) {
 
             <div id="view-return-list" style="<?php echo $is_auto ? 'display: none;' : 'display: block;'; ?>">
                 
-                <!-- HEADER HALAMAN -->
+                <!-- HEADER HALAMAN (DISAMAKAN DENGAN HALAMAN PENDING) -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="page-title"><?= $lang['ret_title'] ?? 'Pengajuan Return' ?>
+                    <div class="page-title">
+                        <h4 class="fw-bold m-0"><?= $lang['ret_title'] ?? 'Pengajuan Return' ?></h4>
                         <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Manajemen pengembalian barang per item transaksi' ?></p>
                     </div>
                 </div>

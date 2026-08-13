@@ -35,13 +35,16 @@ include 'controllers/query_stokbarang.php';
         <main class="content-area p-4">
             
             <!-- Header Halaman & Tombol Export Excel -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title"><?= $lang['stok_title'] ?? 'Inventory' ?>
-                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['stok_subtitle'] ?? 'Manajemen inventaris seragam dan kelengkapan' ?></p>
-                </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="page-title">
+                        <h4 class="fw-bold m-0"><?= $lang['stok_title'] ?? 'Inventory' ?></h4>
+                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['stok_subtitle'] ?? 'Manajemen inventaris seragam dan kelengkapan' ?></p>
+                    </div>
+
+
                 <div class="d-flex gap-2">
                     <!-- Tombol Export Excel langsung memanggil parameter controller ini -->
-                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-process fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
+                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-cetak-excel fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
                         <i class="bi bi-file-earmark-excel me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
                     </a>
                 </div>

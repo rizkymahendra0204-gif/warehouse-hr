@@ -28,10 +28,13 @@ if (session_status() === PHP_SESSION_NONE) {
         <?php include 'includes/topbar.php'; ?>
 
         <main class="content-area p-4">
-            <div>
-                <h4 class="page-title mb-1"><?= $lang['gen_title'] ?? 'Generate Barcode' ?></h4>
-                <p class="text-muted small mb-3"><?= $lang['gen_subtitle'] ?? 'Pembuatan Barcode untuk penamaan item' ?></p>
-            </div>
+        
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="page-title">
+                        <h4 class="fw-bold m-0"><?= $lang['gen_title'] ?? 'Generate Barcode' ?></h4>
+                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['gen_subtitle'] ?? 'Pembuatan Barcode untuk penamaan item' ?></p>
+                    </div>
+                </div>
 
             <!-- AREA ALERT -->
             <div class="floating-alert-container">

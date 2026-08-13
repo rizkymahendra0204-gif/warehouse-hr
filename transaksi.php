@@ -35,10 +35,12 @@ include 'controllers/query_transaksi.php';
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <div class="page-title mb-4">
-                <?= $lang['trx_title'] ?? 'Transaksi' ?>
-                <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['trx_subtitle'] ?? 'Manajemen untuk pengelolaan item keluar' ?></p>
-            </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="page-title">
+                        <h4 class="fw-bold m-0"><?= $lang['trx_title'] ?? 'Transaksi' ?></h4>
+                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['trx_subtitle'] ?? 'Manajemen untuk pengelolaan item keluar' ?></p>
+                    </div>
+                </div>
 
             <div class="floating-alert-container" id="alertContainer">
                 <?php if (isset($_SESSION['alert_message'])): ?>
