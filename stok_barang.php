@@ -41,7 +41,7 @@ include 'controllers/query_stokbarang.php';
                 </div>
                 <div class="d-flex gap-2">
                     <!-- Tombol Export Excel langsung memanggil parameter controller ini -->
-                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-success fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
+                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-process fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
                         <i class="bi bi-file-earmark-excel me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
                     </a>
                 </div>

@@ -172,7 +172,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                     </a>
 
                                     <!-- Tombol 3: Simpan ke Stok -->
-                                    <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none" disabled>
+                                    <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none">
                                         <i class="bi bi-box-arrow-in-down me-1"></i> <?= $lang['btn_simpan_stok_batch'] ?? 'Simpan ke Stok Barang' ?>
                                     </button>
                                 </div>

@@ -20,9 +20,9 @@ function t(key, defaultText, params = {}) {
 }
 
 // =========================================================================
-// 1. GLOBAL CONFIGURATION & MAPPINGS
+// 1. GLOBAL CONFIGURATION & MAPPINGS (SAFE DECLARATION)
 // =========================================================================
-const APP_CONFIG = {
+var APP_CONFIG = window.APP_CONFIG || {
   GENDER: { 1: "Pria", 2: "Wanita" },
   TYPE: { "01": "Baju", "02": "Celana" },
   SIZE: {
@@ -53,8 +53,32 @@ function invalidateForm() {
 }
 
 // =========================================================================
-// 2. HELPER MAPPING UNTUK WAREHOUSE MANAGEMENT MODAL
+// 2. HELPER FUNCTIONS & GLOBAL ACTION HANDLERS
 // =========================================================================
+
+// Action Handler untuk Tombol Return Item
+function openProcessPage(id, sales, nama, detail, barcodes) {
+  if (!id) return;
+  
+  let url = "return.php?req=" + encodeURIComponent(id);
+  if (sales) url += "&sales=" + encodeURIComponent(sales);
+  if (nama) url += "&nama=" + encodeURIComponent(nama);
+  if (detail) url += "&detail=" + encodeURIComponent(detail);
+  
+  // Kirim barcode spesifik yang diklik agar hanya 1 item yang diproses
+  if (Array.isArray(barcodes) && barcodes.length > 0) {
+    url += "&item=" + encodeURIComponent(barcodes[0]);
+  }
+  
+  window.location.href = url;
+}
+
+// Action Handler untuk Tombol Batal pada Form Return
+function cancelProcess() {
+  window.location.href = "return.php";
+}
+
+// Helper Mapping untuk Warehouse Management Modal
 function setAuditData(barcode, detail, statusTx, statusBrg) {
   const elBarcode = document.getElementById("modal_barcode");
   const elDisplay = document.getElementById("modal_barcode_display");
@@ -67,6 +91,75 @@ function setAuditData(barcode, detail, statusTx, statusBrg) {
   if (elDetail) elDetail.innerText = detail;
   if (elStatusTx) elStatusTx.value = statusTx;
   if (elStatusBrg) elStatusBrg.value = statusBrg;
+}
+
+// FUNGSI VALIDASI SELURUH ITEM TRANSAKSI
+function validateAllItems() {
+  const inputs = document.querySelectorAll(".barcode-item-input");
+  
+  if (inputs.length === 0) {
+    showAlert(t("alert_no_items", "Belum ada item barcode yang di-scan."), "danger");
+    invalidateForm();
+    return false;
+  }
+
+  let emptyCount = 0;
+  let invalidCount = 0;
+  let validCount = 0;
+
+  inputs.forEach(function (input) {
+    const val = input.value.trim();
+    if (!val) {
+      emptyCount++;
+    } else {
+      const parsed = parseBarcode(val);
+      if (!parsed.isValid) {
+        invalidCount++;
+      } else {
+        validCount++;
+      }
+    }
+  });
+
+  if (emptyCount > 0 || invalidCount > 0) {
+    showAlert(
+      t(
+        "alert_validation_failed",
+        "<strong>Validasi Gagal:</strong> Pastikan seluruh kolom barcode terisi dengan format 9 digit angka yang valid!"
+      ),
+      "danger"
+    );
+    invalidateForm();
+    return false;
+  }
+
+  if (window.transactionData && window.transactionData.isAuto && window.transactionData.totalQty > 0) {
+    if (validCount !== window.transactionData.totalQty) {
+      showAlert(
+        t(
+          "alert_qty_mismatch",
+          `<strong>Jumlah Tidak Sesuai:</strong> Total item di-scan (${validCount} Pcs) tidak sama dengan target request (${window.transactionData.totalQty} Pcs)!`
+        ),
+        "warning"
+      );
+      invalidateForm();
+      return false;
+    }
+  }
+
+  isValidated = true;
+  const btnProses =
+    document.getElementById("btnProses") ||
+    document.querySelector("#formTransaksi button[type='submit']");
+  if (btnProses) {
+    btnProses.disabled = false;
+  }
+
+  showAlert(
+    t("alert_validation_success", "<strong>Validasi Berhasil!</strong> Seluruh item valid dan siap diproses."),
+    "success"
+  );
+  return true;
 }
 
 // =========================================================================
@@ -111,11 +204,35 @@ $(document).ready(function () {
     } else if (type === "minus" && currentVal > 0) {
       inputField.val(currentVal - 1);
     }
-    calculateGrandTotal();
+    if (typeof calculateGrandTotal === "function") {
+      calculateGrandTotal();
+    }
   });
 
-  if ($("#dynamic-item-container").length > 0 && $("#formTransaksi").length > 0) {
+  if ($("#dynamic-item-container").length > 0) {
     invalidateForm();
+
+    // Jika pada halaman transaksi, buat minimal 1 item card
+    if ($("#dynamic-item-container .item-row").length === 0 && $("#formTransaksi").length > 0) {
+      if (window.transactionData && window.transactionData.isAuto && window.transactionData.totalQty > 0) {
+        for (let i = 0; i < window.transactionData.totalQty; i++) {
+          addItemCard();
+        }
+      } else {
+        addItemCard();
+      }
+    }
+
+    // Jika pada VIEW 2 return.php (Auto Barcodes)
+    if (window.IS_AUTO_RETURN && Array.isArray(window.AUTO_BARCODES) && window.AUTO_BARCODES.length > 0) {
+      const container = $("#dynamic-item-container");
+      container.empty();
+      itemCount = 0;
+      
+      window.AUTO_BARCODES.forEach(function (code) {
+        addItemRow(code); // <-- Diubah memanggil addItemRow()
+      });
+    }
 
     $("#btn-validate, #btnValidate")
       .off("click")
@@ -187,8 +304,8 @@ $(document).ready(function () {
     }
   });
 
-  if ($("#searchInput").length > 0) {
-    $("#searchInput").on("keyup", function () {
+  if ($("#searchInput, #searchTrx").length > 0) {
+    $("#searchInput, #searchTrx").on("keyup", function () {
       let filter = $(this).val().toLowerCase();
       $(".table-responsive tbody tr").each(function () {
         if ($(this).find("td").length < 4) return;
@@ -209,11 +326,10 @@ $(document).ready(function () {
       var gender = $genderEl.val();
       var tipe = $tipeEl.val();
 
-      // Jika yang diubah adalah dropdown Gender, reset nilai Tipe Pakaian
       if ($(this).is("#select_gender, #gender, select[name='gender']")) {
         $tipeEl.val('');
-        tipe = ''; // Kosongkan variabel tipe agar size juga ter-reset
-    }
+        tipe = '';
+      }
 
       if (!$ukuran.length) return;
 
@@ -264,8 +380,68 @@ $(document).ready(function () {
         });
       }
     });
+  }
+
+  if ($("#btnSimpanStokBatch").length > 0) {
     $("#btnSimpanStokBatch").prop("disabled", false);
   }
+
+  $(document).on("click", "#btnSimpanStokBatch", function (e) {
+    e.preventDefault();
+
+    var barcodes = [];
+    $(".barcode-element").each(function () {
+      var code = $(this).attr("data-value") || $(this).data("value");
+      if (code) {
+        barcodes.push(String(code).trim());
+      }
+    });
+
+    if (barcodes.length === 0) {
+      $("[data-barcode]").each(function () {
+        var code = $(this).data("barcode");
+        if (code) barcodes.push(String(code).trim());
+      });
+    }
+
+    if (barcodes.length === 0) {
+      alert("Tidak ada data barcode yang ditemukan pada preview!");
+      return;
+    }
+
+    if (!confirm("Apakah Anda yakin ingin menyimpan " + barcodes.length + " barcode ini ke Stok Barang?")) {
+      return;
+    }
+
+    var $btn = $(this);
+    var originalText = $btn.html();
+    $btn.prop("disabled", true).html('<i class="bi bi-hourglass-split me-1"></i> Menyimpan...');
+
+    $.ajax({
+      url: window.location.href,
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      data: JSON.stringify({
+        action: "simpan_stok_batch",
+        barcodes: barcodes
+      }),
+      dataType: "json",
+      success: function (res) {
+        if (res.success) {
+          alert(res.message);
+          window.location.reload();
+        } else {
+          alert("Gagal menyimpan: " + res.message);
+          $btn.prop("disabled", false).html(originalText);
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("AJAX Error:", xhr.responseText);
+        alert("Terjadi kesalahan server saat menyimpan stok.");
+        $btn.prop("disabled", false).html(originalText);
+      }
+    });
+  });
 
   $(".content-area").scroll(function () {
     if ($(this).scrollTop() > 150) {
@@ -281,6 +457,9 @@ $(document).ready(function () {
   });
 });
 
+// =========================================================================
+// 4. BARCODE & TRANSACTION DYNAMIC FUNCTIONS
+// =========================================================================
 function parseBarcode(rawCode) {
   const clean = String(rawCode).replace(/\*/g, "").trim();
   if (clean.length !== 9 || isNaN(clean)) {
@@ -354,48 +533,46 @@ function processAutoScan(barcodeVal) {
   invalidateForm();
 }
 
-function addItemCard(prefilledData = null) {
+// Fungsi Khusus Generasi Baris Item Return
+function addItemRow(barcodeVal) {
   itemCount++;
-  const id = itemCount;
   const container = document.getElementById("dynamic-item-container");
   if (!container) return;
 
-  const cardHtml = `
-    <div class="col-md-4 item-row" id="item-card-${id}">
-        <div class="bg-white border rounded-3 p-3 h-100" style="box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+  const id = itemCount;
+  const parsed = parseBarcode(barcodeVal);
+
+  const rowHtml = `
+        <div class="item-row bg-white border rounded-3 p-3 mb-3 shadow-sm" id="item-row-${id}">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="fw-bold item-number" style="color: #556ee6; font-size: 14px;">
-                    <i class="bi bi-box-seam me-2"></i>Item #${id}
+                <span class="fw-bold item-number" style="color: #b91c1c; font-size: 14px;">
+                    <i class="bi bi-box-seam me-2"></i>Barang #${id}
+                    <small class="text-dark fw-normal ms-2">${parsed.text}</small>
                 </span>
-                <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" 
-                        style="${id === 1 && !prefilledData ? "display: none;" : ""} background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
-                        onclick="removeItemCard(${id})">
-                    <i class="bi bi-trash3 me-1"></i>${t("btn_cancel", "Hapus")}
-                </button>
             </div>
-            <div class="mb-2">
-                <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Item</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
-                    <input type="text" 
-                           class="form-control barcode-item-input ${prefilledData ? "bg-light" : ""}" 
-                           id="barcode-input-${id}"
-                           data-id="${id}"
-                           name="barcode_item[]" 
-                           value="${prefilledData ? prefilledData.raw : ""}"
-                           placeholder="Scan Barcode"
-                           ${prefilledData ? "readonly" : ""}>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Barcode Barang</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-danger"><i class="bi bi-upc-scan"></i></span>
+                        <input type="text" class="form-control bg-light fw-bold" name="barcode_return[]" value="${parsed.raw}" readonly>
+                    </div>
                 </div>
-                <div class="barcode-detail-text text-uppercase fw-bold text-primary mt-2 ps-2" id="detail-text-${id}" style="font-size: 12px; letter-spacing: 0.5px; min-height: 18px;">
-                    ${prefilledData ? prefilledData.label : ""}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Kondisi / Alasan Return</label>
+                    <select class="form-select" name="kondisi_return[]" required>
+                        <option value="Kebesaran">Tukar: Ukuran Kebesaran</option>
+                        <option value="Kekecilan">Tukar: Ukuran Kekecilan</option>
+                        <option value="Cacat Produksi">Rusak: Cacat Produksi / Baju Rusak</option>
+                    </select>
                 </div>
-                <input type="hidden" name="detail_item[]" id="detail-hidden-${id}" class="barcode-detail-hidden" value="${prefilledData ? prefilledData.label : ""}">
             </div>
         </div>
-    </div>
-  `;
+    `;
 
-  container.insertAdjacentHTML("beforeend", cardHtml);
+  container.insertAdjacentHTML("beforeend", rowHtml);
+
 
   if (prefilledData) {
     scannedBarcodes.add(prefilledData.raw);

@@ -6,6 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../includes/db.php';
 
+// Handshake / Fallback Variabel PDO ($pdo / $conn)
+if (!isset($pdo) && isset($conn)) {
+    $pdo = $conn;
+}
+
 // =========================================================================
 // 1. AKSI AJAX: SIMPAN BATCH KE STOK BARANG (PDO)
 // =========================================================================
@@ -13,7 +18,7 @@ $rawInput = file_get_contents('php://input');
 $jsonData = json_decode($rawInput, true);
 
 if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
-    header('Content-Type: application/json');
+    header('Content-Type: application/json; charset=utf-8');
     
     $barcodes = $jsonData['barcodes'] ?? [];
 
@@ -22,10 +27,15 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
         exit();
     }
 
-    // Mulai Transaksi Atomic PDO
-    $pdo->beginTransaction();
+    if (!$pdo) {
+        echo json_encode(['success' => false, 'message' => 'Koneksi database (PDO) tidak ditemukan.']);
+        exit();
+    }
 
     try {
+        // Mulai Transaksi Atomic PDO
+        $pdo->beginTransaction();
+
         $insertedCount = 0;
         $skippedCount  = 0;
 
@@ -37,23 +47,15 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
             '28' => '28', '30' => '30', '32' => '32', '34' => '34', '36' => '36'
         ];
 
-        // Prepared Statements PDO
-        $stmtCek = $pdo->prepare("SELECT COUNT(*) FROM master_item WHERE barcode = ?");
-        $stmtInsert = $pdo->prepare("INSERT INTO master_item (barcode, gender, tipe, size, status_transaksi, status_barang) VALUES (?, ?, ?, ?, 'Available', 'Active')");
+        // Optimized Prepared Statement menggunakan INSERT IGNORE
+        $stmtInsert = $pdo->prepare("INSERT IGNORE INTO master_item 
+            (barcode, gender, tipe, size, status_transaksi, status_barang, created_at) 
+            VALUES (?, ?, ?, ?, 'Available', 'Active', NOW())");
 
         foreach ($barcodes as $code) {
             $code = trim($code);
             if (strlen($code) !== 9 || !ctype_digit($code)) {
                 continue; // Skip jika format tidak 9 digit angka
-            }
-
-            // Cek Duplikasi Barcode di Database
-            $stmtCek->execute([$code]);
-            $exists = $stmtCek->fetchColumn();
-
-            if ($exists > 0) {
-                $skippedCount++;
-                continue; // Skip jika sudah ada di database
             }
 
             // Parse Digit Barcode
@@ -67,7 +69,13 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
 
             // Insert ke Tabel Stok Barang
             $stmtInsert->execute([$code, $gender, $tipe, $size]);
-            $insertedCount++;
+            
+            // rowCount > 0 berarti berhasil di-insert, rowCount == 0 berarti dilewati (karena duplikat/IGNORE)
+            if ($stmtInsert->rowCount() > 0) {
+                $insertedCount++;
+            } else {
+                $skippedCount++;
+            }
         }
 
         if ($insertedCount > 0) {
@@ -81,7 +89,9 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
                 $keterangan .= " ({$skippedCount} item dilewati karena sudah terdaftar).";
             }
 
-            $stmtLog = $pdo->prepare("INSERT INTO log_activity (user_id, nama_user, role, aktivitas, keterangan, modul, created_at) VALUES (?, ?, ?, 'Batch Generate Stok', ?, 'Generate Barcode', NOW())");
+            $stmtLog = $pdo->prepare("INSERT INTO log_activity 
+                (user_id, nama_user, role, aktivitas, keterangan, modul, created_at) 
+                VALUES (?, ?, ?, 'Batch Generate Stok', ?, 'Generate Barcode', NOW())");
             $stmtLog->execute([$user_id, $nama_user, $role, $keterangan]);
 
             // Commit Transaksi
@@ -100,7 +110,7 @@ if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
         }
 
     } catch (Exception $e) {
-        if ($pdo->inTransaction()) {
+        if ($pdo && $pdo->inTransaction()) {
             $pdo->rollBack();
         }
         echo json_encode(['success' => false, 'message' => 'Gagal menyimpan stok: ' . $e->getMessage()]);
@@ -117,9 +127,9 @@ $info_msg    = "";
 $generated_barcodes = [];
 
 // Tangkap nilai input POST agar tidak ter-reset di halaman tampilan
-$gender = $_POST['gender'] ?? '';
-$tipe   = $_POST['tipe']   ?? '';
-$ukuran = $_POST['ukuran'] ?? '';
+$gender = trim($_POST['gender'] ?? '');
+$tipe   = trim($_POST['tipe']   ?? '');
+$ukuran = trim($_POST['ukuran'] ?? '');
 
 // Default awal running number
 $last_number = 0;
@@ -159,13 +169,13 @@ if (in_array($ukuran_upper, ['01', 'S'])) {
 $prefix = $gender_code . $tipe_code . $ukuran_code;
 
 // Otomatis Hitung Running Number Terakhir dari DB jika Parameter SKU Lengkap (5 Digit)
-if (!empty($prefix) && strlen($prefix) === 5) {
+if (!empty($prefix) && strlen($prefix) === 5 && isset($pdo)) {
     try {
-        $stmt_last = $pdo->prepare("SELECT MAX(RIGHT(barcode, 4)) FROM master_item WHERE barcode LIKE :prefix");
+        $stmt_last = $pdo->prepare("SELECT MAX(CAST(RIGHT(barcode, 4) AS UNSIGNED)) FROM master_item WHERE barcode LIKE :prefix");
         $stmt_last->execute(['prefix' => $prefix . '%']);
         $raw_last = $stmt_last->fetchColumn();
 
-        $last_number = $raw_last !== null ? (int)$raw_last : 0;
+        $last_number = ($raw_last !== null && $raw_last !== false) ? (int)$raw_last : 0;
         $range_awal  = $last_number + 1; // Otomatis mulai dari nomor urut berikutnya
     } catch (PDOException $e) {
         $error_msg = "Terjadi kesalahan database: " . $e->getMessage();
@@ -205,8 +215,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $range_akhir  = $user_r_akhir;
                     $jumlah_cetak = ($range_akhir - $range_awal) + 1;
                 } else {
-                    // Jika input 'Sampai' lebih kecil dari range_awal otomatis,
-                    // Dianggap pengguna memasukkan "Jumlah Qty" yang ingin dicetak
                     $jumlah_cetak = $user_r_akhir > 0 ? $user_r_akhir : 10;
                     $range_akhir  = $range_awal + $jumlah_cetak - 1;
                 }

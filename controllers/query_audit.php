@@ -78,7 +78,9 @@ try {
     // 2. Hitung Stok Return
     $sql_return = "SELECT mi.gender, mi.tipe, mi.size, COUNT(ri.barcode) AS total 
                    FROM return_items ri 
-                   JOIN master_item mi ON TRIM(ri.barcode) = TRIM(mi.barcode) 
+                   JOIN master_item mi ON TRIM(ri.barcode) = TRIM(mi.barcode)
+                   WHERE LOWER(TRIM(mi.status_transaksi)) = 'available' 
+                     AND LOWER(TRIM(mi.status_barang)) = 'inactive'
                    GROUP BY mi.gender, mi.tipe, mi.size";
     $stmt_ret = $conn->query($sql_return);
     foreach ($stmt_ret->fetchAll(PDO::FETCH_ASSOC) as $row) {

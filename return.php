@@ -2,32 +2,44 @@
 require_once __DIR__ . '/includes/auth_check.php';
 include 'includes/db.php';
 
-$conn = new mysqli($host, $user, $pass, $db);
+// 1. Inisialisasi Koneksi Database via PDO (Lengkap dengan Mode Error Exception)
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
+    ]);
+} catch (PDOException $e) {
+    die("Koneksi Database Gagal: " . $e->getMessage());
+}
 
-// Catch Parameter URL (jika dipanggil via GET)
-$auto_id_transaksi = isset($_GET['req']) ? $_GET['req'] : '';
-$auto_sales_id     = isset($_GET['sales']) ? $_GET['sales'] : '';
-$auto_nama         = isset($_GET['nama']) ? $_GET['nama'] : '';
-$auto_detail       = isset($_GET['detail']) ? $_GET['detail'] : '';
-$tab_active        = isset($_GET['tab']) ? $_GET['tab'] : 'semua'; // Tab default: semua
+// 2. Catch Parameter URL (jika dipanggil via GET)
+$auto_id_transaksi   = isset($_GET['req']) ? $_GET['req'] : '';
+$auto_sales_id       = isset($_GET['sales']) ? $_GET['sales'] : '';
+$auto_nama           = isset($_GET['nama']) ? $_GET['nama'] : '';
+$auto_detail         = isset($_GET['detail']) ? $_GET['detail'] : '';
+$auto_barcode_single = isset($_GET['item']) ? $_GET['item'] : ''; // Tangkap barcode item spesifik
+$tab_active          = isset($_GET['tab']) ? $_GET['tab'] : 'semua';
 
 $is_auto       = !empty($auto_id_transaksi); 
 $readonly_attr = $is_auto ? 'readonly' : '';
 $bg_class      = $is_auto ? 'bg-light' : '';
 
-// Jika diakses via URL GET, ambil daftar barcode transaksi tersebut dari DB
+// 3. Ambil daftar barcode dari DB via PDO Prepared Statement
 $auto_barcodes_json = '[]';
 if ($is_auto) {
-    $stmt_get_bc = $conn->prepare("SELECT barcode FROM transaksi WHERE transaction_id = ?");
-    $stmt_get_bc->bind_param("s", $auto_id_transaksi);
-    $stmt_get_bc->execute();
-    $res_bc = $stmt_get_bc->get_result();
-    $bc_list = [];
-    while ($row_bc = $res_bc->fetch_assoc()) {
-        $bc_list[] = $row_bc['barcode'];
+    if (!empty($auto_barcode_single)) {
+        // Jika diklik per-item spesifik, ambil 1 barcode ini saja
+        $stmt_get_bc = $conn->prepare("SELECT barcode FROM transaksi_detail WHERE transaction_id = ? AND TRIM(barcode) = ?");
+        $stmt_get_bc->execute([$auto_id_transaksi, trim($auto_barcode_single)]);
+    } else {
+        // Jika dipanggil tanpa barcode spesifik, ambil seluruh isi transaksi
+        $stmt_get_bc = $conn->prepare("SELECT barcode FROM transaksi_detail WHERE transaction_id = ?");
+        $stmt_get_bc->execute([$auto_id_transaksi]);
     }
+    
+    $bc_list = $stmt_get_bc->fetchAll(PDO::FETCH_COLUMN);
     $auto_barcodes_json = json_encode($bc_list);
-    $stmt_get_bc->close();
 }
 ?>
 <!DOCTYPE html>
@@ -111,9 +123,8 @@ if ($is_auto) {
                             </thead>
                             <tbody>
                             <?php
-                            // QUERY PEMISAHAN BERDASARKAN TAB AKTIF (MENGGUNAKAN LEFT JOIN UNTUK MENYARING YANG SUDAH DIRETIURN)
+                            // QUERY PEMISAHAN BERDASARKAN TAB AKTIF
                             if ($tab_active === 'selesai') {
-                                // MURNI HANYA MENAMPILKAN ITEM YANG SUDAH MASUK RIWAYAT RETURN
                                 $sql = "SELECT 
                                             ri.transaction_id,
                                             t.request_id,
@@ -134,7 +145,6 @@ if ($is_auto) {
                                         INNER JOIN master_item mi ON TRIM(ri.barcode) = TRIM(mi.barcode)
                                         ORDER BY ri.tgl_return DESC, ri.barcode ASC";
                             } else {
-                                // HANYA MENAMPILKAN ITEM YANG BELUM PERNAH DIRETIURN (SUDAH DI-FILTER MENGGUNAKAN `ri.barcode IS NULL`)
                                 $sql = "SELECT 
                                             t.transaction_id,
                                             t.request_id,
@@ -158,10 +168,12 @@ if ($is_auto) {
                                         ORDER BY t.transaction_id DESC, td.barcode ASC";
                             }
 
-                            $query = mysqli_query($conn, $sql);
+                            // Eksekusi Query Menggunakan PDO
+                            $stmt = $conn->query($sql);
+                            $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
-                            if ($query && mysqli_num_rows($query) > 0) {
-                                while ($row = mysqli_fetch_assoc($query)) {
+                            if (!empty($rows)) {
+                                foreach ($rows as $row) {
                                     $no_trx       = htmlspecialchars($row['transaction_id']);
                                     $barcode_item = htmlspecialchars($row['barcode_item']);
                                     $detail_item  = htmlspecialchars($row['tipe'] . " " . $row['gender'] . " - Size " . $row['size']);
