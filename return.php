@@ -100,12 +100,10 @@ if ($is_auto) {
                     </div>
                     
                     <!-- Search Input -->
-                    <div style="width: 280px;">
-                        <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                            <input type="text" id="searchTrx" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari Barcode / SA / Brand...' ?>" onkeyup="filterTable()">
-                        </div>
-                    </div>
+                <div class="input-group" style="width: 250px;">
+                    <input type="text" id="searchInput" class="form-control border-start-2 ps-2" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
+                    <span class="input-group-text bg-white border-end-2"><i class="bi bi-search text-secondary"></i></span>
+                </div>
                 </div>
 
                 <!-- TABEL DATA ITEM -->

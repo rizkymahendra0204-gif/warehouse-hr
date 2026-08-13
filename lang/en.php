@@ -31,6 +31,7 @@ return [
     'kpi_transaksi'         => 'TOTAL TRANSACTIONS',
     'kpi_return'            => 'TOTAL RETURNS',
     'unit_pcs'              => 'Pcs',
+    'unit_trx'              => 'Trx',
     'remaining_stock_title' => 'Remaining Stock (Current)',
     'remaining_stock_desc'  => 'Total active items ready for use',
     'badge_active'          => 'Available (Active)',

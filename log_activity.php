@@ -53,12 +53,9 @@ include 'controllers/query_log.php'; // Controller PDO
                 </div>
                 
                 <!-- Input Pencarian -->
-                <div class="input-group shadow-sm" style="width: 320px; border-radius: 8px; overflow: hidden;">
+                <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0 ps-0" 
-                           placeholder="<?= $lang['log_search_placeholder'] ?? 'Cari aktivitas...' ?>" 
-                           value="<?php echo htmlspecialchars($search ?? ''); ?>">
-                    <button class="btn btn-proses-custom" type="submit"><?= $lang['btn_search'] ?? 'Cari' ?></button>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
                 </div>
             </form>
             

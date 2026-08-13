@@ -230,7 +230,7 @@ $(document).ready(function () {
       itemCount = 0;
       
       window.AUTO_BARCODES.forEach(function (code) {
-        addItemRow(code); // <-- Diubah memanggil addItemRow()
+        addItemRow(code);
       });
     }
 
@@ -533,6 +533,52 @@ function processAutoScan(barcodeVal) {
   invalidateForm();
 }
 
+// Fungsi Generasi Kartu Item Transaksi Utama
+function addItemCard(prefilledData = null) {
+  itemCount++;
+  const id = itemCount;
+  const container = document.getElementById("dynamic-item-container");
+  if (!container) return;
+
+  const cardHtml = `
+    <div class="col-md-4 item-row" id="item-card-${id}">
+        <div class="bg-white border rounded-3 p-3 h-100" style="box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-bold item-number" style="color: #556ee6; font-size: 14px;">
+                    <i class="bi bi-box-seam me-2"></i>Item #${id}
+                </span>
+            </div>
+            <div class="mb-2">
+                <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Item</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
+                    <input type="text" 
+                           class="form-control barcode-item-input ${prefilledData ? "bg-light" : ""}" 
+                           id="barcode-input-${id}"
+                           data-id="${id}"
+                           name="barcode_item[]" 
+                           value="${prefilledData ? prefilledData.raw : ""}"
+                           placeholder="Scan Barcode"
+                           ${prefilledData ? "readonly" : ""}>
+                </div>
+                <div class="barcode-detail-text text-uppercase fw-bold text-primary mt-2 ps-2" id="detail-text-${id}" style="font-size: 12px; letter-spacing: 0.5px; min-height: 18px;">
+                    ${prefilledData ? prefilledData.label : ""}
+                </div>
+                <input type="hidden" name="detail_item[]" id="detail-hidden-${id}" class="barcode-detail-hidden" value="${prefilledData ? prefilledData.label : ""}">
+            </div>
+        </div>
+    </div>
+  `;
+
+  container.insertAdjacentHTML("beforeend", cardHtml);
+
+  if (prefilledData && prefilledData.raw) {
+    scannedBarcodes.add(prefilledData.raw);
+  }
+  updateRemoveButtons();
+  invalidateForm();
+}
+
 // Fungsi Khusus Generasi Baris Item Return
 function addItemRow(barcodeVal) {
   itemCount++;
@@ -573,9 +619,8 @@ function addItemRow(barcodeVal) {
 
   container.insertAdjacentHTML("beforeend", rowHtml);
 
-
-  if (prefilledData) {
-    scannedBarcodes.add(prefilledData.raw);
+  if (parsed && parsed.isValid) {
+    scannedBarcodes.add(parsed.raw);
   }
   updateRemoveButtons();
   invalidateForm();

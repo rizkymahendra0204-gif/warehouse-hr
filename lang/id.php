@@ -31,6 +31,7 @@ return [
     'kpi_transaksi'         => 'TOTAL TRANSAKSI',
     'kpi_return'            => 'TOTAL PENGEMBALIAN',
     'unit_pcs'              => 'Pcs',
+    'unit_trx'              => 'Trx',
     'remaining_stock_title' => 'Stok Tersisa (Saat Ini)',
     'remaining_stock_desc'  => 'Total barang aktif yang siap digunakan',
     'badge_active'          => 'Tersedia (Aktif)',

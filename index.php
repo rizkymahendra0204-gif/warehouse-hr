@@ -54,7 +54,7 @@ include 'controllers/query_dashboard.php';
                             <div class="kpi-icon kpi-pending"><i class="bi bi-hourglass-split"></i></div>
                             <div>
                                 <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><?= $lang['kpi_pending'] ?? 'PENDING REQUEST' ?></div>
-                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_pending; ?></h2>
+                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_pending; ?> <span style="font-size: 13px; font-weight: 500; color: #64748b;" class="ms-1"><?= $lang['unit_trx'] ?? 'Trx' ?></span></h2>
                             </div>
                         </div>
                     </div>  
@@ -64,7 +64,7 @@ include 'controllers/query_dashboard.php';
                             <div class="kpi-icon kpi-success"><i class="bi bi-check2-all"></i></div>
                             <div>
                                 <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><?= $lang['kpi_transaksi'] ?? 'TOTAL TRANSAKSI' ?></div>
-                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_transaksi; ?> <span style="font-size: 13px; font-weight: 500; color: #64748b;" class="ms-1"><?= $lang['unit_pcs'] ?? 'Pcs' ?></span></h2>
+                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_transaksi; ?> <span style="font-size: 13px; font-weight: 500; color: #64748b;" class="ms-1"><?= $lang['unit_trx'] ?? 'Trx' ?></span></h2>
                             </div>
                         </div>
                     </div>
@@ -74,7 +74,7 @@ include 'controllers/query_dashboard.php';
                             <div class="kpi-icon kpi-danger"><i class="bi bi-arrow-counterclockwise"></i></div>
                             <div>
                                 <div class="text-secondary fw-bold mb-1" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;"><?= $lang['kpi_return'] ?? 'TOTAL RETURN' ?></div>
-                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_return; ?></h2>
+                                <h2 class="fw-bold m-0 text-dark"><?php echo $kpi_return; ?> <span style="font-size: 13px; font-weight: 500; color: #64748b;" class="ms-1"><?= $lang['unit_trx'] ?? 'Trx' ?></span></h2>
                             </div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ include 'controllers/query_dashboard.php';
                             <div class="p-3 bg-primary-subtle rounded-3 mb-3 border border-primary-subtle d-flex justify-content-center align-items-center text-center">
                                 <h3 class="fw-bold text-primary m-0">
                                     <?= number_format($active_stock['total'] ?? 0) ?> 
-                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
+                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_trx'] ?? 'Trx' ?></small>
                                 </h3>
                             </div>
 
@@ -159,7 +159,7 @@ include 'controllers/query_dashboard.php';
                             <div class="p-3 rounded-3 mb-3 border d-flex justify-content-center align-items-center text-center" style="<?= $card_style ?>">
                                 <h3 class="fw-bold <?= $text_class ?> m-0">
                                     <?= number_format($total_return) ?> 
-                                    <small class="fs-6 fw-normal <?= $unit_class ?>"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
+                                    <small class="fs-6 fw-normal <?= $unit_class ?>"><?= $lang['unit_trx'] ?? 'Pcs' ?></small>
                                 </h3>
                             </div>
 

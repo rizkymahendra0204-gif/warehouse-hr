@@ -55,10 +55,9 @@ if (!isset($requests_done)) {
                     <h4 class="fw-bold m-0"><?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?></h4>
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['pending_subtitle'] ?? 'Pengolahan dan riwayat status pengajuan seragam SA' ?></p>
                 </div>
-                
                 <div class="input-group" style="width: 250px;">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
+                    <input type="text" id="searchInput" class="form-control border-start-2 ps-2" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
+                    <span class="input-group-text bg-white border-end-2"><i class="bi bi-search text-secondary"></i></span>
                 </div>
             </div>
 
@@ -66,13 +65,13 @@ if (!isset($requests_done)) {
             <ul class="nav nav-tabs custom-tabs mb-3" id="requestTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active fw-bold" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-panel" type="button" role="tab">
-                        <i class="bi bi-clock-history me-2 text-warning"></i><?= $lang['tab_pending_req'] ?? 'Permintaan Tertunda' ?> 
+                        <?= $lang['tab_pending_req'] ?? 'Permintaan Tertunda' ?> 
                         <span class="badge bg-warning text-dark ms-2" id="badge-pending-count"><?= count($requests_pending) ?></span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link fw-bold" id="done-tab" data-bs-toggle="tab" data-bs-target="#done-panel" type="button" role="tab">
-                        <i class="bi bi-check-circle-fill me-2 text-success"></i><?= $lang['tab_req_done'] ?? 'Permintaan Selesai' ?>
+                        <?= $lang['tab_req_done'] ?? 'Permintaan Selesai' ?>
                         <span class="badge bg-success ms-2" id="badge-done-count"><?= count($requests_done) ?></span>
                     </button>
                 </li>

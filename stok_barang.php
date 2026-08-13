@@ -61,13 +61,10 @@ include 'controllers/query_stokbarang.php';
                 </div>
                 
                 <!-- Form Pencarian -->
-                <form method="GET" action="" class="input-group shadow-sm" style="width: 300px; border-radius: 8px; overflow: hidden;">
-                    <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
+                <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" name="search" id="searchInput" class="form-control border-start-0 ps-0" 
-                        placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" 
-                        value="<?= htmlspecialchars($search) ?>">
-                </form>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
+                </div>
             </div>
             
             <!-- Table Container (Card) -->
