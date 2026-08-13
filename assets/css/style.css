@@ -320,7 +320,7 @@ body {
   display: flex;
   align-items: center;
   padding: 10px 12px;
-  color: #6b7280;
+  color: #020202;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -332,16 +332,16 @@ body {
 .nav-link i {
   font-size: 16px;
   margin-right: 12px;
-  color: #9ca3af;
+  color: #020202;
 }
 
 .nav-link.active {
   background-color: #e9ecf6;
-  color: #556ee6;
+  color: #6b7280;
 }
 
 .nav-link.active i {
-  color: #556ee6;
+  color: #6b7280;
 }
 
 .nav-link:hover:not(.active) {

@@ -58,7 +58,7 @@ if (session_status() === PHP_SESSION_NONE) {
             </div>
 
             <!-- FORM UNIFIED SETUP BARCODE -->
-            <form action="generate_barcode.php" method="POST" class="d-print-none">
+            <form action="generate_barcode.php" method="POST" class="d-print-none" id="formGenerateBarcode">
                 <div class="row g-4">
                     <!-- CARD 1: PARAMETER SKU -->
                     <div class="col-md-6 mb-3">
@@ -67,7 +67,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_gender'] ?? 'Gender' ?></label>
-                                <select class="form-select" name="gender" required>
+                                <select class="form-select" name="gender" id="selectGender" required>
                                     <option value=""><?= $lang['gen_plc_gender'] ?? '-- Pilih Gender --' ?></option>
                                     <option value="Pria" <?= $gender === 'Pria' ? 'selected' : '' ?>>Pria (1)</option>
                                     <option value="Wanita" <?= $gender === 'Wanita' ? 'selected' : '' ?>>Wanita (2)</option>
@@ -76,7 +76,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             
                             <div class="mb-3">
                                 <label class="form-label fw-semibold text-secondary"><?= $lang['gen_lbl_tipe'] ?? 'Tipe Pakaian' ?></label>
-                                <select class="form-select" name="tipe" required>
+                                <select class="form-select" name="tipe" id="selectTipe" required>
                                     <option value=""><?= $lang['gen_plc_tipe'] ?? '-- Pilih Tipe --' ?></option>
                                     <option value="Baju" <?= $tipe === 'Baju' ? 'selected' : '' ?>>Baju (01)</option>
                                     <option value="Celana" <?= $tipe === 'Celana' ? 'selected' : '' ?>>Celana (02)</option>
@@ -165,7 +165,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                         <i class="bi bi-printer-fill me-1"></i> <?= $lang['btn_cetak_stiker'] ?? 'Cetak ke Kertas Stiker' ?>
                                     </button>
 
-                                    <!-- Tombol 2: Export to Excel (Mengarah ke Backend Separate File) -->
+                                    <!-- Tombol 2: Export to Excel -->
                                     <a href="controllers/export_excel.php?type=barcode&gender=<?= urlencode($gender) ?>&tipe=<?= urlencode($tipe) ?>&ukuran=<?= urlencode($ukuran) ?>&range_awal=<?= $range_awal ?>&range_akhir=<?= $range_akhir ?>" 
                                         class="btn btn-cetak-excel fw-bold px-3 d-print-none me-2">
                                         <i class="bi bi-file-earmark-excel-fill me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export ke Excel' ?>
@@ -205,10 +205,22 @@ if (session_status() === PHP_SESSION_NONE) {
     </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
+
+<!-- SCRIPT AKSI RESET OTOMATIS TIPE DAN UKURAN SAAT GENDER DIUBAH -->
+<script>
+$(document).ready(function() {
+    $('#selectGender').on('change', function() {
+        // Reset elemen dropdown Tipe Pakaian & Ukuran ke Opsi Pertama (Default)
+        $('#selectTipe').val('');
+        $('#select_ukuran').val('');
+    });
+});
+</script>
 
 </body>
 </html>

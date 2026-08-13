@@ -40,13 +40,10 @@ const APP_CONFIG = {
 
 let itemCount = 0;
 let scannedBarcodes = new Set();
-
-// --- FLAG & FUNGSI RESET VALIDASI ---
 let isValidated = false;
 
 function invalidateForm() {
   isValidated = false;
-  // Cari tombol proses transaksi di halaman transaksi
   const btnProses =
     document.getElementById("btnProses") ||
     document.querySelector("#formTransaksi button[type='submit']");
@@ -56,36 +53,42 @@ function invalidateForm() {
 }
 
 // =========================================================================
-// 2. DOM READY LISTENERS
+// 2. HELPER MAPPING UNTUK WAREHOUSE MANAGEMENT MODAL
+// =========================================================================
+function setAuditData(barcode, detail, statusTx, statusBrg) {
+  const elBarcode = document.getElementById("modal_barcode");
+  const elDisplay = document.getElementById("modal_barcode_display");
+  const elDetail = document.getElementById("modal_detail_display");
+  const elStatusTx = document.getElementById("modal_status_tx");
+  const elStatusBrg = document.getElementById("modal_status_brg");
+
+  if (elBarcode) elBarcode.value = barcode;
+  if (elDisplay) elDisplay.innerText = "#" + barcode;
+  if (elDetail) elDetail.innerText = detail;
+  if (elStatusTx) elStatusTx.value = statusTx;
+  if (elStatusBrg) elStatusBrg.value = statusBrg;
+}
+
+// =========================================================================
+// 3. DOM READY LISTENERS
 // =========================================================================
 $(document).ready(function () {
-  // --- A. GLOBAL & SIDEBAR (DIPERBAIKI DENGAN LOCALSTORAGE) ---
-
-  // 1. Cek memori browser saat halaman dimuat
   if (localStorage.getItem("sidebar_collapsed") === "true") {
     $(".sidebar").addClass("collapsed");
   }
 
-  // 2. Event Toggle Sidebar + Simpan Status
   $("#sidebarToggle").on("click", function () {
     $(".sidebar").toggleClass("collapsed");
-
-    // Simpan status terbaru ke localStorage
     const isCollapsed = $(".sidebar").hasClass("collapsed");
     localStorage.setItem("sidebar_collapsed", isCollapsed);
   });
 
-  if (
-    $(".floating-alert-container .alert, #alertContainer .alert").length > 0
-  ) {
+  if ($(".floating-alert-container .alert, #alertContainer .alert").length > 0) {
     setTimeout(function () {
-      $(".floating-alert-container .alert, #alertContainer .alert").fadeOut(
-        "slow",
-        function () {
-          $(this).remove();
-        },
-      );
-    }, 4000); // Hilang otomatis setelah 4 detik
+      $(".floating-alert-container .alert, #alertContainer .alert").fadeOut("slow", function () {
+        $(this).remove();
+      });
+    }, 4000);
   }
 
   $(".btn-submit").on("click", function (e) {
@@ -97,7 +100,6 @@ $(document).ready(function () {
     }
   });
 
-  // --- B. REQUEST FORM LOGIC ---
   $(".qty-btn").click(function (e) {
     e.preventDefault();
     let inputField = $(this).siblings(".qty");
@@ -112,46 +114,33 @@ $(document).ready(function () {
     calculateGrandTotal();
   });
 
-  // --- C. TRANSAKSI MODULE INIT ---
-  if (
-    $("#dynamic-item-container").length > 0 &&
-    $("#formTransaksi").length > 0
-  ) {
-    // 1. Kunci tombol proses transaksi secara default saat load
+  if ($("#dynamic-item-container").length > 0 && $("#formTransaksi").length > 0) {
     invalidateForm();
 
-    // Event listener Tombol Validate
     $("#btn-validate, #btnValidate")
       .off("click")
       .on("click", function () {
         validateAllItems();
       });
 
-    // Event listener Submit Form (Proteksi Ganda)
     $("#formTransaksi").on("submit", function (e) {
       if (!isValidated) {
         e.preventDefault();
         showAlert(
           t(
             "alert_failed_submit",
-            "<strong>Gagal Submit:</strong> Harap lakukan <b>Validate Items</b> terlebih dahulu!",
+            "<strong>Gagal Submit:</strong> Harap lakukan <b>Validate Items</b> terlebih dahulu!"
           ),
-          "danger",
+          "danger"
         );
       }
     });
 
-    // Reset validasi jika ada perubahan/ketikan manual pada input barcode
-    $("#dynamic-item-container").on(
-      "input",
-      ".barcode-item-input",
-      function () {
-        invalidateForm();
-      },
-    );
+    $("#dynamic-item-container").on("input", ".barcode-item-input", function () {
+      invalidateForm();
+    });
   }
 
-  // Listener Auto-Scan Input Utama
   const mainScanInput = document.getElementById("mainBarcodeInput");
   if (mainScanInput) {
     mainScanInput.addEventListener("keypress", function (e) {
@@ -167,7 +156,6 @@ $(document).ready(function () {
     });
   }
 
-  // --- D. AJAX PLACEHOLDER REQUEST FORM ---
   $("#id_request").on("blur", function () {
     var idRequest = $(this).val();
     if (idRequest !== "") {
@@ -179,19 +167,19 @@ $(document).ready(function () {
         success: function (response) {
           if (response.status === "success") {
             let rows = `
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
-                                <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Item</td>
-                                <td class="py-3 text-dark">: ${response.baju}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
-                                <td class="fw-bold py-3 ps-0 text-secondary">Item</td>
-                                <td class="py-3 text-dark">: ${response.celana}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold py-3 ps-0 text-secondary">Jumlah</td>
-                                <td class="py-3 text-dark">: ${response.jumlah} Pcs</td>
-                            </tr>
-                        `;
+              <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Item</td>
+                  <td class="py-3 text-dark">: ${response.baju}</td>
+              </tr>
+              <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td class="fw-bold py-3 ps-0 text-secondary">Item</td>
+                  <td class="py-3 text-dark">: ${response.celana}</td>
+              </tr>
+              <tr>
+                  <td class="fw-bold py-3 ps-0 text-secondary">Jumlah</td>
+                  <td class="py-3 text-dark">: ${response.jumlah} Pcs</td>
+              </tr>
+            `;
             $("#rincian-item-list").html(rows);
           }
         },
@@ -199,7 +187,6 @@ $(document).ready(function () {
     }
   });
 
-  // --- E. LIVE SEARCH PENDING REQUEST ---
   if ($("#searchInput").length > 0) {
     $("#searchInput").on("keyup", function () {
       let filter = $(this).val().toLowerCase();
@@ -211,16 +198,22 @@ $(document).ready(function () {
     });
   }
 
-  // --- F. GENERATE BARCODE ---
-
-  // DYNAMIC SIZE FILTER BASED ON GENDER & CLOTHING TYPE
   $(document).on(
     "change",
     "#select_gender, #gender, select[name='gender'], #select_tipe, #tipe, select[name='tipe']",
     function () {
-      var gender = $("#select_gender, #gender, select[name='gender']").val();
-      var tipe = $("#select_tipe, #tipe, select[name='tipe']").val();
+      var $genderEl = $("#select_gender, #gender, select[name='gender']");
+      var $tipeEl = $("#select_tipe, #tipe, select[name='tipe']");
       var $ukuran = $("#select_ukuran, #ukuran, select[name='ukuran']");
+
+      var gender = $genderEl.val();
+      var tipe = $tipeEl.val();
+
+      // Jika yang diubah adalah dropdown Gender, reset nilai Tipe Pakaian
+      if ($(this).is("#select_gender, #gender, select[name='gender']")) {
+        $tipeEl.val('');
+        tipe = ''; // Kosongkan variabel tipe agar size juga ter-reset
+    }
 
       if (!$ukuran.length) return;
 
@@ -234,7 +227,6 @@ $(document).ready(function () {
 
       if (isPria && isCelana) {
         var sizesCelanaPria = [
-          { value: "28", label: "28" },
           { value: "30", label: "30" },
           { value: "32", label: "32" },
           { value: "34", label: "34" },
@@ -244,7 +236,6 @@ $(document).ready(function () {
           $ukuran.append(new Option(item.label, item.value));
         });
       } else if (tipe !== "" && tipe !== null) {
-        // Pastikan value berisi kode 2 digit '01', '02', '03', '04'
         var sizesAlfabet = [
           { value: "01", label: "S" },
           { value: "02", label: "M" },
@@ -255,58 +246,12 @@ $(document).ready(function () {
           $ukuran.append(new Option(item.label, item.value));
         });
       }
-    },
+    }
   );
 
-  $("#btnRandom").click(function () {
-    const timestamp = new Date().getTime().toString().substr(-6);
-    const randomNum = Math.floor(100 + Math.random() * 900);
-    $("#barcode_value")
-      .val("HRW" + timestamp + randomNum)
-      .trigger("input");
-  });
-
-  $("#barcode_value").on("input", function () {
-    const val = $(this).val().trim();
-    if (val.length > 2) {
-      $("#btnPrint").removeAttr("disabled");
-      if (typeof JsBarcode !== "undefined") {
-        JsBarcode("#barcode-canvas", val, {
-          format: "CODE128",
-          width: 2,
-          height: 60,
-          displayValue: true,
-          fontSize: 14,
-          lineColor: "#0f172a",
-        });
-      }
-      $("#label-info").text(
-        t("status_ready_print", "Status: Siap Registrasi / Cetak"),
-      );
-    } else {
-      $("#btnPrint").attr("disabled", "disabled");
-      const svg = document.getElementById("barcode-canvas");
-      if (svg) {
-        while (svg.lastChild) svg.removeChild(svg.lastChild);
-      }
-      $("#label-info").text("");
-    }
-  });
-
-  if ($("#barcode_value").val() && $("#barcode_value").val() !== "") {
-    $("#barcode_value").trigger("input");
-    $("#label-info").html(
-      "<span class='text-success'><i class='bi bi-check-circle'></i> " +
-        t("status_registered_db", "Terdaftar di Database") +
-        "</span>",
-    );
-  }
-
-  // --- G. RENDER BANYAK BARCODE (UNTUK LEMBAR CETAK STIKER) ---
   if ($(".barcode-element").length > 0 && typeof JsBarcode !== "undefined") {
     $(".barcode-element").each(function () {
       const valueCode = $(this).attr("data-value");
-
       if (valueCode && valueCode !== "") {
         JsBarcode(this, valueCode, {
           format: "CODE128",
@@ -319,194 +264,9 @@ $(document).ready(function () {
         });
       }
     });
-
-    // Buka kunci tombol Simpan ke Stok jika preview barcode ada
     $("#btnSimpanStokBatch").prop("disabled", false);
   }
 
-  // EVENT LISTENER TOMBOL SIMPAN KE STOK BARANG (BATCH)
-  $("#btnSimpanStokBatch").on("click", function () {
-    let barcodesToSave = [];
-
-    // Mengambil nilai barcode dari elemen-elemen preview lembar cetak
-    $(".barcode-element").each(function () {
-      let code = $(this).attr("data-value") || $(this).text().trim();
-      if (code) {
-        barcodesToSave.push(code);
-      }
-    });
-
-    if (barcodesToSave.length === 0) {
-      showAlert(
-        t(
-          "alert_no_barcode_preview",
-          "Tidak ada barcode di lembar preview untuk disimpan!",
-        ),
-        "warning",
-      );
-      return;
-    }
-
-    // Popup Konfirmasi Keamanan
-    if (typeof Swal !== "undefined") {
-      Swal.fire({
-        title: t("swal_confirm_title", "Input ke Stok Barang?"),
-        text: t(
-          "swal_confirm_text",
-          "Apakah Anda yakin ingin mendaftarkan {count} item barcode ini secara otomatis ke stok barang?",
-          { count: barcodesToSave.length },
-        ),
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: t("btn_yes_save", "Ya, Simpan Stok!"),
-        cancelButtonText: t("btn_cancel", "Batal"),
-      }).then((result) => {
-        if (result.isConfirmed) {
-          eksekusiSimpanBatchStok(barcodesToSave);
-        }
-      });
-    } else {
-      if (
-        confirm(
-          t(
-            "swal_confirm_text",
-            "Apakah Anda yakin ingin memasukkan {count} item barcode ini ke Stok Barang?",
-            { count: barcodesToSave.length },
-          ),
-        )
-      ) {
-        eksekusiSimpanBatchStok(barcodesToSave);
-      }
-    }
-  });
-
-  // --- H. STOK BARANG SCANNER ---
-  var lastScannedBarcode = "";
-
-  $("#modalTambahBarang").on("shown.bs.modal", function () {
-    resetFormDigitParse();
-    lastScannedBarcode = "";
-    $("#scanBarcodeInput").focus();
-  });
-
-  function eksekusiScanBarcode(barcodeVal) {
-    if (barcodeVal === lastScannedBarcode) return;
-
-    if (barcodeVal.length === 9 && /^\d+$/.test(barcodeVal)) {
-      lastScannedBarcode = barcodeVal;
-
-      var genderCode = barcodeVal.substring(0, 1);
-      var tipeCode = barcodeVal.substring(1, 3);
-      var sizeCode = barcodeVal.substring(3, 5);
-
-      var parsedGender = APP_CONFIG.GENDER[genderCode] || null;
-      var parsedTipe = APP_CONFIG.TYPE[tipeCode] || null;
-      var parsedSize = APP_CONFIG.SIZE[sizeCode] || null;
-
-      $("#inputGender").val(parsedGender);
-      $("#inputTipe").val(parsedTipe);
-      $("#inputSize").val(parsedSize);
-
-      if (parsedGender && parsedTipe && parsedSize) {
-        $.ajax({
-          url: "controllers/cek_barcode.php",
-          type: "GET",
-          data: { barcode: barcodeVal },
-          dataType: "json",
-          beforeSend: function () {
-            setParsingAlert(
-              "loading",
-              t(
-                "alert_analyzing_code",
-                "Menganalisis status pendaftaran kode...",
-              ),
-            );
-          },
-          success: function (response) {
-            $("#btnSimpanStok").prop("disabled", false);
-
-            if (response.exists === true || response.success === true) {
-              setParsingAlert(
-                "warning",
-                t(
-                  "alert_item_exists",
-                  "<strong>Item Sudah Terdaftar!</strong> Ganti dengan barcode lain !",
-                ),
-              );
-            } else {
-              setParsingAlert(
-                "success",
-                t(
-                  "alert_new_barcode",
-                  "<strong>Barcode Baru!</strong> Mendaftarkan item <strong>{tipe} {gender} ({size})</strong>.",
-                  { tipe: parsedTipe, gender: parsedGender, size: parsedSize },
-                ),
-              );
-            }
-            $("#btnSimpanStok").focus();
-          },
-          error: function () {
-            $("#btnSimpanStok").prop("disabled", false);
-            setParsingAlert(
-              "secondary",
-              t(
-                "alert_validation_blocked",
-                "Validasi terhambat. Data lokal siap disimpan.",
-              ),
-            );
-          },
-        });
-      } else {
-        invalidDigitFallback(
-          barcodeVal,
-          t(
-            "err_unrecognized_component",
-            "Kode komponen tidak dikenali sistem.",
-          ),
-        );
-      }
-    } else if (barcodeVal.length > 9) {
-      invalidDigitFallback(
-        barcodeVal,
-        t(
-          "err_barcode_9_digits",
-          "Barcode harus berjumlah tepat 9 digit angka penuh.",
-        ),
-      );
-    }
-  }
-
-  $("#scanBarcodeInput").on("input", function () {
-    var barcodeVal = $(this).val().trim();
-    if (barcodeVal.length === 9) {
-      eksekusiScanBarcode(barcodeVal);
-    } else {
-      lastScannedBarcode = "";
-    }
-  });
-
-  $("#scanBarcodeInput").on("keypress", function (e) {
-    if (e.which === 13) {
-      e.preventDefault();
-      var barcodeVal = $(this).val().trim();
-      eksekusiScanBarcode(barcodeVal);
-    }
-  });
-
-  // --- I. RETURN MODULE AUTO-LOAD ---
-  if (window.IS_AUTO_RETURN) {
-    loadTransactionItems(window.AUTO_BARCODES || []);
-  }
-
-  if ($("#id_request").val() !== "") {
-    setTimeout(function () {
-      $("#id_sales").focus();
-    }, 300);
-  }
-
-  // Tampilkan tombol saat area konten di-scroll lebih dari 150px
   $(".content-area").scroll(function () {
     if ($(this).scrollTop() > 150) {
       $("#scrollToTopBtn").fadeIn();
@@ -515,18 +275,12 @@ $(document).ready(function () {
     }
   });
 
-  // Efek smooth scroll saat tombol diklik
   $("#scrollToTopBtn").click(function (e) {
     e.preventDefault();
     $(".content-area").animate({ scrollTop: 0 }, 300);
   });
-}); // END DOM READY
+});
 
-// =========================================================================
-// 3. GLOBAL HELPER & MODULE FUNCTIONS
-// =========================================================================
-
-// --- Parser Barcode 9 Digit ---
 function parseBarcode(rawCode) {
   const clean = String(rawCode).replace(/\*/g, "").trim();
   if (clean.length !== 9 || isNaN(clean)) {
@@ -555,35 +309,15 @@ function parseBarcode(rawCode) {
   };
 }
 
-// --- Transaksi Module Functions ---
 function processAutoScan(barcodeVal) {
   const parsed = parseBarcode(barcodeVal);
 
   if (!parsed.isValid) {
     showAlert(
-      t(
-        "alert_invalid_barcode",
-        "Format Barcode tidak valid! Harus berisi 9 digit angka.",
-      ),
-      "danger",
+      t("alert_invalid_barcode", "Format Barcode tidak valid! Harus berisi 9 digit angka."),
+      "danger"
     );
     return;
-  }
-
-  // --- PENGECEKAN MAX SCAN (Sesuai Request Ticket) ---
-  if (window.transactionData && window.transactionData.isAuto) {
-    const maxQty = parseInt(window.transactionData.totalQty) || 0;
-    if (maxQty > 0 && scannedBarcodes.size >= maxQty) {
-      showAlert(
-        t(
-          "alert_max_scan",
-          "<strong>Batas Maksimum Scan!</strong> Permintaan tiket ini hanya membutuhkan <b>{max} Pcs</b> item.",
-          { max: maxQty },
-        ),
-        "warning",
-      );
-      return;
-    }
   }
 
   if (scannedBarcodes.has(parsed.raw)) {
@@ -591,15 +325,15 @@ function processAutoScan(barcodeVal) {
       t(
         "alert_already_scanned",
         "Barcode <strong>{barcode}</strong> sudah masuk ke dalam daftar transaksi!",
-        { barcode: parsed.raw },
+        { barcode: parsed.raw }
       ),
-      "warning",
+      "warning"
     );
     return;
   }
 
   const emptyInput = Array.from(
-    document.querySelectorAll(".barcode-item-input"),
+    document.querySelectorAll(".barcode-item-input")
   ).find((input) => !input.value.trim());
 
   if (emptyInput) {
@@ -614,10 +348,9 @@ function processAutoScan(barcodeVal) {
     t("alert_scan_success", "Berhasil memindai <strong>{label}</strong>", {
       label: parsed.label,
     }),
-    "success",
+    "success"
   );
 
-  // Reset status validasi setiap kali ada barang baru di-scan
   invalidateForm();
 }
 
@@ -628,45 +361,39 @@ function addItemCard(prefilledData = null) {
   if (!container) return;
 
   const cardHtml = `
-        <div class="col-md-4 item-row" id="item-card-${id}">
-            <div class="bg-white border rounded-3 p-3 h-100" style="box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="fw-bold item-number" style="color: #556ee6; font-size: 14px;">
-                        <i class="bi bi-box-seam me-2"></i>Item #${id}
-                    </span>
-                    <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" 
-                            style="${
-                              id === 1 && !prefilledData ? "display: none;" : ""
-                            } background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
-                            onclick="removeItemCard(${id})">
-                        <i class="bi bi-trash3 me-1"></i>${t("btn_cancel", "Hapus")}
-                    </button>
+    <div class="col-md-4 item-row" id="item-card-${id}">
+        <div class="bg-white border rounded-3 p-3 h-100" style="box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="fw-bold item-number" style="color: #556ee6; font-size: 14px;">
+                    <i class="bi bi-box-seam me-2"></i>Item #${id}
+                </span>
+                <button type="button" class="btn btn-sm text-danger btn-remove-item fw-bold" 
+                        style="${id === 1 && !prefilledData ? "display: none;" : ""} background-color: #fee2e2; border-radius: 4px; padding: 2px 8px;" 
+                        onclick="removeItemCard(${id})">
+                    <i class="bi bi-trash3 me-1"></i>${t("btn_cancel", "Hapus")}
+                </button>
+            </div>
+            <div class="mb-2">
+                <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Item</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
+                    <input type="text" 
+                           class="form-control barcode-item-input ${prefilledData ? "bg-light" : ""}" 
+                           id="barcode-input-${id}"
+                           data-id="${id}"
+                           name="barcode_item[]" 
+                           value="${prefilledData ? prefilledData.raw : ""}"
+                           placeholder="Scan Barcode"
+                           ${prefilledData ? "readonly" : ""}>
                 </div>
-                <div class="mb-2">
-                    <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Item</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
-                        <input type="text" 
-                               class="form-control barcode-item-input ${
-                                 prefilledData ? "bg-light" : ""
-                               }" 
-                               id="barcode-input-${id}"
-                               data-id="${id}"
-                               name="barcode_item[]" 
-                               value="${prefilledData ? prefilledData.raw : ""}"
-                               placeholder="Scan Barcode"
-                               ${prefilledData ? "readonly" : ""}>
-                    </div>
-                    <div class="barcode-detail-text text-uppercase fw-bold text-primary mt-2 ps-2" id="detail-text-${id}" style="font-size: 12px; letter-spacing: 0.5px; min-height: 18px;">
-                        ${prefilledData ? prefilledData.label : ""}
-                    </div>
-                    <input type="hidden" name="detail_item[]" id="detail-hidden-${id}" class="barcode-detail-hidden" value="${
-                      prefilledData ? prefilledData.label : ""
-                    }">
+                <div class="barcode-detail-text text-uppercase fw-bold text-primary mt-2 ps-2" id="detail-text-${id}" style="font-size: 12px; letter-spacing: 0.5px; min-height: 18px;">
+                    ${prefilledData ? prefilledData.label : ""}
                 </div>
+                <input type="hidden" name="detail_item[]" id="detail-hidden-${id}" class="barcode-detail-hidden" value="${prefilledData ? prefilledData.label : ""}">
             </div>
         </div>
-    `;
+    </div>
+  `;
 
   container.insertAdjacentHTML("beforeend", cardHtml);
 
@@ -674,7 +401,7 @@ function addItemCard(prefilledData = null) {
     scannedBarcodes.add(prefilledData.raw);
   }
   updateRemoveButtons();
-  invalidateForm(); // Reset status validasi
+  invalidateForm();
 }
 
 function fillCardData(id, parsedData) {
@@ -692,52 +419,43 @@ function fillCardData(id, parsedData) {
 
   scannedBarcodes.add(parsedData.raw);
   updateRemoveButtons();
-  invalidateForm(); // Reset status validasi
+  invalidateForm();
 }
 
-// --- FUNGSI RE-INDEX UNTUK MENGURUTKAN ULANG ITEM #1, ITEM #2, DST ---
 function reindexItemCards() {
   const cards = document.querySelectorAll("#dynamic-item-container .item-row");
 
   cards.forEach((card, index) => {
     const newId = index + 1;
-
-    // 1. Update ID Container Card
     card.id = `item-card-${newId}`;
 
-    // 2. Update Label Judul "Item #X"
     const numberEl = card.querySelector(".item-number");
     if (numberEl) {
       numberEl.innerHTML = `<i class="bi bi-box-seam me-2"></i>Item #${newId}`;
     }
 
-    // 3. Update Event Onclick Tombol Hapus
     const removeBtn = card.querySelector(".btn-remove-item");
     if (removeBtn) {
       removeBtn.setAttribute("onclick", `removeItemCard(${newId})`);
     }
 
-    // 4. Update ID & Data Attribute Input Barcode
     const inputEl = card.querySelector(".barcode-item-input");
     if (inputEl) {
       inputEl.id = `barcode-input-${newId}`;
       inputEl.dataset.id = newId;
     }
 
-    // 5. Update ID Teks Detail
     const detailTextEl = card.querySelector(".barcode-detail-text");
     if (detailTextEl) {
       detailTextEl.id = `detail-text-${newId}`;
     }
 
-    // 6. Update ID Input Hidden Detail
     const detailHiddenEl = card.querySelector(".barcode-detail-hidden");
     if (detailHiddenEl) {
       detailHiddenEl.id = `detail-hidden-${newId}`;
     }
   });
 
-  // Reset counter itemCount sesuai jumlah card aktif agar item berikutnya berlanjut tepat
   itemCount = cards.length;
 }
 
@@ -763,10 +481,7 @@ function removeItemCard(id) {
     if (textElement) textElement.innerText = "";
     if (hiddenElement) hiddenElement.value = "";
 
-    showAlert(
-      t("alert_item1_cleared", "Item #1 berhasil dikosongkan."),
-      "info",
-    );
+    showAlert(t("alert_item1_cleared", "Item #1 berhasil dikosongkan."), "info");
   } else {
     const card = document.getElementById(`item-card-${id}`);
     if (card) {
@@ -775,10 +490,9 @@ function removeItemCard(id) {
     showAlert(t("alert_item_deleted", "Item berhasil dihapus."), "info");
   }
 
-  // Lakukan pengurutan ulang ID & Judul Card
   reindexItemCards();
   updateRemoveButtons();
-  invalidateForm(); // Reset status validasi setelah hapus item
+  invalidateForm();
 }
 
 function updateRemoveButtons() {
@@ -794,260 +508,6 @@ function updateRemoveButtons() {
   });
 }
 
-// --- FUNGSI VALIDASI GABUNGAN (DATABASE + KONSISTENSI GENDER + KECOCOKAN TIKET) ---
-async function validateAllItems() {
-  invalidateForm(); // Kunci tombol proses di awal pemeriksaan
-  const inputs = document.querySelectorAll(".barcode-item-input");
-  let validCount = 0;
-  let errors = [];
-  let scannedItems = [];
-
-  // 1. Loop setiap input & cek keberadaannya di database MySQL via Controller
-  for (const input of inputs) {
-    const val = input.value.trim();
-
-    if (val) {
-      try {
-        const response = await fetch("controllers/validate_barcode.php", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ barcode: val }),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          const parsed = parseBarcode(val);
-          const id = input.dataset.id;
-
-          fillCardData(id, parsed);
-
-          const text = document.getElementById(`detail-text-${id}`);
-          const hidden = document.getElementById(`detail-hidden-${id}`);
-
-          if (text) text.innerText = result.message;
-          if (hidden) hidden.value = result.message;
-
-          validCount++;
-          scannedItems.push(parsed);
-        } else {
-          errors.push(`Barcode <b>${val}</b>: ${result.message}`);
-        }
-      } catch (err) {
-        errors.push(
-          t(
-            "err_db_connect_barcode",
-            "Gagal terhubung ke database untuk barcode <b>{barcode}</b>",
-            { barcode: val },
-          ),
-        );
-      }
-    }
-  }
-
-  // Jika tidak ada item yang diisi
-  if (validCount === 0 && errors.length === 0) {
-    showAlert(
-      t("alert_no_barcode_input", "Belum ada barcode yang diinputkan"),
-      "warning",
-    );
-    return;
-  }
-
-  // Jika ada barcode yang gagal ditemukan di database
-  if (errors.length > 0) {
-    showAlert(
-      t(
-        "alert_failed_db_val",
-        "<strong>Gagal Validasi Database:</strong><br>• {errors}",
-        { errors: errors.join("<br>• ") },
-      ),
-      "danger",
-    );
-    return;
-  }
-
-  let ticketErrors = [];
-
-  // =========================================================================
-  // 🔍 LAPIS 1: CEK KONSISTENSI GENDER ANTAR ITEM (DILARANG CAMPUR PRIA & WANITA)
-  // =========================================================================
-  let uniqueGenders = new Set();
-  scannedItems.forEach((item) => {
-    let g = (item.gender || "").toString().toLowerCase().trim();
-    if (g === "1" || g === "pria" || g === "male") uniqueGenders.add("Pria");
-    if (g === "2" || g === "wanita" || g === "female")
-      uniqueGenders.add("Wanita");
-  });
-
-  if (uniqueGenders.size > 1) {
-    ticketErrors.push(
-      t(
-        "err_mixed_gender",
-        "Kamu memasukkan pakaian <b>Pria</b> dan <b>Wanita</b> sekaligus dalam satu transaksi.",
-      ),
-    );
-  }
-
-  // =========================================================================
-  // 🔍 LAPIS 2: PENGECEKAN KESESUAIN DENGAN TIKET (JIKA ADANYA DATA TIKET)
-  // =========================================================================
-  if (window.transactionData && window.transactionData.isAuto) {
-    const tData = window.transactionData;
-    let countTop = 0;
-    let countBottom = 0;
-
-    // Normalisasi Gender Tiket (male / female / pria / wanita)
-    const rawTargetGender = (
-      tData.gender ||
-      tData.genderSA ||
-      tData.gender_sa ||
-      ""
-    )
-      .toString()
-      .toLowerCase()
-      .trim();
-    let normalizedTargetGender = "";
-    let targetGenderLabel = "";
-
-    if (
-      rawTargetGender === "male" ||
-      rawTargetGender === "pria" ||
-      rawTargetGender === "1"
-    ) {
-      normalizedTargetGender = "male";
-      targetGenderLabel = "Pria (Male)";
-    } else if (
-      rawTargetGender === "female" ||
-      rawTargetGender === "wanita" ||
-      rawTargetGender === "2"
-    ) {
-      normalizedTargetGender = "female";
-      targetGenderLabel = "Wanita (Female)";
-    }
-
-    // Loop pengecekan Gender dan Kuantitas
-    scannedItems.forEach((item, index) => {
-      const rawScannedGender = (item.gender || "")
-        .toString()
-        .toLowerCase()
-        .trim();
-      let normalizedScannedGender = "";
-
-      if (
-        rawScannedGender === "male" ||
-        rawScannedGender === "pria" ||
-        rawScannedGender === "1"
-      ) {
-        normalizedScannedGender = "male";
-      } else if (
-        rawScannedGender === "female" ||
-        rawScannedGender === "wanita" ||
-        rawScannedGender === "2"
-      ) {
-        normalizedScannedGender = "female";
-      }
-
-      // Cocokkan Gender Barang dengan Tiket
-      if (normalizedTargetGender && normalizedScannedGender) {
-        if (normalizedTargetGender !== normalizedScannedGender) {
-          ticketErrors.push(
-            t(
-              "err_gender_mismatch",
-              "Item #{num} (<b>{type}</b>): Gender barang (<b>{gender}</b>) tidak sesuai pesanan tiket (<b>{target}</b>)",
-              {
-                num: index + 1,
-                type: item.type,
-                gender: item.gender,
-                target: targetGenderLabel,
-              },
-            ),
-          );
-        }
-      }
-
-      if (item.type === "Baju") countTop++;
-      if (item.type === "Celana") countBottom++;
-    });
-
-    // Pengecekan Kuantitas Baju
-    const targetQtyTop = parseInt(tData.qtyTop) || 0;
-    if (targetQtyTop > 0 && countTop !== targetQtyTop) {
-      ticketErrors.push(
-        t(
-          "err_qty_top_mismatch",
-          "Jumlah Baju yang di-scan (<b>{scanned} Pcs</b>) tidak sesuai pesanan tiket (<b>{target} Pcs</b>)",
-          { scanned: countTop, target: targetQtyTop },
-        ),
-      );
-    }
-
-    // Pengecekan Kuantitas Celana
-    const targetQtyBottoms = parseInt(tData.qtyBottoms) || 0;
-    if (targetQtyBottoms > 0 && countBottom !== targetQtyBottoms) {
-      ticketErrors.push(
-        t(
-          "err_qty_bottom_mismatch",
-          "Jumlah Celana yang di-scan (<b>{scanned} Pcs</b>) tidak sesuai pesanan tiket (<b>{target} Pcs</b>)",
-          { scanned: countBottom, target: targetQtyBottoms },
-        ),
-      );
-    }
-  }
-
-  // Jika terdapat kesalahan (Gender Campur / Beda dengan Tiket / Qty Salah)
-  if (ticketErrors.length > 0) {
-    showAlert(
-      t(
-        "alert_failed_trx_val",
-        "<strong>Gagal Validasi Transaksi:</strong><br>• {errors}",
-        { errors: ticketErrors.join("<br>• ") },
-      ),
-      "danger",
-    );
-    return; // Tombol "Proses Transaksi" TETAP TERKUNCI
-  }
-
-  showAlert(
-    t(
-      "alert_val_success",
-      "<strong>Validasi Berhasil!</strong> Seluruh ({count}) item terdaftar & cocok dengan tiket.",
-      { count: validCount },
-    ),
-    "success",
-  );
-
-  // BUKA KUNCI TOMBOL PROSES TRANSAKSI JIKA LOLOS
-  isValidated = true;
-  const btnProses =
-    document.getElementById("btnProses") ||
-    document.querySelector("#formTransaksi button[type='submit']");
-  if (btnProses) {
-    btnProses.disabled = false;
-  }
-}
-
-function resetForm() {
-  scannedBarcodes.clear();
-  const container = document.getElementById("dynamic-item-container");
-  if (container) container.innerHTML = "";
-  itemCount = 0;
-  addItemCard();
-}
-
-function calculateGrandTotal() {
-  let total = 0;
-  $(".calc-row").each(function () {
-    let price = parseInt($(this).find(".price").val()) || 0;
-    let qty = parseInt($(this).find(".qty").val()) || 0;
-    total += price * qty;
-  });
-  $("#grandTotal").text("Rp " + total.toLocaleString("id-ID"));
-}
-
-// 1. Fungsi showAlert (Dinamis JS) - Menggunakan Animasi Bootstrap Native
 function showAlert(msg, type) {
   const alertContainer =
     document.getElementById("alertContainer") ||
@@ -1057,9 +517,7 @@ function showAlert(msg, type) {
     const alertDiv = document.createElement("div");
     alertDiv.className = `alert alert-${type} alert-dismissible fade show mb-3`;
     alertDiv.setAttribute("role", "alert");
-    alertDiv.innerHTML = `
-      <div>${msg}</div>
-    `;
+    alertDiv.innerHTML = `<div>${msg}</div>`;
 
     alertContainer.appendChild(alertDiv);
 
@@ -1071,356 +529,3 @@ function showAlert(msg, type) {
     }, 4000);
   }
 }
-
-// 2. Auto-Dismiss Alert PHP Session saat Halaman Dimuat
-$(document).ready(function () {
-  const existingAlerts = document.querySelectorAll(
-    ".floating-alert-container .alert, #alertContainer .alert",
-  );
-
-  existingAlerts.forEach(function (alertEl) {
-    setTimeout(function () {
-      alertEl.classList.remove("show");
-      setTimeout(function () {
-        alertEl.remove();
-      }, 300);
-    }, 4000);
-  });
-});
-
-// --- Return Module Functions ---
-function openProcessPage(trxId, salesId, saName, detailInfo, barcodesArray) {
-  const viewList = document.getElementById("view-return-list");
-  const viewProcess = document.getElementById("view-return-process");
-  if (viewList) viewList.style.display = "none";
-  if (viewProcess) viewProcess.style.display = "block";
-
-  const inputNo = document.getElementById("input_no_return");
-  const inputSales = document.getElementById("input_id_sales");
-  const inputNama = document.getElementById("input_nama");
-
-  if (inputNo) inputNo.value = trxId;
-  if (inputSales) inputSales.value = salesId;
-  if (inputNama) inputNama.value = saName;
-
-  const listRincian = document.getElementById("rincian-item-list");
-  if (listRincian) {
-    listRincian.innerHTML = `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td class="fw-bold py-3 ps-0 text-secondary" width="15%">Info Order</td>
-                <td class="py-3 text-dark">: ${detailInfo}</td>
-            </tr>
-        `;
-  }
-
-  // BERSHIHAN ALERT LAMA
-  const alertContainer =
-    document.getElementById("alertContainer") ||
-    document.querySelector(".floating-alert-container");
-  if (alertContainer) alertContainer.innerHTML = "";
-
-  loadTransactionItems(barcodesArray);
-}
-
-function loadTransactionItems(barcodesArray) {
-  const container = document.getElementById("dynamic-item-container");
-  if (!container) return;
-  container.innerHTML = "";
-  itemCount = 0;
-
-  if (!barcodesArray || barcodesArray.length === 0) {
-    container.innerHTML =
-      '<div class="alert alert-warning">' +
-      t(
-        "alert_no_barcode_trx",
-        "Tidak ada barcode terdeteksi pada transaksi ini.",
-      ) +
-      "</div>";
-    return;
-  }
-
-  barcodesArray.forEach((barcode) => {
-    addItemRow(barcode);
-  });
-}
-
-function addItemRow(barcodeVal) {
-  itemCount++;
-  const container = document.getElementById("dynamic-item-container");
-  if (!container) return;
-
-  const id = itemCount;
-  const parsed = parseBarcode(barcodeVal);
-
-  const rowHtml = `
-        <div class="item-row bg-white border rounded-3 p-3 mb-3 shadow-sm" id="item-row-${id}">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="fw-bold item-number" style="color: #b91c1c; font-size: 14px;">
-                    <i class="bi bi-box-seam me-2"></i>Barang #${id}
-                    <small class="text-dark fw-normal ms-2">${parsed.text}</small>
-                </span>
-            </div>
-            
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Barcode Barang</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light text-danger"><i class="bi bi-upc-scan"></i></span>
-                        <input type="text" class="form-control bg-light fw-bold" name="barcode_return[]" value="${parsed.raw}" readonly>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-secondary" style="font-size: 13px;">Kondisi / Alasan Return</label>
-                    <select class="form-select" name="kondisi_return[]" required>
-                        <option value="Kebesaran">Tukar: Ukuran Kebesaran</option>
-                        <option value="Kekecilan">Tukar: Ukuran Kekecilan</option>
-                        <option value="Cacat Produksi">Rusak: Cacat Produksi / Baju Rusak</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    `;
-
-  container.insertAdjacentHTML("beforeend", rowHtml);
-}
-
-function removeItemRow(id) {
-  const row = document.getElementById(`item-row-${id}`);
-  if (row) row.remove();
-}
-
-function cancelProcess() {
-  if (window.IS_AUTO_RETURN) {
-    window.location.href = "return.php";
-  } else {
-    const procView = document.getElementById("view-return-process");
-    const listView = document.getElementById("view-return-list");
-    if (procView) procView.style.display = "none";
-    if (listView) listView.style.display = "block";
-  }
-}
-
-function filterTable() {
-  const searchInput = document.getElementById("searchTrx");
-  if (!searchInput) return;
-  const query = searchInput.value.toUpperCase();
-  const rows = document.querySelectorAll("#tableTrx tbody tr");
-  rows.forEach((row) => {
-    row.style.display = row.innerText.toUpperCase().includes(query)
-      ? ""
-      : "none";
-  });
-}
-
-// --- Helpers Stok Barang ---
-function setParsingAlert(status, message) {
-  let classes = "",
-    icon = "";
-  if (status === "loading") {
-    classes = "p-3 border rounded bg-light text-center small text-secondary";
-    icon =
-      '<div class="spinner-border text-primary spinner-border-sm mb-1"></div><br>';
-  } else if (status === "success") {
-    classes =
-      "p-3 border rounded bg-success-subtle border-success text-success text-start";
-    icon = '<i class="bi bi-check-circle-fill me-1"></i>';
-  } else if (status === "warning") {
-    classes =
-      "p-3 border rounded bg-warning-subtle border-warning text-warning-emphasis text-start";
-    icon = '<i class="bi bi-stars me-1"></i>';
-  } else {
-    classes =
-      "p-3 border rounded bg-secondary-subtle border-secondary text-secondary text-start";
-    icon = '<i class="bi bi-exclamation-triangle-fill me-1"></i>';
-  }
-  $("#parsingAlertBox")
-    .removeClass()
-    .addClass(classes)
-    .html(icon + " " + message);
-}
-
-function invalidDigitFallback(barcodeText, reason) {
-  $("#btnSimpanStok").prop("disabled", true);
-  $("#parsingAlertBox")
-    .removeClass()
-    .addClass(
-      "p-3 border rounded bg-danger-subtle border-danger text-danger text-center",
-    )
-    .html(
-      `<i class="bi bi-x-circle-fill d-block mb-1 fs-5"></i> ` +
-        t(
-          "alert_parse_code_failed",
-          '<strong>Gagal Mengurai Kode!</strong><br><span class="small">{reason} (Input: <code>{input}</code>)</span>',
-          { reason: reason, input: barcodeText },
-        ),
-    );
-  $("#inputGender, #inputTipe, #inputSize").val("");
-  $("#scanBarcodeInput").val("").focus();
-}
-
-function resetFormDigitParse() {
-  $("#scanBarcodeInput").val("").focus();
-  $("#inputGender, #inputTipe, #inputSize").val("");
-  $("#btnSimpanStok").prop("disabled", true);
-  $("#parsingAlertBox")
-    .removeClass()
-    .addClass("p-3 border rounded bg-light text-center small text-secondary")
-    .html(
-      '<i class="bi bi-arrow-left-right d-block mb-1 text-muted fs-5"></i><span>' +
-        t(
-          "alert_scan_extract_prompt",
-          "Silakan scan barcode untuk ekstraksi digit otomatis.",
-        ) +
-        "</span>",
-    );
-}
-
-// Helper AJAX untuk Mengirim Batch Barcode ke Backend
-function eksekusiSimpanBatchStok(barcodes) {
-  $.ajax({
-    url: "controllers/proses_generate.php",
-    type: "POST",
-    contentType: "application/json",
-    data: JSON.stringify({
-      action: "simpan_stok_batch",
-      barcodes: barcodes,
-    }),
-    beforeSend: function () {
-      $("#btnSimpanStokBatch")
-        .prop("disabled", true)
-        .html(
-          '<span class="spinner-border spinner-border-sm me-1"></span> ' +
-            t("btn_saving", "Menyimpan..."),
-        );
-    },
-    success: function (response) {
-      if (response.success) {
-        showAlert(
-          t("alert_success_prefix", "<strong>Berhasil!</strong> {message}", {
-            message: response.message,
-          }),
-          "success",
-        );
-        $("#btnSimpanStokBatch")
-          .prop("disabled", true)
-          .html(
-            '<i class="bi bi-check-circle-fill me-1"></i> ' +
-              t("btn_saved", "Sudah Disimpan"),
-          );
-      } else {
-        showAlert(
-          t("alert_failed_prefix", "<strong>Gagal:</strong> {message}", {
-            message: response.message,
-          }),
-          "danger",
-        );
-        $("#btnSimpanStokBatch")
-          .prop("disabled", false)
-          .html(
-            '<i class="bi bi-box-arrow-in-down me-1"></i> ' +
-              t("btn_save_to_stock", "Simpan ke Stok Barang"),
-          );
-      }
-    },
-    error: function () {
-      showAlert(
-        t("alert_network_error", "Terjadi kesalahan sistem / jaringan!"),
-        "danger",
-      );
-      $("#btnSimpanStokBatch")
-        .prop("disabled", false)
-        .html(
-          '<i class="bi bi-box-arrow-in-down me-1"></i> ' +
-            t("btn_save_to_stock", "Simpan ke Stok Barang"),
-        );
-    },
-  });
-}
-
-// =========================================================================
-// REAL-TIME AUTO UPDATE PENDING REQUEST (ANTI-CACHE & FAST POLLING)
-// =========================================================================
-$(document).ready(function () {
-  console.log("✅ scripts.js berhasil dimuat!");
-
-  // Pengecekan keberadaan elemen wrapper
-  if ($("#pending-tab-wrapper").length > 0) {
-    console.log("✅ Elemen #pending-tab-wrapper ditemukan! Memulai polling...");
-
-    let lastPendingCount = parseInt($("#badge-pending-count").text()) || 0;
-
-    setInterval(function () {
-      $.ajax({
-        url: "controllers/pending_update.php",
-        type: "GET",
-        cache: false,
-        data: { _t: new Date().getTime() },
-        dataType: "json",
-        success: function (response) {
-          console.log(
-            "🔄 [Polling Status]: Check server... Total:",
-            response.total_pending,
-          );
-
-          if (response && response.status === "success") {
-            let serverCount = parseInt(response.total_pending) || 0;
-
-            if (serverCount !== lastPendingCount) {
-              console.log(
-                "🚀 Data baru terdeteksi! Mengupdate tabel... Old:",
-                lastPendingCount,
-                "New:",
-                serverCount,
-              );
-              lastPendingCount = serverCount;
-
-              // Update Badge
-              $("#badge-pending-count").text(serverCount);
-
-              // Update Partial Load
-              let cleanUrl = window.location.href.split("#")[0];
-              let refreshUrl =
-                cleanUrl +
-                (cleanUrl.indexOf("?") >= 0 ? "&" : "?") +
-                "_ts=" +
-                new Date().getTime();
-
-              $("#pending-tab-wrapper").load(
-                refreshUrl + " #pending-tab-wrapper > *",
-                function () {
-                  console.log("🎉 Tabel pending berhasil diperbarui!");
-                },
-              );
-            }
-          }
-        },
-        error: function (xhr, status, error) {
-          console.error("❌ Polling Error:", status, error, xhr.responseText);
-        },
-      });
-    }, 3000); // 3 detik
-  } else {
-    console.warn(
-      "⚠️ Elemen #pending-tab-wrapper TIDAK ditemukan di halaman ini!",
-    );
-  }
-  // ==========================================
-  // PERINGATAN UNSAVED CHANGES (GANTI BAHASA / LEAVE PAGE)
-  // ==========================================
-  window.onbeforeunload = function () {
-    // Cek apakah input ID Sales ada di halaman ini dan nilainya tidak kosong
-    var $inputSales = $("#input_id_sales");
-
-    if ($inputSales.length && $inputSales.val().trim() !== "") {
-      return t(
-        "alert_unsaved_changes",
-        "Perubahan belum disimpan, yakin ingin meninggalkan halaman?",
-      );
-    }
-  };
-
-  // Matikan peringatan jika user memang SENGAJA men-submit form
-  $("form").on("submit", function () {
-    window.onbeforeunload = null;
-  });
-});

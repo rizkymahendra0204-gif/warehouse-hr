@@ -215,7 +215,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
             return text;
         }
     </script>
-    <script src="path/to/scripts.js"></script>
 
     </div>
 </header>

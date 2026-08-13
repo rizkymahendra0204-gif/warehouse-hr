@@ -165,7 +165,6 @@ include __DIR__ . '/controllers/query_laporan.php';
                                     </div>
                                 </div>
                             </div>
-                            
 
                         <?php else: ?>
                             <!-- 📦 STOK: 3 CARD (Total Transaksi, Total Retur, Net Terpakai) -->
@@ -215,31 +214,38 @@ include __DIR__ . '/controllers/query_laporan.php';
                             <thead class="table-light text-secondary small">
                                 <tr>
                                     <th width="5%"><?= $lang['table_no'] ?? 'NO' ?></th>
-                                    <th width="5%"><?= $lang['th_tanggal'] ?? 'TANGGAL' ?></th>
+                                    <th width="10%"><?= $lang['th_tanggal'] ?? 'TANGGAL' ?></th>
                                     <th width="25%"><?= $lang['th_detail_pesanan'] ?? 'DETAIL PESANAN' ?></th>
                                     <th width="10%" class="text-center"><?= $lang['th_brand'] ?? 'BRAND' ?></th>
-                                    <th width="5%"><?= $lang['th_nama_sa'] ?? 'NAMA SA' ?></th>
-                                    <th width="20%"><?= $lang['th_item_diberikan'] ?? 'ITEM DIBERIKAN' ?></th>
-                                    <th width="20%"><?= $lang['th_item_return'] ?? 'ITEM RETURN' ?></th>
+                                    <th width="12%"><?= $lang['th_nama_sa'] ?? 'NAMA SA' ?></th>
+                                    <th width="19%"><?= $lang['th_item_diberikan'] ?? 'ITEM DIBERIKAN' ?></th>
+                                    <th width="19%"><?= $lang['th_item_return'] ?? 'ITEM RETURN' ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($list_data)): $no = 1; foreach ($list_data as $row): ?>
                                     <?php 
-                                        $raw_items = array_count_values(explode(', ', $row['raw_items'] ?? ''));
+                                        // 1. FORMAT ITEM DIBERIKAN (Format: [Barcode] Item Name TANPA (Qty))
                                         $formatted_items = [];
-                                        foreach ($raw_items as $name => $qty) { if($name) $formatted_items[] = trim($name) . " ($qty)"; }
-                                        
-                                        $str_returns = '-';
-                                        if (!empty($row['raw_returns'])) {
-                                            $raw_returns = array_count_values(explode(', ', $row['raw_returns']));
-                                            $formatted_returns = [];
-                                            foreach ($raw_returns as $name => $qty) { if($name) $formatted_returns[] = trim($name) . " ($qty)"; }
-                                            $str_returns = implode(', ', $formatted_returns);
+                                        if (!empty($row['raw_items'])) {
+                                            $raw_items = array_unique(array_map('trim', explode(',', $row['raw_items'])));
+                                            foreach ($raw_items as $name) { 
+                                                if ($name) $formatted_items[] = htmlspecialchars($name); 
+                                            }
                                         }
 
-                                        $barcode_item = htmlspecialchars($row['barcode'] ?? '-');
-                                        $detail_item  = htmlspecialchars($row['raw_items'] ?? '-');
+                                        // 2. FORMAT ITEM RETURN (Format: [Barcode] Item Name TANPA (Qty))
+                                        $str_returns = '-';
+                                        if (!empty($row['raw_returns'])) {
+                                            $raw_returns = array_unique(array_map('trim', explode(',', $row['raw_returns'])));
+                                            $formatted_returns = [];
+                                            foreach ($raw_returns as $name) { 
+                                                if ($name) $formatted_returns[] = htmlspecialchars($name); 
+                                            }
+                                            $str_returns = implode('<br>', $formatted_returns);
+                                        }
+
+                                        // Label Gender SA
                                         $raw_gender = strtolower(trim($row['gender'] ?? ''));
                                         $gender_txt = ($raw_gender === 'male' || $raw_gender === 'pria' || $raw_gender === '1') 
                                             ? ($lang['rep_sa_pria_txt'] ?? 'SA Pria') 
@@ -249,15 +255,23 @@ include __DIR__ . '/controllers/query_laporan.php';
                                         <td><?= $no++ ?></td>
                                         <td><?= date('d/m/Y', strtotime($row['tgl_transaksi'])) ?></td>
                                         <td>
-                                            <div class="fw-bold text-primary" style="font-size: 15px;">[<?= htmlspecialchars($row['perusahaan']) ?>]</div>
-                                            <div class="text-secondary mt-1" style="font-size: 13px;">
-                                                <?= $lang['rep_seragam_label'] ?? 'Seragam' ?> <?= $gender_txt ?> | <?= htmlspecialchars($row['raw_items'] ?? '-') ?>
+                                            <div class="fw-bold text-primary" style="font-size: 14px;">[<?= htmlspecialchars($row['perusahaan']) ?>]</div>
+                                            <div class="text-secondary mt-1" style="font-size: 12px;">
+                                                <?= $lang['rep_seragam_label'] ?? 'Seragam' ?> <?= $gender_txt ?>
                                             </div>
                                         </td>
                                         <td class="text-center"><?= htmlspecialchars($row['brand'] ?? '-') ?></td>
                                         <td><?= htmlspecialchars($row['nama_sa']) ?></td>
-                                        <td><small><?= implode(', ', $formatted_items) ?></small></td>
-                                        <td><small class="text-danger"><?= $str_returns ?></small></td>
+                                        <td>
+                                            <small class="text-dark">
+                                                <?= !empty($formatted_items) ? implode('<br>', $formatted_items) : '-' ?>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-danger fw-semibold">
+                                                <?= $str_returns ?>
+                                            </small>
+                                        </td>
                                     </tr>
                                 <?php endforeach; else: ?>
                                     <tr><td colspan="7" class="text-center py-4 text-muted"><?= $lang['rep_empty_stok'] ?? 'Tidak ada pergerakan stok pada periode ini.' ?></td></tr>

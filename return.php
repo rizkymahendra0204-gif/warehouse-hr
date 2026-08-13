@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/includes/auth_check.php';
-// 1. Panggil koneksi database di baris pertama
 include 'includes/db.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
@@ -10,6 +9,7 @@ $auto_id_transaksi = isset($_GET['req']) ? $_GET['req'] : '';
 $auto_sales_id     = isset($_GET['sales']) ? $_GET['sales'] : '';
 $auto_nama         = isset($_GET['nama']) ? $_GET['nama'] : '';
 $auto_detail       = isset($_GET['detail']) ? $_GET['detail'] : '';
+$tab_active        = isset($_GET['tab']) ? $_GET['tab'] : 'semua'; // Tab default: semua
 
 $is_auto       = !empty($auto_id_transaksi); 
 $readonly_attr = $is_auto ? 'readonly' : '';
@@ -62,56 +62,101 @@ if ($is_auto) {
         <main class="content-area p-4">
 
             <!-- ======================================================= -->
-            <!-- VIEW 1: DAFTAR REQUEST PENDING RETURN                  -->
+            <!-- VIEW 1: DAFTAR ITEM TRANSAKSI & RETURN                  -->
             <!-- ======================================================= -->
 
             <div id="view-return-list" style="<?php echo $is_auto ? 'display: none;' : 'display: block;'; ?>">
+                
+                <!-- HEADER HALAMAN -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="page-title"><?= $lang['ret_title'] ?? 'Pengajuan Return' ?>
-                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Manajemen untuk pengajuan return' ?></p>
+                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Manajemen pengembalian barang per item transaksi' ?></p>
                     </div>
+                </div>
+
+                <!-- AREA FILTER TAB KECIL & SEARCH BAR -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!-- Tab Filter Kecil -->
+                    <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm align-items-center">
+                        <a href="?tab=semua" class="filter-tab <?= $tab_active === 'semua' ? 'active' : '' ?>">
+                            <i class="bi bi-box-seam me-1"></i> Semua Item Transaksi
+                        </a>
+                        <a href="?tab=selesai" class="filter-tab <?= $tab_active === 'selesai' ? 'active' : '' ?>">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Riwayat Return
+                        </a>
+                    </div>
+                    
+                    <!-- Search Input -->
                     <div style="width: 280px;">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="searchTrx" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" onkeyup="filterTable()">
+                        <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
+                            <input type="text" id="searchTrx" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari Barcode / SA / Brand...' ?>" onkeyup="filterTable()">
                         </div>
                     </div>
                 </div>
 
+                <!-- TABEL DATA ITEM -->
                 <div class="bg-white border rounded-3 p-3 mb-4 shadow-sm">
                     <div class="table-responsive">
-                        <table class="table table-borderless align-middle m-0" id="tableTrx">
-                            <thead class="text-secondary small fw-bold border-bottom">
+                        <table class="table table-hover align-middle m-0" id="tableTrx">
+                            <thead class="text-secondary small fw-bold border-bottom bg-light">
                                 <tr>
                                     <th style="width: 15%; text-align: center;"><?= $lang['th_no_transaksi'] ?? 'NO. TRANSAKSI' ?></th>
                                     <th style="width: 10%; text-align: center;"><?= $lang['th_brand'] ?? 'BRAND' ?></th>
                                     <th style="width: 10%; text-align: center;"><?= $lang['th_id_sales'] ?? 'ID SALES' ?></th>
-                                    <th style="width: 40%;"><?= $lang['th_detail_item_trx'] ?? 'DETAIL ITEM TRANSAKSI' ?></th>
-                                    <th style="width: 20%; text-align: center;"><?= $lang['table_status'] ?? 'STATUS' ?></th>
-                                    <th style="width: 20%; text-align: center;"><?= $lang['table_action'] ?? 'AKSI' ?></th>
+                                    <th style="width: 35%;"><?= $lang['th_detail_item_trx'] ?? 'DETAIL ITEM (BARCODE)' ?></th>
+                                    <th style="width: 15%; text-align: center;"><?= $lang['table_status'] ?? 'STATUS' ?></th>
+                                    <th style="width: 15%; text-align: center;"><?= $lang['table_action'] ?? 'AKSI' ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                             <?php
-                            $sql = "SELECT 
-                                        t.transaction_id,
-                                        t.request_id,
-                                        t.id_sales,
-                                        t.tgl_transaksi,
-                                        TRIM(td.barcode) AS barcode_item,
-                                        rf.perusahaan,
-                                        rf.brand,
-                                        rf.nama_sa,
-                                        mi.tipe,
-                                        mi.gender,
-                                        mi.size,
-                                        mi.status_transaksi,
-                                        mi.status_barang
-                                    FROM transaksi t
-                                    INNER JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
-                                    INNER JOIN request_form rf ON t.request_id = rf.request_id
-                                    INNER JOIN master_item mi ON TRIM(td.barcode) = TRIM(mi.barcode)
-                                    ORDER BY t.transaction_id DESC, td.barcode ASC";
+                            // QUERY PEMISAHAN BERDASARKAN TAB AKTIF (MENGGUNAKAN LEFT JOIN UNTUK MENYARING YANG SUDAH DIRETIURN)
+                            if ($tab_active === 'selesai') {
+                                // MURNI HANYA MENAMPILKAN ITEM YANG SUDAH MASUK RIWAYAT RETURN
+                                $sql = "SELECT 
+                                            ri.transaction_id,
+                                            t.request_id,
+                                            t.id_sales,
+                                            ri.tgl_return AS tgl_transaksi,
+                                            TRIM(ri.barcode) AS barcode_item,
+                                            rf.perusahaan,
+                                            rf.brand,
+                                            rf.nama_sa,
+                                            mi.tipe,
+                                            mi.gender,
+                                            mi.size,
+                                            ri.kondisi_barang AS status_barang,
+                                            'Returned' AS status_transaksi
+                                        FROM return_items ri
+                                        INNER JOIN transaksi t ON ri.transaction_id = t.transaction_id
+                                        INNER JOIN request_form rf ON t.request_id = rf.request_id
+                                        INNER JOIN master_item mi ON TRIM(ri.barcode) = TRIM(mi.barcode)
+                                        ORDER BY ri.tgl_return DESC, ri.barcode ASC";
+                            } else {
+                                // HANYA MENAMPILKAN ITEM YANG BELUM PERNAH DIRETIURN (SUDAH DI-FILTER MENGGUNAKAN `ri.barcode IS NULL`)
+                                $sql = "SELECT 
+                                            t.transaction_id,
+                                            t.request_id,
+                                            t.id_sales,
+                                            t.tgl_transaksi,
+                                            TRIM(td.barcode) AS barcode_item,
+                                            rf.perusahaan,
+                                            rf.brand,
+                                            rf.nama_sa,
+                                            mi.tipe,
+                                            mi.gender,
+                                            mi.size,
+                                            mi.status_transaksi,
+                                            mi.status_barang
+                                        FROM transaksi t
+                                        INNER JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
+                                        INNER JOIN request_form rf ON t.request_id = rf.request_id
+                                        INNER JOIN master_item mi ON TRIM(td.barcode) = TRIM(mi.barcode)
+                                        LEFT JOIN return_items ri ON t.transaction_id = ri.transaction_id AND TRIM(td.barcode) = TRIM(ri.barcode)
+                                        WHERE ri.barcode IS NULL 
+                                        ORDER BY t.transaction_id DESC, td.barcode ASC";
+                            }
 
                             $query = mysqli_query($conn, $sql);
 
@@ -120,66 +165,60 @@ if ($is_auto) {
                                     $no_trx       = htmlspecialchars($row['transaction_id']);
                                     $barcode_item = htmlspecialchars($row['barcode_item']);
                                     $detail_item  = htmlspecialchars($row['tipe'] . " " . $row['gender'] . " - Size " . $row['size']);
-                                    $tgl_trx      = !empty($row['tgl_transaksi']) ? date('d M Y', strtotime($row['tgl_transaksi'])) : '-';
+                                    $tgl_trx      = !empty($row['tgl_transaksi']) ? date('d/m/Y', strtotime($row['tgl_transaksi'])) : '-';
 
-                                    // LOGIKA STATUS
                                     $raw_st_transaksi = trim($row['status_transaksi'] ?? '');
                                     $raw_st_barang    = trim($row['status_barang'] ?? '');
 
-                                    $st_transaksi_lower = strtolower($raw_st_transaksi);
-                                    $st_barang_lower    = strtolower($raw_st_barang);
-
-                                    // Tampilan teks status
-                                    if (!empty($raw_st_transaksi) && !empty($raw_st_barang)) {
-                                        $status_display = $raw_st_transaksi . " (" . $raw_st_barang . ")";
-                                    } else {
-                                        $status_display = $raw_st_transaksi ?: ($raw_st_barang ?: '-');
-                                    }
-
-                                    // PENENTUAN KELAYAKAN RETURN (JIKA AVAILABLE / INACTIVE = SUDAH DIRETURN):
-                                    $already_returned = ($st_transaksi_lower === 'available' || $st_barang_lower === 'inactive');
-                                    $can_return       = !$already_returned;
-
-                                    // Logika penentuan warna & ikon
-                                    if ($can_return) {
-                                        $text_color = '#16a34a'; // Hijau jika masih Sold Out (Active)
-                                        $icon_class = 'bi-check-circle-fill';
-                                    } else {
-                                        $text_color = '#dc2626'; // Merah jika sudah Available (Inactive)
+                                    if ($tab_active === 'selesai') {
+                                        $text_color = '#dc2626'; // Merah
                                         $icon_class = 'bi-arrow-counterclockwise';
+                                        $status_display = "Returned (" . ($raw_st_barang ?: 'Inactive') . ")";
+                                    } else {
+                                        $text_color = '#16a34a'; // Hijau
+                                        $icon_class = 'bi-check-circle-fill';
+                                        $status_display = $raw_st_transaksi . " (" . $raw_st_barang . ")";
                                     }
 
-                                    // Membungkus single barcode ke JSON safe
                                     $single_barcode_json = htmlspecialchars(json_encode([$barcode_item]), ENT_QUOTES, 'UTF-8');
                                     $detail_with_barcode = htmlspecialchars($detail_item . " (" . $barcode_item . ")", ENT_QUOTES, 'UTF-8');
                             ?>
                                     <tr class="border-bottom">
+                                        <!-- NO TRANSAKSI -->
                                         <td class="text-center small"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
 
-                                        <td class="text-center"><span><?php echo addslashes($row['brand']); ?></span></td>
+                                        <!-- BRAND -->
+                                        <td class="text-center"><span><?php echo addslashes($row['brand'] ?? '-'); ?></span></td>
 
-                                        <td class="text-center"><span><?php echo addslashes($row['id_sales']); ?></span></td>
+                                        <!-- ID SALES -->
+                                        <td class="text-center"><span><?php echo addslashes($row['id_sales'] ?? '-'); ?></span></td>
                                         
+                                        <!-- DETAIL ITEM DENGAN FORMAT [BARCODE] -->
                                         <td>
-                                            <div class="fw-bold">
-                                            <div class="text-muted">
-                                                <i class="bi bi-box-seam me-1"></i> <b>[<?php echo $barcode_item; ?>]</b> <?php echo $detail_item; ?> &nbsp;|&nbsp; 
-                                                <i class="bi bi-calendar3 me-1"></i> <?php echo $tgl_trx; ?>
+                                            <div class="fw-bold text-dark" style="font-size: 13px;">
+                                                <i class="bi bi-box-seam me-1 text-secondary"></i> <b>[<?php echo $barcode_item; ?>]</b> <?php echo $detail_item; ?>
                                             </div>
+                                            <div class="text-muted mt-1" style="font-size: 11px;">
+                                                <i class="bi bi-calendar3 me-1"></i> Tgl Transaksi: <?php echo $tgl_trx; ?> &bull; SA: <?php echo htmlspecialchars($row['nama_sa']); ?>
                                             </div>
                                         </td>
                                         
-                                        <td>
-                                            <div class="d-flex align-items-center justify-content-center gap-2 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.75rem; white-space: nowrap;">
+                                        <!-- STATUS -->
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center gap-1 fw-bold" style="color: <?php echo $text_color; ?>; font-size: 0.75rem; white-space: nowrap;">
                                                 <i class="bi <?php echo $icon_class; ?>" style="font-size: 0.95rem;"></i>
                                                 <span><?php echo htmlspecialchars($status_display); ?></span>
                                             </div>
                                         </td>
                                         
+                                        <!-- AKSI -->
                                         <td class="text-center">
-                                            <?php if ($can_return): ?>
-                                                <!-- Tombol Aktif jika barang belum direturn -->
-                                                <button type="button" class="btn btn-proses w-100 fw-bold" 
+                                            <?php if ($tab_active === 'selesai'): ?>
+                                                <span class="badge bg-light text-secondary border fw-bold px-3 py-2">
+                                                    <i class="bi bi-check2-all me-1"></i> Selesai
+                                                </span>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn-proses btn-sm w-100 fw-bold px-2 py-1" 
                                                         onclick="openProcessPage(
                                                             '<?php echo addslashes($no_trx); ?>', 
                                                             '<?php echo addslashes($row['id_sales']); ?>', 
@@ -187,12 +226,7 @@ if ($is_auto) {
                                                             '<?php echo addslashes($detail_with_barcode); ?>',
                                                             <?php echo $single_barcode_json; ?>
                                                         )">
-                                                    <?= $lang['btn_proses_return'] ?? 'Proses Return' ?> <i class="bi bi-arrow-right-circle ms-1"></i>
-                                                </button>
-                                            <?php else: ?>
-                                                <!-- Tombol Disabled jika barang sudah direturn -->
-                                                <button type="button" class="btn btn-secondary btn-sm fw-bold px-3 opacity-75" disabled title="<?= $lang['title_sudah_return'] ?? 'Barang ini sudah pernah direturn' ?>">
-                                                    <i class="bi bi-check2-all me-1"></i> <?= $lang['btn_sudah_return'] ?? 'Sudah Direturn' ?>
+                                                    Return Item <i class="bi bi-arrow-right-circle ms-1"></i>
                                                 </button>
                                             <?php endif; ?>
                                         </td>
@@ -200,7 +234,7 @@ if ($is_auto) {
                             <?php 
                                 }
                             } else {
-                                echo '<tr><td colspan="4" class="text-center py-4 text-muted"><i class="bi bi-inbox me-1"></i> ' . ($lang['empty_trx'] ?? 'Tidak ada data transaksi ditemukan.') . '</td></tr>';
+                                echo '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="bi bi-inbox fs-3 d-block mb-2"></i> Tidak ada data item pada kategori ini.</td></tr>';
                             }
                             ?>
                             </tbody>
@@ -301,7 +335,6 @@ if ($is_auto) {
 
 <!-- Jembatan PHP ke JS (Wajib di atas scripts.js) -->
 <script>
-    // Passing data PHP ke global window JavaScript
     window.IS_AUTO_RETURN = <?php echo json_encode($is_auto); ?>;
     window.AUTO_BARCODES  = <?php echo $auto_barcodes_json; ?>;
 </script>

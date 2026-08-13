@@ -8,7 +8,7 @@ include 'controllers/query_stokbarang.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['stok_title'] ?? 'Stok Barang' ?> - HR Warehouse</title>
+    <title><?= $lang['stok_title'] ?? 'Inventory' ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
     
@@ -18,7 +18,6 @@ include 'controllers/query_stokbarang.php';
     
     <!-- Memanggil file CSS Anda -->
     <link rel="stylesheet" href="assets/css/style.css">
-
 </head>
 <body id="page-top">
 
@@ -35,33 +34,32 @@ include 'controllers/query_stokbarang.php';
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <!-- Header Halaman & Tombol Aksi -->
+            <!-- Header Halaman & Tombol Export Excel -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title"><?= $lang['stok_title'] ?? 'Stok Barang' ?>
+                <div class="page-title"><?= $lang['stok_title'] ?? 'Inventory' ?>
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['stok_subtitle'] ?? 'Manajemen inventaris seragam dan kelengkapan' ?></p>
                 </div>
-                <div class="d-flex gap-3">
-                    <!-- Memicu Jendela Modal Tambah Barang -->
-                    <!-- <button class="btn btn-tambah-custom text-white fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
-                        <i class="bi bi-plus-lg me-2"></i><?= $lang['btn_tambah_barang'] ?? 'Tambah Barang' ?>
-                    </button> -->
+                <div class="d-flex gap-2">
+                    <!-- Tombol Export Excel langsung memanggil parameter controller ini -->
+                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-success fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
+                        <i class="bi bi-file-earmark-excel me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
+                    </a>
                 </div>
             </div>
 
             <!-- Area Filter dan Pencarian -->
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Tab Filter -->
-                <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm">
+                <!-- Tab Filter Status -->
+                <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm align-items-center">
                     <a href="?tab=semua&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'semua' ? 'active' : '' ?>"><?= $lang['tab_semua'] ?? 'Semua' ?></a>
                     <a href="?tab=available&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'active' : '' ?>"><?= $lang['tab_available'] ?? 'Available' ?></a>
-                    <a href="?tab=soldout&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'sold out' ? 'active' : '' ?>"><?= $lang['tab_sold_out'] ?? 'Sold Out' ?></a>
-                    <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'inactive' : '' ?>"><?= $lang['tab_inactive'] ?? 'Inactive' ?></a>
+                    <a href="?tab=soldout&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'soldout' ? 'active' : '' ?>"><?= $lang['tab_sold_out'] ?? 'Sold Out' ?></a>
+                    <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'inactive' ? 'active' : '' ?>"><?= $lang['tab_inactive'] ?? 'Inactive' ?></a>
                 </div>
                 
                 <!-- Form Pencarian -->
                 <form method="GET" action="" class="input-group shadow-sm" style="width: 300px; border-radius: 8px; overflow: hidden;">
                     <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
-                    
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
                     <input type="text" name="search" id="searchInput" class="form-control border-start-0 ps-0" 
                         placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" 
@@ -148,82 +146,6 @@ include 'controllers/query_stokbarang.php';
             </div>
             
         </main>
-    </div>
-</div>
-
-<!-- MODAL WINDOW FORM TAMBAH BARANG -->
-<div class="modal fade" id="modalTambahBarang" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 12px;">
-            <div class="modal-header border-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-upc-scan me-2" style="color: #556ee6;"></i><?= $lang['modal_title_tambah'] ?? 'Tambah / Registrasi Stok' ?></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            
-            <form action="controllers/proses_tambah_item.php" method="POST" id="formTambahStok">
-                <div class="modal-body px-4 pb-4">
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold small text-secondary"><?= $lang['modal_lbl_barcode'] ?? 'Barcode Item (9 Digit Angka)' ?></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-secondary"><i class="bi bi-upc-scan"></i></span>
-                                <input type="text" class="form-control form-control-lg fw-bold" name="barcode" id="scanBarcodeInput" placeholder="<?= $lang['modal_plc_barcode'] ?? 'Tembak barcode 9-digit...' ?>" maxlength="9" autofocus required autocomplete="off">
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div id="parsingAlertBox" class="p-3 border rounded bg-light text-center small text-secondary" style="border-style: dashed !important; transition: all 0.2s ease;">
-                                <i class="bi bi-arrow-left-right d-block mb-1 text-muted fs-5"></i>
-                                <span><?= $lang['modal_info_scan'] ?? 'Silakan scan barcode untuk ekstraksi digit otomatis.' ?></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="row g-2">
-                                <div class="col-md-12">
-                                    <label class="form-label fw-semibold small text-secondary"><?= $lang['gen_lbl_gender'] ?? 'Gender' ?></label>
-                                    <select class="form-select fw-bold text-dark" name="gender" id="inputGender" required>
-                                        <option value=""><?= $lang['modal_opt_auto'] ?? '-- Terdeteksi Otomatis --' ?></option>
-                                        <option value="Pria"><?= $lang['opt_pria'] ?? 'Pria' ?></option>
-                                        <option value="Wanita"><?= $lang['opt_wanita'] ?? 'Wanita' ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-md-12">
-                                    <label class="form-label fw-semibold small text-secondary"><?= $lang['gen_lbl_tipe'] ?? 'Tipe (Kategori)' ?></label>
-                                    <select class="form-select fw-bold text-dark" name="tipe" id="inputTipe" required>
-                                        <option value=""><?= $lang['modal_opt_auto'] ?? '-- Terdeteksi Otomatis --' ?></option>
-                                        <option value="Baju"><?= $lang['opt_baju'] ?? 'Baju' ?></option>
-                                        <option value="Celana"><?= $lang['opt_celana'] ?? 'Celana' ?></option>
-                                    </select>
-                                </div>
-                                <div class="col-md-12">
-                                    <label class="form-label fw-semibold small text-secondary"><?= $lang['lbl_ukuran'] ?? 'Size (Ukuran)' ?></label>
-                                    <select class="form-select fw-bold text-dark" name="size" id="inputSize" required>
-                                        <option value=""><?= $lang['modal_opt_auto'] ?? '-- Terdeteksi Otomatis --' ?></option>
-                                        <option value="S">S</option>
-                                        <option value="M">M</option>
-                                        <option value="L">L</option>
-                                        <option value="XL">XL</option>
-                                        <option value="28">28</option>
-                                        <option value="30">30</option>
-                                        <option value="32">32</option>
-                                        <option value="34">34</option>
-                                        <option value="36">36</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="modal-footer border-0 px-4 pb-4 pt-0">
-                    <button type="button" class="btn btn-light border text-secondary fw-semibold" data-bs-dismiss="modal"><?= $lang['btn_cancel'] ?? 'Batal' ?></button>
-                    <button type="submit" id="btnSimpanStok" class="btn text-white fw-bold px-4" style="background-color: #556ee6;" disabled>
-                        <i class="bi bi-check-lg me-1"></i> <?= $lang['btn_simpan_barang'] ?? 'Simpan Barang' ?>
-                    </button>
-                </div>
-            </form>
-        </div>
     </div>
 </div>
 

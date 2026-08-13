@@ -31,7 +31,7 @@ try {
         $stmt_trx = $pdo->prepare("SELECT COUNT(DISTINCT transaction_id) 
                                 FROM transaksi 
                                 WHERE DATE(tgl_transaksi) BETWEEN :s AND :e 
-                                    AND request_id LIKE '%FR%'"); // 💡 Diganti menjadi %FR% agar terdeteksi #FR-...
+                                    AND request_id LIKE '%FR%'");
         $stmt_trx->execute(['s' => $start_date, 'e' => $end_date]);
 
         // Simpan nilai ke variabel
@@ -60,7 +60,7 @@ try {
         // 5. NET Terpakai (Pcs Keluar - Pcs Retur)
         $net_terpakai = $total_barang_keluar - $total_retur;
 
-        // Tabel Detail Stok
+        // Tabel Detail Stok (Menyertakan Barcode [xxx] pada raw_items & raw_returns)
         $sql_stok = "SELECT 
                 t.transaction_id,
                 t.tgl_transaksi,
@@ -69,7 +69,7 @@ try {
                 rf.perusahaan,
                 rf.brand,
                 rf.nama_sa,
-                GROUP_CONCAT(CONCAT(mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ', ') AS raw_items,
+                GROUP_CONCAT(CONCAT('[', TRIM(td.barcode), '] ', mi.tipe, ' ', mi.gender, ' - Size ', mi.size) SEPARATOR ', ') AS raw_items,
                 COUNT(td.barcode) AS qty_keluar,
                 COALESCE(ret.qty_retur, 0) AS qty_retur,
                 (COUNT(td.barcode) - COALESCE(ret.qty_retur, 0)) AS net_terpakai,
@@ -82,7 +82,7 @@ try {
                 SELECT 
                     ri.transaction_id,
                     COUNT(ri.barcode) AS qty_retur,
-                    GROUP_CONCAT(CONCAT(mir.tipe, ' ', mir.gender, ' - Size ', mir.size) SEPARATOR ', ') AS raw_returns
+                    GROUP_CONCAT(CONCAT('[', TRIM(ri.barcode), '] ', mir.tipe, ' ', mir.gender, ' - Size ', mir.size) SEPARATOR ', ') AS raw_returns
                 FROM return_items ri
                 INNER JOIN master_item mir ON TRIM(ri.barcode) = TRIM(mir.barcode)
                 GROUP BY ri.transaction_id
@@ -142,7 +142,7 @@ try {
                          WHERE rf.request_id LIKE 'FR%'";
 
         $stmt_all_time = $pdo->query($sql_all_time);
-        $sum_all_time  = $stmt_all_time->fetch(PDO::FETCH_ASSOC);
+        $sum_all_time   = $stmt_all_time->fetch(PDO::FETCH_ASSOC);
 
         $grand_total_all_time = (float) ($sum_all_time['grand_total_all_time'] ?? 0);
         $total_req_all_time   = (int) ($sum_all_time['total_req_all_time'] ?? 0);
@@ -180,6 +180,4 @@ try {
 } catch (PDOException $e) {
     $list_data = [];
     $data      = [];
-    // Hilangkan tanda komentar baris di bawah jika ingin mengintip error SQL saat testing:
-    // die("Error Query Laporan: " . $e->getMessage());
 }
