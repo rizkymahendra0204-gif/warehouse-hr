@@ -28,7 +28,7 @@ if (!isset($requests_done)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?> - HR Warehouse</title>
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -36,6 +36,32 @@ if (!isset($requests_done)) {
     
     <!-- CSS Utama -->
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- CSS Kustom untuk Tab Navigasi Bergaya Underline -->
+    <style>
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .nav-tabs-custom .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 10px 16px;
+            transition: all 0.2s ease-in-out;
+            background: transparent !important;
+        }
+        .nav-tabs-custom .nav-link:hover {
+            color: #0d6efd;
+            border-color: transparent;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #0d6efd !important;
+            border-bottom: 2px solid #0d6efd !important;
+            font-weight: 700;
+        }
+    </style>
 </head>
 <body>
 
@@ -50,32 +76,36 @@ if (!isset($requests_done)) {
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <div class="d-flex justify-content-between align-items-center mb-1">
+            <!-- Header Halaman (Jarak bawah dibuat presisi mb-3) -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="page-title">
                     <h4 class="fw-bold m-0"><?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?></h4>
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['pending_subtitle'] ?? 'Pengolahan dan riwayat status pengajuan seragam SA' ?></p>
                 </div>
-                <div class="input-group" style="width: 250px;">
-                    <input type="text" id="searchInput" class="form-control border-start-2 ps-2" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
-                    <span class="input-group-text bg-white border-end-2"><i class="bi bi-search text-secondary"></i></span>
-                </div>
             </div>
 
-            <!-- NAV TABS UNTUK SWAP TABEL -->
-            <ul class="nav nav-tabs custom-tabs mb-3" id="requestTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active fw-bold" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-panel" type="button" role="tab">
-                        <?= $lang['tab_pending_req'] ?? 'Permintaan Tertunda' ?> 
-                        <span class="badge bg-warning text-dark ms-2" id="badge-pending-count"><?= count($requests_pending) ?></span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold" id="done-tab" data-bs-toggle="tab" data-bs-target="#done-panel" type="button" role="tab">
-                        <?= $lang['tab_req_done'] ?? 'Permintaan Selesai' ?>
-                        <span class="badge bg-success ms-2" id="badge-done-count"><?= count($requests_done) ?></span>
-                    </button>
-                </li>
-            </ul>
+            <!-- AREA FILTER TAB (UNDERLINE STYLE) & SEARCH BAR SEJAJAR -->
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom">
+                <ul class="nav nav-tabs nav-tabs-custom border-0" id="requestTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending-panel" type="button" role="tab">
+                            <?= $lang['tab_pending_req'] ?? 'Permintaan Tertunda' ?> 
+                            <span class="badge bg-warning text-dark ms-2" id="badge-pending-count"><?= count($requests_pending) ?></span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="done-tab" data-bs-toggle="tab" data-bs-target="#done-panel" type="button" role="tab">
+                            <?= $lang['tab_req_done'] ?? 'Permintaan Selesai' ?>
+                            <span class="badge bg-success ms-2" id="badge-done-count"><?= count($requests_done) ?></span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="input-group mb-2" style="width: 250px;">
+                    <input type="text" id="searchInput" class="form-control ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
+                </div>
+            </div>
 
             <div class="tab-content" id="requestTabsContent">
                 
@@ -83,10 +113,10 @@ if (!isset($requests_done)) {
                 <div class="tab-pane fade show active" id="pending-panel" role="tabpanel">
                     <div id="pending-tab-wrapper">
                         <?php $popupsPending = ""; ?>
-                        <div class="table-card shadow-sm border-0 rounded-3">
+                        <div class="table-card shadow-sm border-0 rounded-3 mb-4">
                             <div class="table-responsive">
                                 <table class="table align-middle mb-0">
-                                    <thead class="table-light">
+                                    <thead class="table-light text-secondary small border-bottom">
                                         <tr>
                                             <th scope="col" width="15%"><?= $lang['th_no_request'] ?? 'NO. REQUEST' ?></th>
                                             <th scope="col" width="45%"><?= $lang['th_detail_karyawan'] ?? 'DETAIL KARYAWAN & ITEM' ?></th>
@@ -106,7 +136,7 @@ if (!isset($requests_done)) {
                                                 $file_name  = $row['file_name'];
                                                 $pembayaran = $row['pembayaran_text'];
                                             ?>
-                                                <tr>
+                                                <tr class="border-bottom">
                                                     <td><span class="req-badge">#<?= htmlspecialchars($req_id) ?></span></td>
                                                     <td>
                                                         <div class="fw-bold text-dark" style="font-size: 15px;"><?= $pt ?></div>
@@ -247,10 +277,11 @@ if (!isset($requests_done)) {
                 <!-- ================= TAB 2: TABEL DONE ================= -->
                 <div class="tab-pane fade" id="done-panel" role="tabpanel">
                     <?php $popupsDone = ""; ?>
-                    <div class="table-card shadow-sm border-0 rounded-3">
+                    <!-- KODE BARU: -->
+                    <div class="table-card shadow-sm border-0 rounded-3 mb-4">
                         <div class="table-responsive">
                             <table class="table align-middle mb-0">
-                                <thead class="table-light">
+                                <thead class="table-light text-secondary small border-bottom">
                                     <tr>
                                         <th scope="col" width="15%"><?= $lang['th_no_request'] ?? 'NO. REQUEST' ?></th>
                                         <th scope="col" width="45%"><?= $lang['th_detail_karyawan'] ?? 'DETAIL KARYAWAN & ITEM' ?></th>
@@ -269,7 +300,7 @@ if (!isset($requests_done)) {
                                             $file_path  = $row_done['file_path'];
                                             $file_name  = $row_done['file_name'];
                                         ?>
-                                            <tr>
+                                            <tr class="border-bottom">
                                                 <td><span class="req-badge">#<?= htmlspecialchars($req_id) ?></span></td>
                                                 <td>
                                                     <div class="fw-bold text-dark" style="font-size: 15px;"><?= $pt ?></div>

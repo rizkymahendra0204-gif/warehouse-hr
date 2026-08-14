@@ -23,6 +23,8 @@ return [
     'table_action'          => 'AKSI',
     'req_sa_pria'           => 'Permintaan Seragam SA Pria',
     'req_sa_wanita'         => 'Permintaan Seragam SA Wanita',
+    'menu_activity_log'     => 'Catatan Aktivitas',
+    'menu_inventory'         => 'Stok Barang',
 
     // ==========================================
     // 2. DASHBOARD (STATISTIK)
@@ -77,7 +79,7 @@ return [
     'trx_badge_wajib'       => 'Wajib',
     'trx_sect_scan'         => 'Pemindaian Item',
     'trx_info_scan'         => 'Otomatis Memindai:',
-    'trx_plc_scan'          => 'Scan barcode...',
+    'trx_plc_scan'          => 'Pindai Kode Batang...',
     'btn_validate_items'    => 'Validasi Barang',
     'btn_proses_trx'        => 'Proses Transaksi',
 
@@ -91,6 +93,8 @@ return [
     'th_id_sales'           => 'ID SALES',
     'th_detail_item_trx'    => 'DETAIL ITEM TRANSAKSI',
     'btn_proses_return'     => 'Proses Return',
+    'ret_tab_all'            => 'Semua Item Transaksi',
+    'ret_tab_done'           => 'Riwayat Return',
 
     // ==========================================
     // 6. HALAMAN STOK BARANG
@@ -160,6 +164,8 @@ return [
     'rep_th_total_tagihan' => 'TOTAL TAGIHAN',
     'rep_th_metode_pembayaran' => 'METODE PEMBAYARAN',
     'rep_th_perusahaan_brand' => 'PERUSAHAAN / BRAND',
+    'rep_th_status_transaksi' => 'STATUS TRANSAKSI',
+    'rep_empty_stok' => 'Tidak ada data stok barang ditemukan.',
 
 
     // ==========================================
@@ -243,5 +249,34 @@ return [
     'opt_active'            => 'Active (Layak Pakai / Bagus)',
     'opt_inactive'          => 'Inactive (Rusak / Afkir / Perlu Perbaikan)',
     'btn_save_audit'        => 'Simpan Hasil Audit',
+
+
+    // ==========================================
+    // 12. HALAMAN MANAGEMENT WAREHOUSE
+    // ==========================================
+    'whm_title'             => 'Manajemen Gudang',
+    'whm_subtitle'          => 'Manajemen untuk pengelolaan item warehouse',
+    'whm_sect_item'         => 'Detail Item',
+    'whm_lbl_barcode'       => 'Barcode',
+    'whm_lbl_kategori'      => 'Kategori',
+    'whm_lbl_gender'        => 'Jenis Kelamin',
+    'whm_lbl_tipe'          => 'Tipe Pakaian',
+    'whm_lbl_ukuran'        => 'Ukuran',
+    'whm_lbl_status'        => 'Status Barang',
+    'whm_lbl_status_transaksi' => 'Status Transaksi',
+    'whm_lbl_status_tersedia' => 'Tersedia (Aktif)',
+    'whm_lbl_status_tidak_tersedia' => 'Tidak Tersedia (Tidak Aktif)',
+    'whm_lbl_status_sold_out' => 'Sold Out (Sudah Terjual)',
+    'whm_lbl_status_available' => 'Available (Siap Dijual / Direquest)',
+    'whm_lbl_status_inactive' => 'Inactive (Rusak / Afkir / Perlu Perbaikan)',
+    'whm_lbl_status_active' => 'Active (Layak Pakai / Bagus)',
+    'whm_btn_save_changes'  => 'Simpan Perubahan',
+    'gender_pria'    => 'Pria',
+    'gender_wanita'  => 'Wanita',
+    'type_baju'      => 'Baju',
+    'type_celana'    => 'Celana',
+    'lbl_atasan'     => 'Atasan',
+    'lbl_bawahan'    => 'Bawahan',
+    
     
 ];

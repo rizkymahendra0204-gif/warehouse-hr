@@ -8,9 +8,9 @@ include 'controllers/query_dashboard.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - HR Warehouse</title>
+    <title>WC | Dashboard</title>
     
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -100,7 +100,7 @@ include 'controllers/query_dashboard.php';
                             <div class="p-3 bg-primary-subtle rounded-3 mb-3 border border-primary-subtle d-flex justify-content-center align-items-center text-center">
                                 <h3 class="fw-bold text-primary m-0">
                                     <?= number_format($active_stock['total'] ?? 0) ?> 
-                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_trx'] ?? 'Trx' ?></small>
+                                    <small class="fs-6 fw-normal text-secondary"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
                                 </h3>
                             </div>
 
@@ -159,7 +159,7 @@ include 'controllers/query_dashboard.php';
                             <div class="p-3 rounded-3 mb-3 border d-flex justify-content-center align-items-center text-center" style="<?= $card_style ?>">
                                 <h3 class="fw-bold <?= $text_class ?> m-0">
                                     <?= number_format($total_return) ?> 
-                                    <small class="fs-6 fw-normal <?= $unit_class ?>"><?= $lang['unit_trx'] ?? 'Pcs' ?></small>
+                                    <small class="fs-6 fw-normal <?= $unit_class ?>"><?= $lang['unit_pcs'] ?? 'Pcs' ?></small>
                                 </h3>
                             </div>
 

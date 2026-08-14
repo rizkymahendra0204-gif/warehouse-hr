@@ -4,15 +4,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
 // Otomatis deteksi lokasi file yang membuka sidebar (Root vs Subfolder)
 $prefix = file_exists('includes/sidebar.php') ? '' : '../';
 
-$is_collapsed = ($_COOKIE['sidebar_collapsed'] ?? 'true') === 'true';
-$sidebar_class = $is_collapsed ? 'collapsed' : '';
+$is_collapsed = ($_COOKIE['sidebar_collapsed'] ?? 'false') === '';
+$sidebar_class = $is_collapsed ? 'collapsed' : 'false';
 ?>
 
 <aside class="sidebar <?= isset($sidebar_class) ? $sidebar_class : '' ?> ">
-    <div class="sidebar-header d-flex align-items-center gap-2">
-        <!-- FIX PATH LOGO -->
-        <img src="<?= $prefix ?>assets/img/Logo.png" alt="Logo" style="width: 200px; height: 32px; object-fit: contain;">
-    </div>
+    <div class="sidebar-header d-flex align-items-center justify-content-center">
+    <a href="<?= $prefix ?>index.php" class="sidebar-brand text-decoration-none">
+        <!-- Logo Panjang (Tampil saat sidebar terbuka) -->
+        <img src="<?= $prefix ?>assets/img/Logo.png" alt="Logo" class="logo-full">
+        
+        <!-- Logo Ikon / Favicon (Tampil saat sidebar dikecilkan) -->
+        <img src="<?= $prefix ?>assets/img/favicon-icon.png" alt="Icon" class="logo-icon">
+    </a>
+</div>
     
     <div class="sidebar-menu">
         <div class="menu-category">MAIN</div>
@@ -58,13 +63,13 @@ $sidebar_class = $is_collapsed ? 'collapsed' : '';
         <!-- 7. Warehouse Management (Pengganti Internal Audit) -->
         <a href="<?= $prefix ?>warehouse_management.php" class="nav-link <?= ($current_page == 'warehouse_management.php' || $current_page == 'audit_item.php') ? 'active' : '' ?>">
             <i class="bi bi-boxes"></i>
-            <span>Warehouse Management</span>
+            <span><?= $lang['whm_title'] ?? 'Manajemen Gudang' ?></span>
         </a>
 
         <!-- 8. Inventory (Stok Barang) -->
         <a href="<?= $prefix ?>stok_barang.php" class="nav-link <?= ($current_page == 'stok_barang.php') ? 'active' : '' ?>">
             <i class="bi bi-box-seam"></i>
-            <span>Inventory</span>
+            <span><?= $lang['menu_inventory'] ?? 'Inventory' ?></span>
         </a>
 
         <div class="menu-category">OTHERS</div>
@@ -72,7 +77,7 @@ $sidebar_class = $is_collapsed ? 'collapsed' : '';
         <!-- 9. Activity Log -->
         <a href="<?= $prefix ?>log_activity.php" class="nav-link <?= ($current_page == 'log_activity.php') ? 'active' : '' ?>">
             <i class="bi bi-ui-checks"></i>
-            <span>Activity Log</span>
+            <span><?= $lang['menu_activity_log'] ?? 'Activity Log' ?></span>
         </a>
     </div>
 </aside>

@@ -254,6 +254,12 @@ body {
   margin-top: 4px;
 }
 
+.img-fluid {
+  max-width: 100%;
+  width: 250px;
+  height: auto;
+}
+
 /* ==========================================================================
    4. SIDEBAR STYLES
    ========================================================================== */
@@ -399,6 +405,41 @@ body {
 .sidebar.collapsed .nav-link span {
   font-size: 9px;
   line-height: 1.2;
+}
+
+/* --- KONTROL LOGO SIDEBAR --- */
+
+/* Tampilan Normal */
+.sidebar-header {
+    padding: 12px 15px;
+    min-height: 60px;
+}
+
+.sidebar-header .logo-full {
+    max-width: 200px;
+    height: 60px;
+    object-fit: contain;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.sidebar-header .logo-icon {
+    display: none; /* Sembunyikan logo ikon saat sidebar terbuka */
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    background-color: #556de600;
+}
+
+/* Tampilan Saat Sidebar Dikecilkan (.collapsed) */
+.sidebar.collapsed .sidebar-header .logo-full {
+    display: none !important; /* Sembunyikan logo teks panjang */
+}
+
+.sidebar.collapsed .sidebar-header .logo-icon {
+    display: block !important; /* Tampilkan logo ikon pas di tengah */
+    margin: 0 auto;
 }
 
 /* ==========================================================================
@@ -1235,4 +1276,126 @@ body {
     break-inside: avoid-page !important;
     page-break-inside: avoid !important;
   }
+}
+
+/* ==========================================================================
+   17. TAB UNDERLINE CUSTOM STYLE (LAPORAN & RETURN)
+   ========================================================================== */
+.nav-tabs-custom {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.nav-tabs-custom .nav-link {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 16px;
+  transition: all 0.2s ease-in-out;
+  background: transparent !important;
+}
+
+.nav-tabs-custom .nav-link:hover {
+  color: #0d6efd;
+  border-color: transparent;
+}
+
+.nav-tabs-custom .nav-link.active {
+  color: #0d6efd !important;
+  border-bottom: 2px solid #0d6efd !important;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   18. PAGE: LOGIN (2 KOLOM FOTO KANAN-KIRI INFINITE SCROLL)
+   ========================================================================== */
+body.login-page {
+  /* Menggunakan 3 Layer Background:
+     1. Overlay Gelap
+     2. Gambar HRIT.jpeg di SISI KIRI
+     3. Gambar HRIT.jpeg di SISI KANAN */
+  background-image: 
+    linear-gradient(rgba(15, 23, 42, 0.70), rgba(15, 23, 42, 0.70)),
+    url('../img/HRIT.jpeg'),
+    url('../img/HRIT.jpeg');
+    
+  background-repeat: no-repeat, repeat-y, repeat-y !important;
+  
+  /* Ukuran lebar foto diatur 38vw (sekitar 38% lebar layar di kiri dan kanan) */
+  background-size: cover, 38vw auto, 38vw auto !important;
+  
+  /* Posisi Foto: Layer 2 di Kiri (0%), Layer 3 di Kanan (100%) */
+  background-position: center, 0% 0px, 100% 0px;
+  
+  /* Animasi berjalan halus untuk sisi kiri & kanan */
+  animation: scrollBgDouble 25s linear infinite;
+  
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0;
+  padding: 20px;
+  overflow: hidden !important;
+}
+
+/* Keyframes Pergerakan Seamless untuk 2 Kolom */
+@keyframes scrollBgDouble {
+  0% {
+    background-position: center, 0% 0px, 100% 0px;
+  }
+  100% {
+    /* 38vw disesuaikan dengan tinggi rasio gambar agar tidak terpotong saat terulang */
+    background-position: center, 0% 38vw, 100% 38vw; 
+  }
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  width: 100%;
+  max-width: 390px;
+  padding: 2.2rem;
+  transition: transform 0.3s ease;
+  z-index: 10;
+}
+
+.login-card:hover {
+  transform: translateY(-3px);
+}
+
+.login-card .brand-icon {
+  width: 54px;
+  height: 54px;
+  background-color: #556ee6;
+  color: #ffffff;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 8px 16px rgba(85, 110, 230, 0.3);
+  margin: 0 auto;
+}
+
+.login-card .btn-login {
+  background-color: #556ee6;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s ease-in-out;
+}
+
+.login-card .btn-login:hover {
+  background-color: #3b4cb8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(85, 110, 230, 0.4);
 }

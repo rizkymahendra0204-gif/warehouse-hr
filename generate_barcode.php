@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
     <title><?= $lang['gen_title'] ?? 'Generate Barcode' ?> - HR Warehouse</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -164,19 +164,22 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?php if (!empty($generated_barcodes)): ?>
                                 <div>
                                     <!-- Tombol 1: Cetak -->
-                                    <button type="button" onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
+                                    <button type="button" id="btnPrintBarcode"onclick="window.print();" class="btn btn-cetak-custom fw-bold px-3 d-print-none btn-print-trigger me-2">
                                         <i class="bi bi-printer-fill me-1"></i> <?= $lang['btn_cetak_stiker'] ?? 'Cetak ke Kertas Stiker' ?>
                                     </button>
 
                                     <!-- Tombol 2: Export to Excel -->
                                     <a href="controllers/export_excel.php?type=barcode&gender=<?= urlencode($gender) ?>&tipe=<?= urlencode($tipe) ?>&ukuran=<?= urlencode($ukuran) ?>&range_awal=<?= $range_awal ?>&range_akhir=<?= $range_akhir ?>" 
-                                        class="btn btn-cetak-excel fw-bold px-3 d-print-none me-2">
+                                        id="btnExportExcel" class="btn btn-cetak-excel fw-bold px-3 d-print-none me-2">
                                         <i class="bi bi-file-earmark-excel-fill me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export ke Excel' ?>
                                     </a>
 
                                     <!-- Tombol 3: Simpan ke Stok -->
-                                    <button type="button" id="btnSimpanStokBatch" class="btn btn-simpan-custom fw-bold shadow-sm d-print-none">
-                                        <i class="bi bi-box-arrow-in-down me-1"></i> <?= $lang['btn_simpan_stok_batch'] ?? 'Simpan ke Stok Barang' ?>
+                                    <button type="button" 
+                                            id="btnSimpanStokBatch" 
+                                            class="btn btn-simpan-custom fw-bold d-print-none" 
+                                            disabled>
+                                        <i class="bi bi-download me-1"></i> Save Batch Inventory
                                     </button>
                                 </div>
                             <?php endif; ?>

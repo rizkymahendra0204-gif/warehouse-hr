@@ -10,7 +10,7 @@ include 'controllers/query_transaksi.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['trx_title'] ?? 'Transaksi' ?> - HR Warehouse</title>
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -64,7 +64,7 @@ include 'controllers/query_transaksi.php';
                         <div class="col-12">
 
                             <!-- SECTION 1: Detail Pesanan (STICKY & LEBAR SAMA DENGAN INFORMASI TIKET) -->
-                            <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm sticky-detail-pesanan">
+                            <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm <!--sticky-detail-pesanan-->">
                                 <h6 class="fw-bold mb-3" style="color: #4b5563;">
                                     <i class="bi bi-cart-check me-2"></i><?= $lang['trx_sect_pesanan'] ?? 'Detail Pesanan' ?>
                                 </h6>

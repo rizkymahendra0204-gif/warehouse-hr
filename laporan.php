@@ -13,7 +13,7 @@ include __DIR__ . '/controllers/query_laporan.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
     <title><?= $report_type === 'finance' ? ($lang['tab_lap_keuangan'] ?? 'Laporan Keuangan') : ($lang['rep_title'] ?? 'Laporan Pergerakan Stok') ?> - HR Warehouse</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -43,11 +43,11 @@ include __DIR__ . '/controllers/query_laporan.php';
         
         <main class="content-area p-4">
             <!-- Header Title -->
-            <div class="mb-3">
+            <div class="page-title">
                 <h4 class="fw-bold mb-1">
                     <?= $report_type === 'finance' ? ($lang['tab_lap_keuangan'] ?? 'Laporan Keuangan') : ($lang['rep_title'] ?? 'Laporan Pergerakan Stok') ?>
                 </h4>
-                <p class="text-muted small mb-0">
+                <p class="text-secondary m-0 mt-1" style="font-size: 14px;">
                     <?= $report_type === 'finance' ? ($lang['rep_subtitle_fin'] ?? 'Rekapitulasi biaya pembayaran seragam') : ($lang['rep_subtitle'] ?? 'Rekapitulasi distribusi & retur seragam') ?>
                 </p>
             </div>
@@ -204,11 +204,19 @@ include __DIR__ . '/controllers/query_laporan.php';
 
             <!-- ========================================== -->
             <!-- 📋 CONTAINER 3: TABEL DATA LAPORAN        -->
+            <!-- (DISAMAKAN DENGAN PENDING & RETURN)        -->
             <!-- ========================================== -->
-            <div class="bg-white border rounded-3 p-4 shadow-sm">
+            <div class="table-card shadow-sm border-0 rounded-3 mb-4">
+                <div class="p-3 border-bottom bg-white rounded-top-3">
+                    <h6 class="fw-bold m-0">
+                        <?= $report_type === 'internal' 
+                            ? ($lang['rep_sect_rincian'] ?? 'Rincian Pergerakan Stok per Transaksi') 
+                            : ($lang['rep_sect_fin'] ?? 'Rincian Transaksi & Tagihan Keuangan') ?>
+                    </h6>
+                </div>
+
                 <?php if ($report_type === 'internal'): ?>
                     <!-- TABEL INTERNAL (STOK) -->
-                    <h6 class="fw-bold mb-3"><?= $lang['rep_sect_rincian'] ?? 'Rincian Pergerakan Stok per Transaksi' ?></h6>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle m-0" style="font-size: 14px;">
                             <thead class="table-light text-secondary small">
@@ -281,7 +289,6 @@ include __DIR__ . '/controllers/query_laporan.php';
                     </div>
                 <?php else: ?>
                     <!-- TABEL FINANCE (KEUANGAN) -->
-                    <h6 class="fw-bold mb-3"><?= $lang['rep_sect_fin'] ?? 'Rincian Transaksi & Tagihan Keuangan' ?></h6>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle m-0" style="font-size: 14px;">
                             <thead class="table-light text-secondary small">
@@ -322,6 +329,6 @@ include __DIR__ . '/controllers/query_laporan.php';
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/scripts.js"></script>
+<script src="assets/js/scripts.js?v=<?= time(); ?>"></script>
 </body>
 </html>

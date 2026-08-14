@@ -552,9 +552,36 @@ $(document).ready(function () {
     });
   }
 
-  if ($("#btnSimpanStokBatch").length > 0) {
-    $("#btnSimpanStokBatch").prop("disabled", false);
+  // =========================================================================
+  // LOGIKA PENGUNGKIAN TOMBOL SAVE BATCH INVENTORY (PRINT & EXPORT WAJIB DILAKUKAN)
+  // =========================================================================
+  let isPrinted = false;
+  let isExported = false;
+
+  function checkEnableSaveButton() {
+    if (isPrinted && isExported) {
+      $("#btnSimpanStokBatch").prop("disabled", false);
+    } else {
+      $("#btnSimpanStokBatch").prop("disabled", true);
+    }
   }
+
+  // Kunci tombol Save di awal secara default
+  if ($("#btnSimpanStokBatch").length > 0) {
+    $("#btnSimpanStokBatch").prop("disabled", true);
+  }
+
+  // Event listener saat tombol Print diklik
+  $(document).on("click", "#btnPrintBarcode, .btn-print-barcode, #btnCetakStiker, [onclick*='print']", function () {
+    isPrinted = true;
+    checkEnableSaveButton();
+  });
+
+  // Event listener saat tombol Export diklik
+  $(document).on("click", "#btnExportExcel, .btn-export-excel, #btnExport", function () {
+    isExported = true;
+    checkEnableSaveButton();
+  });
 
   $(document).on("click", "#btnSimpanStokBatch", function (e) {
     e.preventDefault();
@@ -804,6 +831,9 @@ function addItemCard(prefilledData = null) {
                 <span class="fw-bold item-number" style="color: #556ee6; font-size: 14px;">
                     <i class="bi bi-box-seam me-2"></i>Item #${id}
                 </span>
+                <button type="button" class="btn btn-sm btn-danger btn-remove-item px-2 py-1 text-white" style="font-size: 12px; border-radius: 4px; background-color: #dc3545 !important; border-color: #dc3545 !important; opacity: 1 !important; cursor: pointer !important;" onclick="removeItemCard(${id})">
+                    <i class="bi bi-trash"></i>
+                </button>
             </div>
             <div class="mb-2">
                 <label class="form-label fw-bold text-secondary mb-2" style="font-size: 13px;">Barcode Item</label>
@@ -815,7 +845,7 @@ function addItemCard(prefilledData = null) {
                            data-id="${id}"
                            name="barcode_item[]" 
                            value="${prefilledData ? prefilledData.raw : ""}"
-                           placeholder="Scan Barcode"
+                           placeholder="${t('trx_plc_scan', 'Pindai Kode Batang...')}"
                            ${prefilledData ? "readonly" : ""}>
                 </div>
                 <div class="barcode-detail-text text-uppercase fw-bold text-primary mt-2 ps-2" id="detail-text-${id}" style="font-size: 12px; letter-spacing: 0.5px; min-height: 18px;">
@@ -978,11 +1008,12 @@ function updateRemoveButtons() {
   const cards = document.querySelectorAll("#dynamic-item-container .item-row");
   cards.forEach((card) => {
     const btn = card.querySelector(".btn-remove-item");
-    const input = card.querySelector(".barcode-item-input");
-    const hasValue = input && input.value.trim() !== "";
-
     if (btn) {
-      btn.style.display = cards.length > 1 || hasValue ? "block" : "none";
+      btn.style.display = "inline-block";
+      btn.removeAttribute("disabled");
+      btn.style.opacity = "1";
+      btn.style.backgroundColor = "#dc3545";
+      btn.style.borderColor = "#dc3545";
     }
   });
 }

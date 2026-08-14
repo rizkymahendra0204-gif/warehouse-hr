@@ -49,7 +49,7 @@ if ($is_auto) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['ret_title'] ?? 'Proses Return' ?> - HR Warehouse</title>
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -57,6 +57,32 @@ if ($is_auto) {
     
     <!-- CSS File -->
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- CSS Kustom untuk Tab Navigasi Bergaya Underline -->
+    <style>
+        .nav-tabs-custom {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .nav-tabs-custom .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            padding: 10px 16px;
+            transition: all 0.2s ease-in-out;
+            background: transparent !important;
+        }
+        .nav-tabs-custom .nav-link:hover {
+            color: #0d6efd;
+            border-color: transparent;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: #0d6efd !important;
+            border-bottom: 2px solid #0d6efd !important;
+            font-weight: 700;
+        }
+    </style>
 </head>
 <body>
 
@@ -79,38 +105,42 @@ if ($is_auto) {
 
             <div id="view-return-list" style="<?php echo $is_auto ? 'display: none;' : 'display: block;'; ?>">
                 
-                <!-- HEADER HALAMAN (DISAMAKAN DENGAN HALAMAN PENDING) -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <!-- HEADER HALAMAN -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="page-title">
                         <h4 class="fw-bold m-0"><?= $lang['ret_title'] ?? 'Pengajuan Return' ?></h4>
                         <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Manajemen pengembalian barang per item transaksi' ?></p>
                     </div>
                 </div>
 
-                <!-- AREA FILTER TAB KECIL & SEARCH BAR -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <!-- Tab Filter Kecil -->
-                    <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm align-items-center">
-                        <a href="?tab=semua" class="filter-tab <?= $tab_active === 'semua' ? 'active' : '' ?>">
-                            <i class="bi bi-box-seam me-1"></i> Semua Item Transaksi
-                        </a>
-                        <a href="?tab=selesai" class="filter-tab <?= $tab_active === 'selesai' ? 'active' : '' ?>">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i> Riwayat Return
-                        </a>
-                    </div>
+                <!-- AREA FILTER TAB (UNDERLINE STYLE) & SEARCH BAR -->
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom">
+                    <!-- Tab Filter Garis Bawah (Underline Nav) -->
+                    <ul class="nav nav-tabs nav-tabs-custom border-0" id="returnTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a href="?tab=semua" class="nav-link <?= $tab_active === 'semua' ? 'active' : '' ?>">
+                                <i class="bi bi-box-seam me-2"></i><?= $lang['ret_tab_all'] ?? 'Semua Item Transaksi' ?>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="?tab=selesai" class="nav-link <?= $tab_active === 'selesai' ? 'active' : '' ?>">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i><?= $lang['ret_tab_done'] ?? 'Riwayat Return' ?>
+                            </a>
+                        </li>
+                    </ul>
                     
                     <!-- Search Input -->
-                <div class="input-group" style="width: 250px;">
-                    <input type="text" id="searchInput" class="form-control border-start-2 ps-2" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
-                    <span class="input-group-text bg-white border-end-2"><i class="bi bi-search text-secondary"></i></span>
-                </div>
+                    <div class="input-group mb-2" style="width: 250px;">
+                        <input type="text" id="searchInput" class="form-control ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
+                        <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
+                    </div>
                 </div>
 
                 <!-- TABEL DATA ITEM -->
-                <div class="bg-white border rounded-3 p-3 mb-4 shadow-sm">
+                <div class="table-card shadow-sm border-0 rounded-3 mb-4">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle m-0" id="tableTrx">
-                            <thead class="text-secondary small fw-bold border-bottom bg-light">
+                            <thead class="table-light text-secondary small fw-bold border-bottom">
                                 <tr>
                                     <th style="width: 15%; text-align: center;"><?= $lang['th_no_transaksi'] ?? 'NO. TRANSAKSI' ?></th>
                                     <th style="width: 10%; text-align: center;"><?= $lang['th_brand'] ?? 'BRAND' ?></th>
@@ -120,7 +150,6 @@ if ($is_auto) {
                                     <th style="width: 15%; text-align: center;"><?= $lang['table_action'] ?? 'AKSI' ?></th>
                                 </tr>
                             </thead>
-                            <tbody>
                             <?php
                             // QUERY PEMISAHAN BERDASARKAN TAB AKTIF
                             if ($tab_active === 'selesai') {
@@ -270,7 +299,7 @@ if ($is_auto) {
                 <form action="controllers/proses_return.php" method="POST" id="formReturn">
 
                 <!-- SECTION 1: Detail Pesanan -->
-                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm sticky-detail-pesanan">
+                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm <!--sticky-detail-pesanan-->">
                         <h6 class="fw-bold mb-4" style="color: #4b5563;">
                             <i class="bi bi-cart-check me-2"></i><?= $lang['trx_sect_pesanan'] ?? 'Detail Pesanan' ?>
                         </h6>

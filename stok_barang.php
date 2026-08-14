@@ -10,7 +10,7 @@ include 'controllers/query_stokbarang.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['stok_title'] ?? 'Inventory' ?> - HR Warehouse</title>
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -40,14 +40,6 @@ include 'controllers/query_stokbarang.php';
                         <h4 class="fw-bold m-0"><?= $lang['stok_title'] ?? 'Inventory' ?></h4>
                         <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['stok_subtitle'] ?? 'Manajemen inventaris seragam dan kelengkapan' ?></p>
                     </div>
-
-
-                <div class="d-flex gap-2">
-                    <!-- Tombol Export Excel langsung memanggil parameter controller ini -->
-                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-cetak-excel fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
-                        <i class="bi bi-file-earmark-excel me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
-                    </a>
-                </div>
             </div>
 
             <!-- Area Filter dan Pencarian -->
@@ -64,14 +56,19 @@ include 'controllers/query_stokbarang.php';
                 <div class="input-group" style="width: 250px;">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
                     <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
+
+                    <!-- Tombol Export Excel langsung memanggil parameter controller ini -->
+                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-cetak-excel fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
+                        <i class="bi bi-file-earmark-excel me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
+                    </a>
                 </div>
             </div>
             
             <!-- Table Container (Card) -->
-            <div class="table-card">
+            <div class="table-card shadow-sm border-0 rounded-3 mb-4">
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
-                        <thead>
+                        <thead class="table-light text-secondary small border-bottom">
                             <tr>
                                 <th scope="col" width="5%"><?= $lang['table_no'] ?? 'No' ?></th>
                                 <th scope="col" width="15%"><?= $lang['th_barcode'] ?? 'Barcode' ?></th>

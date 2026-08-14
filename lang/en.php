@@ -23,6 +23,8 @@ return [
     'table_action'          => 'ACTION',
     'req_sa_pria'           => 'Male SA Uniform Request',
     'req_sa_wanita'         => 'Female SA Uniform Request',
+    'menu_inventory'         => 'Inventory',
+    'menu_activity_log'     => 'Activity Log',
 
     // ==========================================
     // 2. DASHBOARD (STATISTIK)
@@ -91,6 +93,8 @@ return [
     'th_id_sales'           => 'SALES ID',
     'th_detail_item_trx'    => 'TRANSACTION ITEM DETAILS',
     'btn_proses_return'     => 'Process Return',
+    'ret_tab_all'            => 'All Transaction Items',
+    'ret_tab_done'           => 'Return History',
 
     // ==========================================
     // 6. HALAMAN STOK BARANG
@@ -158,6 +162,8 @@ return [
     'rep_th_total_tagihan' => 'TOTAL BILLING',
     'rep_th_metode_pembayaran' => 'PAYMENT METHOD',
     'rep_th_perusahaan_brand' => 'COMPANY / BRAND',
+    'rep_th_status_transaksi' => 'TRANSACTION STATUS',
+    'rep_empty_stok' => 'No stock data found.',
 
     // ==========================================
     // 9. HALAMAN LOG AKTIVITAS
@@ -240,4 +246,34 @@ return [
     'opt_active'            => 'Active (Usable / Good Condition)',
     'opt_inactive'          => 'Inactive (Damaged / Rejected / Needs Repair)',
     'btn_save_audit'        => 'Save Audit Result',
+
+
+
+    // ==========================================
+    // 12. HALAMAN MANAGEMENT WAREHOUSE
+    // ==========================================
+    'whm_title'             => 'Warehouse Management',
+    'whm_subtitle'          => 'Management for warehouse item handling',
+    'whm_sect_item'         => 'Item Details',
+    'whm_lbl_barcode'       => 'Barcode',
+    'whm_lbl_kategori'      => 'Category',
+    'whm_lbl_gender'        => 'Gender',
+    'whm_lbl_tipe'          => 'Clothing Type',
+    'whm_lbl_ukuran'        => 'Size',
+    'whm_lbl_status'        => 'Item Status',
+    'whm_lbl_status_transaksi' => 'Transaction Status',
+    'whm_lbl_status_tersedia' => 'Available (Active)',
+    'whm_lbl_status_tidak_tersedia' => 'Not Available (Inactive)',
+    'whm_lbl_status_sold_out' => 'Sold Out (Already Sold)',
+    'whm_lbl_status_available' => 'Available (Ready for Sale / Request)',
+    'whm_lbl_status_inactive' => 'Inactive (Damaged / Rejected / Needs Repair)',
+    'whm_lbl_status_active' => 'Active (Usable / Good Condition)',
+    'whm_btn_save_changes'  => 'Save Changes',
+    'gender_pria'    => 'Pria',
+    'gender_wanita'  => 'Wanita',
+    'type_baju'      => 'Shirt',
+    'type_celana'    => 'Pants',
+    'lbl_atasan'     => 'Top',
+    'lbl_bawahan'    => 'Bottoms',
+    
 ];

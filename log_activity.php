@@ -10,7 +10,7 @@ include 'controllers/query_log.php'; // Controller PDO
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['menu_log_activity'] ?? 'Log Activity' ?> - HR Warehouse</title>
 
-    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -30,16 +30,16 @@ include 'controllers/query_log.php'; // Controller PDO
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <!-- Header Halaman -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
+            <!-- Header Halaman (Jarak bawah dikurangi jadi mb-3) -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="page-title mb-0">
                     <h4 class="fw-bold m-0" style="color: #1e293b;"><?= $lang['menu_log_activity'] ?? 'Log Activity' ?></h4>
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['log_subtitle'] ?? 'Riwayat aktivitas dan transaksi sistem' ?></p>
                 </div>
             </div>
 
-            <!-- Form Filter Tanggal dan Pencarian -->
-            <form method="GET" action="log_activity.php" class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <!-- Form Filter Tanggal dan Pencarian (Rapat & Pas Sejajar) -->
+            <form method="GET" action="log_activity.php" class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 
                 <!-- Filter Tanggal (Date Range) -->
                 <div class="date-filter-group shadow-sm">
@@ -54,21 +54,21 @@ include 'controllers/query_log.php'; // Controller PDO
                 
                 <!-- Input Pencarian -->
                 <div class="input-group" style="width: 250px;">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
+                    <input type="text" id="searchInput" class="form-control ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
                 </div>
             </form>
             
             <!-- Table Container (Card) -->
-            <div class="table-card bg-white rounded-3 border shadow-sm">
+            <div class="table-card shadow-sm border-0 rounded-3 mb-4">
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
-                        <thead class="bg-light">
+                        <thead class="table-light border-bottom text-secondary small">
                             <tr>
                                 <th scope="col" width="18%" class="py-3 ps-3"><?= $lang['th_waktu'] ?? 'Waktu' ?></th>
                                 <th scope="col" width="22%" class="py-3"><?= $lang['th_pengguna'] ?? 'Pengguna' ?></th>
-                                <th scope="col" width="45%" class="py-3"><?= $lang['th_aktivitas'] ?? 'Aktivitas' ?></th>
-                                <th scope="col" width="15%" class="py-3 text-center"><?= $lang['th_modul'] ?? 'Modul' ?></th>
+                                <th scope="col" width="47%" class="py-3"><?= $lang['th_aktivitas'] ?? 'Aktivitas' ?></th>
+                                <th scope="col" width="13%" class="py-3 text-center"><?= $lang['th_modul'] ?? 'Modul' ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -138,7 +138,7 @@ include 'controllers/query_log.php'; // Controller PDO
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/scripts.js"></script>
+<script src="assets/js/scripts.js?v=<?= time(); ?>"></script>
 </body>
 </html>
 
