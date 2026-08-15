@@ -14,7 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
-    <title><?= $lang['gen_title'] ?? 'Generate Barcode' ?> - HR Warehouse</title>
+    <title>WC | <?= $lang['gen_title'] ?? 'Generate Barcode' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">

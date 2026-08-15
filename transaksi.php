@@ -8,7 +8,7 @@ include 'controllers/query_transaksi.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['trx_title'] ?? 'Transaksi' ?> - HR Warehouse</title>
+    <title>WC | <?= $lang['trx_title'] ?? 'Transaksi' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     

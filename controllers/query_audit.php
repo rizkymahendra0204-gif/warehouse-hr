@@ -232,4 +232,19 @@ try {
 } catch (PDOException $e) {
     die("Error Database: " . $e->getMessage());
 }
+
+// Cek jika ada action toggle buka/tutup periode
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_type']) && $_POST['action_type'] === 'toggle_audit') {
+    
+    // VALIDASI HAK AKSES: HANYA ADMIN
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+        $_SESSION['alert_type'] = 'danger';
+        $_SESSION['alert_message'] = 'Akses ditolak! Hanya Administrator yang dapat membuka atau menutup periode.';
+        header('Location: warehouse_management.php');
+        exit;
+    }
+
+    // Lanjutkan proses update status periode audit...
+}
+
 ?>

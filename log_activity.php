@@ -8,7 +8,7 @@ include 'controllers/query_log.php'; // Controller PDO
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['menu_log_activity'] ?? 'Log Activity' ?> - HR Warehouse</title>
+    <title>WC | <?= $lang['menu_log_activity'] ?? 'Log Activity' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     

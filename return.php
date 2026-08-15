@@ -43,11 +43,11 @@ if ($is_auto) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="id">
+<html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['ret_title'] ?? 'Proses Return' ?> - HR Warehouse</title>
+    <title>WC | <?= $lang['ret_title'] ?? 'Retur Barang' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
@@ -108,8 +108,8 @@ if ($is_auto) {
                 <!-- HEADER HALAMAN -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="page-title">
-                        <h4 class="fw-bold m-0"><?= $lang['ret_title'] ?? 'Pengajuan Return' ?></h4>
-                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Manajemen pengembalian barang per item transaksi' ?></p>
+                        <h4 class="fw-bold m-0"><?= $lang['ret_title'] ?? 'Retur Barang' ?></h4>
+                        <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Pencatatan pengembalian item dari transaksi yang telah selesai' ?></p>
                     </div>
                 </div>
 
@@ -150,6 +150,7 @@ if ($is_auto) {
                                     <th style="width: 15%; text-align: center;"><?= $lang['table_action'] ?? 'AKSI' ?></th>
                                 </tr>
                             </thead>
+                            <tbody>
                             <?php
                             // QUERY PEMISAHAN BERDASARKAN TAB AKTIF
                             if ($tab_active === 'selesai') {
@@ -284,22 +285,21 @@ if ($is_auto) {
             </div>
 
             <!-- ======================================================= -->
-            <!-- VIEW 2: FORM PROSES RETURN                              -->
+            <!-- VIEW 2: FORM PROSES RETURN (TANPA TOMBOL KEMBALI DOBEL)  -->
             <!-- ======================================================= -->
 
             <div id="view-return-process" style="<?php echo $is_auto ? 'display: block;' : 'display: none;'; ?>">
                 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="page-title fs-4 fw-bold"><?= $lang['ret_process_title'] ?? 'Return Item Transaksi' ?></div>
-                    <a href="return.php" class="btn btn-outline-secondary fw-bold px-3 py-2" style="border-radius: 6px;">
-                        <i class="bi bi-arrow-left me-1"></i> <?= $lang['btn_back_return'] ?? 'Kembali ke Return' ?>
-                    </a>
+                <!-- HEADER VIEW 2 -->
+                <div class="mb-4">
+                    <h4 class="fw-bold m-0"><?= $lang['ret_process_title'] ?? 'Return Item Transaksi' ?></h4>
+                    <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Pencatatan pengembalian item dari transaksi yang telah selesai' ?></p>
                 </div>
 
                 <form action="controllers/proses_return.php" method="POST" id="formReturn">
 
-                <!-- SECTION 1: Detail Pesanan -->
-                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm <!--sticky-detail-pesanan-->">
+                    <!-- SECTION 1: Detail Pesanan -->
+                    <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
                         <h6 class="fw-bold mb-4" style="color: #4b5563;">
                             <i class="bi bi-cart-check me-2"></i><?= $lang['trx_sect_pesanan'] ?? 'Detail Pesanan' ?>
                         </h6>
@@ -355,7 +355,7 @@ if ($is_auto) {
                         </div>
                     </div>
 
-                    <!-- SECTION 4: Tombol Aksi -->
+                    <!-- SECTION 4: Tombol Aksi (Tutup/Batal Terpusat di Sini) -->
                     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
                         <button type="button" class="btn btn-light border fw-bold px-4 text-secondary" style="border-radius: 6px;" onclick="cancelProcess()"><?= $lang['btn_cancel'] ?? 'Batal' ?></button>
                         <button type="submit" class="btn fw-bold text-white px-5" style="background-color: #b91c1c; border-radius: 6px;"><?= $lang['btn_proses_return'] ?? 'Proses Return' ?></button>

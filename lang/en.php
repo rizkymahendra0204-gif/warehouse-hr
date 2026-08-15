@@ -14,7 +14,7 @@ return [
     'menu_generate_barcode' => 'Generate Barcode',
     'menu_laporan'          => 'Reports',
     'menu_log_activity'     => 'Activity Log',
-    'menu_closing'          => 'Internal Audit',
+    'menu_closing'          => 'Warehouse Management',
     'search_placeholder'    => 'Search ...',
     'btn_process'           => 'Process',
     'btn_cancel'            => 'Cancel',
@@ -29,14 +29,16 @@ return [
     // ==========================================
     // 2. DASHBOARD (STATISTIK)
     // ==========================================
+    'tab_gen_title'         => 'Dashboard',
+    'tab_gen_subtitle'      => 'Summary of transaction & item stock data',
     'kpi_pending'           => 'PENDING REQUESTS',
     'kpi_transaksi'         => 'TOTAL TRANSACTIONS',
     'kpi_return'            => 'TOTAL RETURNS',
     'unit_pcs'              => 'Pcs',
     'unit_trx'              => 'Trx',
-    'remaining_stock_title' => 'Remaining Stock (Current)',
+    'remaining_stock_title' => 'Available Stock in Warehouse',
     'remaining_stock_desc'  => 'Total active items ready for use',
-    'badge_active'          => 'Available (Active)',
+    'badge_active'          => 'Available & Active',
     'returned_stock_title'  => 'Returned Stock',
     'returned_stock_desc'   => 'Total returned/inactive items',
     'badge_inactive'        => 'Available (Inactive)',
@@ -48,7 +50,7 @@ return [
     // ==========================================
     // 3. HALAMAN PENDING REQUEST
     // ==========================================
-    'pending_title'         => 'Uniform Request Management',
+    'pending_title'         => 'Pending',
     'pending_subtitle'      => 'Processing and history of SA uniform request status',
     'tab_pending_req'       => 'Pending Requests',
     'tab_req_done'          => 'Completed Requests',
@@ -86,15 +88,15 @@ return [
     // ==========================================
     // 5. HALAMAN RETURN (PENGEMBALIAN)
     // ==========================================
-    'ret_title'             => 'Return Submission',
-    'ret_subtitle'          => 'Management for return submissions',
+    'ret_title'             => 'Returns',
+    'ret_subtitle'          => 'Process returns for completed transaction items',
     'th_no_transaksi'       => 'TRANSACTION NO.',
     'th_brand'              => 'BRAND',
     'th_id_sales'           => 'SALES ID',
     'th_detail_item_trx'    => 'TRANSACTION ITEM DETAILS',
     'btn_proses_return'     => 'Process Return',
     'ret_tab_all'            => 'All Transaction Items',
-    'ret_tab_done'           => 'Return History',
+    'ret_tab_done' => 'Return History',
 
     // ==========================================
     // 6. HALAMAN STOK BARANG
@@ -136,7 +138,7 @@ return [
     // ==========================================
     // 8. HALAMAN LAPORAN
     // ==========================================
-    'rep_title'             => 'Stock Movement Report',
+    'rep_title'             => 'Reports',
     'rep_subtitle'          => 'Recapitulation of uniform distribution & returns',
     'tab_lap_stok'          => 'Stock Report',
     'tab_lap_keuangan'      => 'Financial Report',
@@ -220,23 +222,25 @@ return [
     'status_registered_db'     => 'Registered in Database',
 
     // ==========================================
-    // 11. HALAMAN CLOSING / AUDIT
+    // 11. HALAMAN CLOSING / AUDIT (WAREHOUSE MANAGEMENT)
     // ==========================================
-    'audit_page_title'      => 'Audit & Manage Stock Status',
+    'whm_title'             => 'Warehouse Management',
+    'whm_subtitle'          => 'Management for warehouse item handling',
+    'audit_page_title'      => 'Evaluate & Manage Stock Status',
     'audit_subtitle'        => 'Evaluate returned items for restocking',
     'btn_close_period'      => 'Close Period',
     'btn_open_period'       => 'Open Period',
-    'confirm_close_period'  => 'Close audit period?',
-    'confirm_open_period'   => 'Open audit period?',
-    'audit_banner_closed'   => '<strong>Audit Period Closed:</strong> Item status changes are temporarily locked.',
-    'audit_banner_active'   => '<strong>Audit Mode Active:</strong> Please proceed with status changes.',
+    'confirm_close_period'  => 'Close Warehouse Management period?',
+    'confirm_open_period'   => 'Open Warehouse Management period?',
+    'audit_banner_closed'   => '<strong>Warehouse Management Period Closed:</strong> Item status changes are temporarily locked.',
+    'audit_banner_active'   => '<strong>Warehouse Management Mode Active:</strong> Please proceed with status changes.',
     'btn_change_status'     => 'Change Status',
-    'title_access_locked'   => 'Access locked: Audit period is closed',
+    'title_access_locked'   => 'Access locked: Management period is closed',
     'badge_locked'          => 'Locked',
     'title_eligible_only'   => 'Only Available (Inactive) status can be changed',
     'badge_compliant'       => 'Compliant',
     'no_item_data'          => 'No item data found.',
-    'modal_audit_title'     => 'Audit Item Status',
+    'modal_audit_title'     => 'Update Item Status',
     'modal_target_item'     => 'Target Item:',
     'lbl_status_transaksi'  => 'Transaction Status',
     'opt_available'         => 'Available (Ready for Sale / Request)',
@@ -245,15 +249,11 @@ return [
     'lbl_status_barang'     => 'Item Status (Physical condition)',
     'opt_active'            => 'Active (Usable / Good Condition)',
     'opt_inactive'          => 'Inactive (Damaged / Rejected / Needs Repair)',
-    'btn_save_audit'        => 'Save Audit Result',
-
-
+    'btn_save_audit'        => 'Save Changes',
 
     // ==========================================
-    // 12. HALAMAN MANAGEMENT WAREHOUSE
+    // 12. HALAMAN MANAGEMENT WAREHOUSE (EXTRAS)
     // ==========================================
-    'whm_title'             => 'Warehouse Management',
-    'whm_subtitle'          => 'Management for warehouse item handling',
     'whm_sect_item'         => 'Item Details',
     'whm_lbl_barcode'       => 'Barcode',
     'whm_lbl_kategori'      => 'Category',
@@ -269,11 +269,84 @@ return [
     'whm_lbl_status_inactive' => 'Inactive (Damaged / Rejected / Needs Repair)',
     'whm_lbl_status_active' => 'Active (Usable / Good Condition)',
     'whm_btn_save_changes'  => 'Save Changes',
-    'gender_pria'    => 'Pria',
-    'gender_wanita'  => 'Wanita',
+    'gender_pria'    => 'Men',
+    'gender_wanita'  => 'Women',
     'type_baju'      => 'Shirt',
     'type_celana'    => 'Pants',
     'lbl_atasan'     => 'Top',
     'lbl_bawahan'    => 'Bottoms',
+
+    // ==========================================
+    // 13. USER MANAGEMENT
+    // ==========================================
+    'menu_users'             => 'User Management',
+    'user_title'            => 'User Management',
+    'user_subtitle'         => 'Manage operational user accounts (Administrator Access Only)',
+    'btn_add_user'          => 'Add New User',
+    'modal_user_title'      => 'Create User Account',
+    'lbl_fullname'          => 'Full Name',
+    'lbl_username'          => 'Username',
+    'lbl_password'          => 'Password',
+    'lbl_role'              => 'Role / Access Level',
+    'opt_role_user'         => 'Standard User (Operational Staff)',
+    'opt_role_admin'        => 'Administrator',
+    'help_user_role'        => 'Standard users only have access to transactions & scanning.',
+    'btn_save_user'         => 'Save User',
+    'badge_admin'           => 'Administrator',
+    'badge_user'            => 'Standard User',
+    'badge_you'             => 'Your Account',
+    'modal_del_user_title'  => 'Delete User?',
+    'modal_del_user_desc'   => 'Are you sure you want to delete user',
+    'modal_del_user_warn'   => 'This action cannot be undone.',
+    'btn_confirm_delete'    => 'Yes, Delete',
+    'no_user_data'          => 'No user data found.',
     
+    // ==========================================
+    // 14. PROFILE PAGE
+    // ==========================================
+    'profile_title'           => 'My Profile',
+    'profile_subtitle'        => 'Manage your personal information, profile photo, and account security.',
+    'lbl_registered_since'    => 'Registered since:',
+    'tab_edit_profile'        => 'Edit Personal Information',
+    'tab_change_password'     => 'Change Password',
+    'help_username_readonly'  => 'Username cannot be changed.',
+    'lbl_photo'               => 'Profile Photo',
+    'help_photo_format'       => 'Supported formats: JPG, PNG, WEBP (Maximum 2MB).',
+    'lbl_current_pass'        => 'Current Password',
+    'plc_old_pass'            => 'Enter current password',
+    'lbl_new_pass'            => 'New Password',
+    'plc_new_pass'            => 'At least 6 characters',
+    'lbl_confirm_pass'        => 'Confirm New Password',
+    'plc_confirm_pass'        => 'Re-enter new password',
+    'btn_update_password'     => 'Update Password',
+    'btn_save_changes'         => 'Save Changes',
+    'alert_profile_updated'   => 'Profile updated successfully!',
+    'alert_password_updated'  => 'Password updated successfully!',
+
+    // ==========================================
+    // 15. SETTINGS & NOTIFICATIONS PAGE
+    // ==========================================
+    'setting_title'          => 'System Settings',
+    'setting_subtitle'       => 'Manage operational user accounts and system notification configurations.',
+    'lbl_status_active'      => 'Active',
+    'access_full'            => 'Full (Administrator)',
+    'access_restricted'      => 'Restricted (Operational Staff)',
+    'tab_user_management'    => 'User Management',
+    'tab_notifications'      => 'Notification Settings',
+    'title_user_list'        => 'User Account List',
+    'notif_desc'             => 'Configure the system notifications you want to enable for this operational account.',
+    'notif_req_title'        => 'New Request Notification',
+    'notif_req_desc'         => 'Displays a red dot & badge on topbar bell when new item requests are submitted.',
+    'notif_ret_title'        => 'Return Notification',
+    'notif_ret_desc'         => 'Automatic notifications when returned item transactions are received by the system.',
+    'notif_stk_title'        => 'Low Stock Alert',
+    'notif_stk_desc'         => 'Provides system alerts if master item stock falls below 5 pcs.',
+    'btn_save_notif'         => 'Save Notification Settings',
+    'plc_fullname'           => 'Enter full name',
+    'plc_username'           => 'Enter username',
+    'plc_password'           => 'Enter password',
+    'alert_notif_success'    => 'Notification settings successfully updated!',
+    'alert_notif_session'    => 'Notification settings saved (Session Mode)!',
+
+
 ];

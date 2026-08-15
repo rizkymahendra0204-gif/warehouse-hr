@@ -1039,3 +1039,27 @@ function showAlert(msg, type) {
     }, 4000);
   }
 }
+
+// =========================================================================
+// MODAL HANDLER PENGATURAN USER
+// =========================================================================
+function openModalTambahUser() {
+    var modalElement = document.getElementById('modalTambahUser');
+    if (modalElement) {
+        var modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modalInstance.show();
+    }
+}
+
+function konfirmasiHapus(username) {
+    var inputEl = document.getElementById('hapus_username_input');
+    var labelEl = document.getElementById('hapus_username_label');
+    var modalEl = document.getElementById('modalHapusUser');
+    
+    if (inputEl) inputEl.value = username;
+    if (labelEl) labelEl.innerText = username;
+    if (modalEl) {
+        var modalHapus = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modalHapus.show();
+    }
+}

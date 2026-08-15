@@ -10,13 +10,13 @@ if (!isset($pdo) && isset($conn)) {
     $pdo = $conn;
 }
 
-// Proteksi Halaman: Pastikan user sudah login & user_id tersimpan
-if (empty($_SESSION['user_id'])) {
+// Proteksi Halaman: Pastikan user sudah login (berdasarkan username)
+if (empty($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$username = $_SESSION['username'];
 $pesan_sukses = '';
 $pesan_error = '';
 
@@ -27,10 +27,10 @@ if (isset($_POST['update_profile'])) {
     $nama_lengkap = trim($_POST['nama_lengkap']);
 
     try {
-        // Ambil data foto saat ini berdasarkan user_id
-        $stmt_current = $pdo->prepare("SELECT foto_profil FROM users WHERE user_id = ?");
-        $stmt_current->execute([$user_id]);
-        $current_user = $stmt_current->fetch();
+        // Ambil data foto saat ini berdasarkan username
+        $stmt_current = $pdo->prepare("SELECT foto_profil FROM users WHERE username = ?");
+        $stmt_current->execute([$username]);
+        $current_user = $stmt_current->fetch(PDO::FETCH_ASSOC);
         $nama_foto = $current_user['foto_profil'] ?? 'default.png';
 
         // Proses Upload Foto Profil Baru (jika ada file diunggah)
@@ -41,7 +41,7 @@ if (isset($_POST['update_profile'])) {
             $allowed_ext = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (in_array($file_ext, $allowed_ext)) {
-                $nama_foto  = 'user_' . $user_id . '_' . time() . '.' . $file_ext;
+                $nama_foto  = 'user_' . preg_replace('/[^a-zA-Z0-9]/', '', $username) . '_' . time() . '.' . $file_ext;
                 $target_dir = 'assets/img/profile/';
                 
                 if (!is_dir($target_dir)) {
@@ -55,9 +55,9 @@ if (isset($_POST['update_profile'])) {
         }
 
         if (empty($pesan_error)) {
-            // Update Database (Hanya kolom yang ada di tabel users)
-            $stmt = $pdo->prepare("UPDATE users SET nama_lengkap = ?, foto_profil = ? WHERE user_id = ?");
-            $stmt->execute([$nama_lengkap, $nama_foto, $user_id]);
+            // Update Database berdasarkan username
+            $stmt = $pdo->prepare("UPDATE users SET nama_lengkap = ?, foto_profil = ? WHERE username = ?");
+            $stmt->execute([$nama_lengkap, $nama_foto, $username]);
 
             // Update Session agar nama & foto di header langsung berubah
             $_SESSION['nama_lengkap'] = $nama_lengkap;
@@ -65,7 +65,7 @@ if (isset($_POST['update_profile'])) {
 
             // Catat Log Activity jika fungsi tersedia
             if (function_exists('writeLog')) {
-                writeLog($pdo, $user_id, $_SESSION['nama_lengkap'], $_SESSION['role'], 'Edit Profil', 'Profil', 'Pengguna memperbarui data profil');
+                writeLog($pdo, $username, $_SESSION['nama_lengkap'] ?? $username, $_SESSION['role'] ?? 'user', 'Edit Profil', 'Profil', 'Pengguna memperbarui data profil');
             }
 
             $pesan_sukses = "Profil berhasil diperbarui!";
@@ -91,20 +91,20 @@ if (isset($_POST['update_password'])) {
         $pesan_error = "Password baru minimal harus 6 karakter!";
     } else {
         try {
-            // Ambil password tersimpan
-            $stmt = $pdo->prepare("SELECT password FROM users WHERE user_id = ?");
-            $stmt->execute([$user_id]);
-            $user = $stmt->fetch();
+            // Ambil password tersimpan berdasarkan username
+            $stmt = $pdo->prepare("SELECT password FROM users WHERE username = ?");
+            $stmt->execute([$username]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($pass_lama, $user['password'])) {
                 // Hash Password Baru
                 $hashed_password = password_hash($pass_baru, PASSWORD_DEFAULT);
 
-                $update = $pdo->prepare("UPDATE users SET password = ? WHERE user_id = ?");
-                $update->execute([$hashed_password, $user_id]);
+                $update = $pdo->prepare("UPDATE users SET password = ? WHERE username = ?");
+                $update->execute([$hashed_password, $username]);
 
                 if (function_exists('writeLog')) {
-                    writeLog($pdo, $user_id, $_SESSION['nama_lengkap'], $_SESSION['role'], 'Ubah Password', 'Keamanan', 'Pengguna berhasil mengubah password akun');
+                    writeLog($pdo, $username, $_SESSION['nama_lengkap'] ?? $username, $_SESSION['role'] ?? 'user', 'Ubah Password', 'Keamanan', 'Pengguna berhasil mengubah password akun');
                 }
 
                 $pesan_sukses = "Password berhasil diperbarui!";
@@ -117,8 +117,8 @@ if (isset($_POST['update_password'])) {
     }
 }
 
-// Fetch Data User Terbaru untuk Tampilan Form Profil
-$stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = ?");
-$stmt->execute([$user_id]);
-$data_user = $stmt->fetch();
+// Fetch Data User Terbaru berdasarkan username untuk Tampilan Form Profil
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+$stmt->execute([$username]);
+$data_user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 ?>

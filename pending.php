@@ -26,7 +26,7 @@ if (!isset($requests_done)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?> - HR Warehouse</title>
+    <title> WC | <?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     

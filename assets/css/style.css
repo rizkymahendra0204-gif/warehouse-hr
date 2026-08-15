@@ -1399,3 +1399,31 @@ body.login-page {
   transform: translateY(-1px);
   box-shadow: 0 6px 15px rgba(85, 110, 230, 0.4);
 }
+
+/* ==========================================================================
+   18. PAGE: Setting
+   ========================================================================== */
+
+/* --- PENGATURAN SYSTEM STYLING --- */
+.btn-biru-solid {
+    background-color: #556ee6 !important;
+    border-color: #556ee6 !important;
+    color: #ffffff !important;
+}
+.btn-biru-solid:hover,
+.btn-biru-solid:focus {
+    background-color: #485ec4 !important;
+    border-color: #485ec4 !important;
+    color: #ffffff !important;
+}
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+.nav-tabs .nav-link.active {
+    color: #556ee6;
+    border-bottom: 2px solid #556ee6;
+    background: transparent;
+}

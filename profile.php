@@ -4,11 +4,11 @@ include 'controllers/query_profile.php';
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Saya - HR Warehouse</title>
+    <title><?= $lang['profile_title'] ?? 'Profil Saya' ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
@@ -16,7 +16,6 @@ include 'controllers/query_profile.php';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- CSS Utama Aplikasi / Dashboard (sesuaikan path file CSS kamu jika ada) -->
     <link rel="stylesheet" href="assets/css/style.css"> 
 </head>
 <body class="bg-light">
@@ -51,8 +50,8 @@ include 'controllers/query_profile.php';
             
             <!-- Header Halaman -->
             <div class="mb-4">
-                <h3 class="fw-bold text-dark">Profil Saya</h3>
-                <p class="text-muted">Kelola informasi data diri, foto profil, dan keamanan akun Anda.</p>
+                <h3 class="fw-bold text-dark"><?= $lang['profile_title'] ?? 'Profil Saya' ?></h3>
+                <p class="text-muted"><?= $lang['profile_subtitle'] ?? 'Kelola informasi data diri, foto profil, dan keamanan akun Anda.' ?></p>
             </div>
 
             <!-- Alert Status -->
@@ -82,7 +81,6 @@ include 'controllers/query_profile.php';
                                                 ? 'assets/img/profile/' . $data_user['foto_profil'] 
                                                 : 'assets/img/profile/default.png';
                                     
-                                    // Fallback ke inisial jika file gambar default tidak ditemukan
                                     $has_photo = !empty($data_user['foto_profil']) && $data_user['foto_profil'] !== 'default.png' && file_exists('assets/img/profile/' . $data_user['foto_profil']);
                                     $initial = strtoupper(substr(trim($data_user['nama_lengkap'] ?? $data_user['username'] ?? 'U'), 0, 1));
                                 ?>
@@ -107,7 +105,7 @@ include 'controllers/query_profile.php';
 
                             <div class="text-start small text-muted">
                                 <div class="mb-2">
-                                    <i class="bi bi-calendar3 me-2"></i>Terdaftar sejak: <?= htmlspecialchars(date('d M Y', strtotime($data_user['created_at'] ?? 'now'))) ?>
+                                    <i class="bi bi-calendar3 me-2"></i><?= $lang['lbl_registered_since'] ?? 'Terdaftar sejak:' ?> <?= htmlspecialchars(date('d M Y', strtotime($data_user['created_at'] ?? 'now'))) ?>
                                 </div>
                             </div>
                         </div>
@@ -122,12 +120,12 @@ include 'controllers/query_profile.php';
                             <ul class="nav nav-tabs card-header-tabs" id="profileTab" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active py-3" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit-profile" type="button" role="tab">
-                                        <i class="bi bi-person-gear me-2"></i>Edit Data Diri
+                                        <i class="bi bi-person-gear me-2"></i><?= $lang['tab_edit_profile'] ?? 'Edit Data Diri' ?>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link py-3" id="security-tab" data-bs-toggle="tab" data-bs-target="#change-password" type="button" role="tab">
-                                        <i class="bi bi-lock me-2"></i>Ubah Password
+                                        <i class="bi bi-lock me-2"></i><?= $lang['tab_change_password'] ?? 'Ubah Password' ?>
                                     </button>
                                 </li>
                             </ul>
@@ -141,30 +139,30 @@ include 'controllers/query_profile.php';
                                     <form action="" method="POST" enctype="multipart/form-data">
                                         <div class="row g-3">
                                             <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Username</label>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_username'] ?? 'Username' ?></label>
                                                 <input type="text" class="form-control bg-light" value="<?= htmlspecialchars($data_user['username'] ?? '') ?>" readonly disabled>
-                                                <div class="form-text">Username tidak dapat diubah.</div>
+                                                <div class="form-text"><?= $lang['help_username_readonly'] ?? 'Username tidak dapat diubah.' ?></div>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Role</label>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_role'] ?? 'Role' ?></label>
                                                 <input type="text" class="form-control bg-light" value="<?= htmlspecialchars(strtoupper($data_user['role'] ?? '')) ?>" readonly disabled>
                                             </div>
 
                                             <div class="col-md-12">
-                                                <label class="form-label fw-semibold">Nama Lengkap</label>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_fullname'] ?? 'Nama Lengkap' ?></label>
                                                 <input type="text" name="nama_lengkap" class="form-control" value="<?= htmlspecialchars($data_user['nama_lengkap'] ?? '') ?>" required>
                                             </div>
 
                                             <div class="col-md-12">
-                                                <label class="form-label fw-semibold">Foto Profil</label>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_photo'] ?? 'Foto Profil' ?></label>
                                                 <input type="file" name="foto" class="form-control" accept="image/*">
-                                                <div class="form-text">Format yang didukung: JPG, PNG, WEBP (Maksimal 2MB).</div>
+                                                <div class="form-text"><?= $lang['help_photo_format'] ?? 'Format yang didukung: JPG, PNG, WEBP (Maksimal 2MB).' ?></div>
                                             </div>
 
                                             <div class="col-12 mt-4 text-end">
                                                 <button type="submit" name="update_profile" class="btn btn-proses-custom px-4">
-                                                    <i class="bi bi-save me-1"></i>Simpan Perubahan
+                                                    <i class="bi bi-save me-1"></i><?= $lang['btn_save_changes'] ?? 'Simpan Perubahan' ?>
                                                 </button>
                                             </div>
                                         </div>
@@ -176,23 +174,23 @@ include 'controllers/query_profile.php';
                                     <form action="" method="POST">
                                         <div class="row g-3">
                                             <div class="col-12">
-                                                <label class="form-label fw-semibold">Password Saat Ini</label>
-                                                <input type="password" name="pass_lama" class="form-control" placeholder="Masukkan password lama" required>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_current_pass'] ?? 'Password Saat Ini' ?></label>
+                                                <input type="password" name="pass_lama" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_old_pass'] ?? 'Masukkan password lama') ?>" required>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Password Baru</label>
-                                                <input type="password" name="pass_baru" class="form-control" placeholder="Minimal 6 karakter" required>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_new_pass'] ?? 'Password Baru' ?></label>
+                                                <input type="password" name="pass_baru" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_new_pass'] ?? 'Minimal 6 karakter') ?>" required>
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Konfirmasi Password Baru</label>
-                                                <input type="password" name="konfirmasi_pass" class="form-control" placeholder="Ulangi password baru" required>
+                                                <label class="form-label fw-semibold"><?= $lang['lbl_confirm_pass'] ?? 'Konfirmasi Password Baru' ?></label>
+                                                <input type="password" name="konfirmasi_pass" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_confirm_pass'] ?? 'Ulangi password baru') ?>" required>
                                             </div>
 
                                             <div class="col-12 mt-4 text-end">
-                                                <button type="submit" name="update_password" class="btn btn-warning text-white px-4">
-                                                    <i class="bi bi-key me-1"></i>Perbarui Password
+                                                <button type="submit" name="update_password" class="btn btn-proses-custom text-white px-4">
+                                                    <i class="bi bi-key me-1"></i><?= $lang['btn_update_password'] ?? 'Perbarui Password' ?>
                                                 </button>
                                             </div>
                                         </div>

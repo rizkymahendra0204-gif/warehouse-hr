@@ -14,7 +14,7 @@ return [
     'menu_generate_barcode' => 'Pembuatan Kode Batang',
     'menu_laporan'          => 'Laporan',
     'menu_log_activity'     => 'Catatan Aktivitas',
-    'menu_closing'          => 'Audit Internal',
+    'menu_closing'          => 'Manajemen Gudang',
     'search_placeholder'    => 'Cari ...',
     'btn_process'           => 'Proses',
     'btn_cancel'            => 'Batal',
@@ -29,14 +29,17 @@ return [
     // ==========================================
     // 2. DASHBOARD (STATISTIK)
     // ==========================================
+
+    'tab_gen_title'         => 'Statistik',
+    'tab_gen_subtitle'      => 'Ringkasan data transaksi & stok item',
     'kpi_pending'           => 'PERMINTAAN TERTUNDA',
     'kpi_transaksi'         => 'TOTAL TRANSAKSI',
     'kpi_return'            => 'TOTAL PENGEMBALIAN',
     'unit_pcs'              => 'Pcs',
     'unit_trx'              => 'Trx',
-    'remaining_stock_title' => 'Stok Tersisa (Saat Ini)',
+    'remaining_stock_title' => 'Stok Tersedia di Gudang',
     'remaining_stock_desc'  => 'Total barang aktif yang siap digunakan',
-    'badge_active'          => 'Tersedia (Aktif)',
+    'badge_active'          => 'Tersedia & Aktif',
     'returned_stock_title'  => 'Stok yang Dikembalikan',
     'returned_stock_desc'   => 'Total barang dikembalikan/tidak aktif',
     'badge_inactive'        => 'Tidak Tersedia (Tidak Aktif)',
@@ -48,7 +51,7 @@ return [
     // ==========================================
     // 3. HALAMAN PENDING REQUEST
     // ==========================================
-    'pending_title'         => 'Manajemen Request Seragam',
+    'pending_title'         => 'Permintaan',
     'pending_subtitle'      => 'Pengolahan dan riwayat status pengajuan seragam SA',
     'tab_pending_req'       => 'Permintaan Tertunda',
     'tab_req_done'          => 'Permintaan Selesai',
@@ -86,15 +89,15 @@ return [
     // ==========================================
     // 5. HALAMAN RETURN (PENGEMBALIAN)
     // ==========================================
-    'ret_title'             => 'Pengajuan Return',
-    'ret_subtitle'          => 'Manajemen untuk pengajuan return',
+    'ret_title'    => 'Pengembalian',
+    'ret_subtitle' => 'Pencatatan pengembalian item dari transaksi yang telah selesai',
     'th_no_transaksi'       => 'NO. TRANSAKSI',
     'th_brand'              => 'BRAND',
     'th_id_sales'           => 'ID SALES',
     'th_detail_item_trx'    => 'DETAIL ITEM TRANSAKSI',
     'btn_proses_return'     => 'Proses Return',
     'ret_tab_all'            => 'Semua Item Transaksi',
-    'ret_tab_done'           => 'Riwayat Return',
+    'ret_tab_done'           => 'Riwayat Pengembalian',
 
     // ==========================================
     // 6. HALAMAN STOK BARANG
@@ -137,7 +140,7 @@ return [
     // ==========================================
     // 8. HALAMAN LAPORAN
     // ==========================================
-    'rep_title'             => 'Laporan Pergerakan Stok',
+    'rep_title'             => 'Laporan',
     'rep_subtitle'          => 'Rekapitulasi distribusi & pengembalian seragam',
     'tab_lap_stok'          => 'Laporan Stok',
     'tab_lap_keuangan'      => 'Laporan Keuangan',
@@ -223,23 +226,25 @@ return [
     'status_registered_db'     => 'Terdaftar di Database',
 
     // ==========================================
-    // 11. HALAMAN CLOSING / AUDIT
+    // 11. HALAMAN CLOSING / AUDIT (Manajemen Gudang)
     // ==========================================
-    'audit_page_title'      => 'Audit & Kelola Status Stok',
-    'audit_subtitle'        => 'Evaluasi barang return untuk dikembalikan',
+    'whm_title'             => 'Manajemen Gudang',
+    'whm_subtitle'          => 'Manajemen untuk pengelolaan item warehouse',
+    'audit_page_title'      => 'Evaluasi & Kelola Status Stok',
+    'audit_subtitle' => 'Evaluasi barang retur untuk dimasukkan kembali ke stok',
     'btn_close_period'      => 'Tutup Periode',
     'btn_open_period'       => 'Buka Periode',
-    'confirm_close_period'  => 'Tutup periode audit?',
-    'confirm_open_period'   => 'Buka periode audit?',
-    'audit_banner_closed'   => '<strong>Periode Audit Ditutup:</strong> Perubahan status barang dikunci sementara.',
-    'audit_banner_active'   => '<strong>Mode Audit Aktif:</strong> Silakan lakukan perubahan status.',
+    'confirm_close_period'  => 'Tutup periode Manajemen Gudang?',
+    'confirm_open_period'   => 'Buka periode Manajemen Gudang?',
+    'audit_banner_closed'   => '<strong>Periode Manajemen Gudang Ditutup:</strong> Perubahan status barang dikunci sementara.',
+    'audit_banner_active'   => '<strong>Mode Manajemen Gudang Aktif:</strong> Silakan lakukan perubahan status.',
     'btn_change_status'     => 'Ubah Status',
-    'title_access_locked'   => 'Akses dikunci: Periode audit sedang ditutup',
+    'title_access_locked'   => 'Akses dikunci: Periode sedang ditutup',
     'badge_locked'          => 'Terkunci',
     'title_eligible_only'   => 'Hanya status Available (Inactive) yang dapat diubah',
     'badge_compliant'       => 'Sesuai',
     'no_item_data'          => 'Tidak ada data item ditemukan.',
-    'modal_audit_title'     => 'Audit Status Item',
+    'modal_audit_title'     => 'Update Status Item',
     'modal_target_item'     => 'Target Item:',
     'lbl_status_transaksi'  => 'Status Transaksi',
     'opt_available'         => 'Available (Siap Dijual / Direquest)',
@@ -248,14 +253,12 @@ return [
     'lbl_status_barang'     => 'Status Barang (Kondisi fisik)',
     'opt_active'            => 'Active (Layak Pakai / Bagus)',
     'opt_inactive'          => 'Inactive (Rusak / Afkir / Perlu Perbaikan)',
-    'btn_save_audit'        => 'Simpan Hasil Audit',
+    'btn_save_audit'        => 'Simpan Perubahan',
 
 
     // ==========================================
-    // 12. HALAMAN MANAGEMENT WAREHOUSE
+    // 12. HALAMAN MANAGEMENT WAREHOUSE (EXTRAS)
     // ==========================================
-    'whm_title'             => 'Manajemen Gudang',
-    'whm_subtitle'          => 'Manajemen untuk pengelolaan item warehouse',
     'whm_sect_item'         => 'Detail Item',
     'whm_lbl_barcode'       => 'Barcode',
     'whm_lbl_kategori'      => 'Kategori',
@@ -277,6 +280,77 @@ return [
     'type_celana'    => 'Celana',
     'lbl_atasan'     => 'Atasan',
     'lbl_bawahan'    => 'Bawahan',
+
+    // ==========================================
+    // 13. USER MANAGEMENT
+    // ==========================================
+    'menu_users'             => 'Manajemen Pengguna',
+    'user_title'            => 'Manajemen Pengguna',
+    'user_subtitle'         => 'Kelola akun pengguna operasional (Akses Khusus Administrator)',
+    'btn_add_user'          => 'Tambah User Baru',
+    'modal_user_title'      => 'Buat Akun Pengguna',
+    'lbl_fullname'          => 'Nama Lengkap',
+    'lbl_username'          => 'Username',
+    'lbl_password'          => 'Password',
+    'lbl_role'              => 'Role / Hak Akses',
+    'opt_role_user'         => 'User Biasa (Staff Operasional)',
+    'opt_role_admin'        => 'Administrator',
+    'help_user_role'        => 'User biasa hanya memiliki akses untuk transaksi & scan.',
+    'btn_save_user'         => 'Simpan User',
+    'badge_admin'           => 'Administrator',
+    'badge_user'            => 'User Biasa',
+    'badge_you'             => 'Akun Anda',
+    'modal_del_user_title'  => 'Hapus Pengguna?',
+    'modal_del_user_desc'   => 'Apakah Anda yakin ingin menghapus user',
+    'modal_del_user_warn'   => 'Aksi ini tidak dapat dibatalkan.',
+    'btn_confirm_delete'    => 'Ya, Hapus',
+    'no_user_data'          => 'Belum ada data pengguna.',
+
+    // ==========================================
+    // 14. HALAMAN PROFIL
+    // ==========================================
+    'profile_title'           => 'Profil Saya',
+    'profile_subtitle'        => 'Kelola informasi data diri, foto profil, dan keamanan akun Anda.',
+    'lbl_registered_since'    => 'Terdaftar sejak:',
+    'tab_edit_profile'        => 'Edit Data Diri',
+    'tab_change_password'     => 'Ubah Password',
+    'help_username_readonly'  => 'Username tidak dapat diubah.',
+    'lbl_photo'               => 'Foto Profil',
+    'help_photo_format'       => 'Format yang didukung: JPG, PNG, WEBP (Maksimal 2MB).',
+    'lbl_current_pass'        => 'Password Saat Ini',
+    'plc_old_pass'            => 'Masukkan password lama',
+    'lbl_new_pass'            => 'Password Baru',
+    'plc_new_pass'            => 'Minimal 6 karakter',
+    'lbl_confirm_pass'        => 'Konfirmasi Password Baru',
+    'plc_confirm_pass'        => 'Ulangi password baru',
+    'btn_update_password'     => 'Perbarui Password',
+    'btn_save_changes'         => 'Simpan Perubahan',
+    'alert_profile_updated'   => 'Profil berhasil diperbarui!',
+
+    // ==========================================
+    // 15. HALAMAN PENGATURAN & NOTIFIKASI
+    // ==========================================
+    'setting_title'          => 'Pengaturan Sistem',
+    'setting_subtitle'       => 'Kelola akun pengguna operasional dan konfigurasi notifikasi sistem.',
+    'lbl_status_active'      => 'Aktif',
+    'access_full'            => 'Penuh (Administrator)',
+    'access_restricted'      => 'Terbatas (Staff Operasional)',
+    'tab_user_management'    => 'Manajemen Pengguna',
+    'tab_notifications'      => 'Pengaturan Notifikasi',
+    'title_user_list'        => 'Daftar Akun Pengguna',
+    'notif_desc'             => 'Atur pemberitahuan sistem yang ingin Anda aktifkan untuk akun operasional ini.',
+    'notif_req_title'        => 'Notifikasi Permintaan (Request) Baru',
+    'notif_req_desc'         => 'Menampilkan titik merah & badge pada bell topbar saat ada pengajuan barang baru.',
+    'notif_ret_title'        => 'Notifikasi Pengembalian (Return)',
+    'notif_ret_desc'         => 'Pemberitahuan otomatis ketika transaksi barang retur diterima oleh sistem.',
+    'notif_stk_title'        => 'Peringatan Stok Menipis (Low Stock Alert)',
+    'notif_stk_desc'         => 'Memberikan alert sistem jika jumlah stok master item berada di bawah 5 pcs.',
+    'btn_save_notif'         => 'Simpan Pengaturan Notifikasi',
+    'plc_fullname'           => 'Masukkan nama lengkap',
+    'plc_username'           => 'Masukkan username',
+    'plc_password'           => 'Masukkan password',
+    'alert_notif_success'    => 'Pengaturan notifikasi berhasil diperbarui!',
+    'alert_notif_session'    => 'Pengaturan notifikasi disimpan (Session Mode)!',
     
     
 ];

@@ -8,7 +8,7 @@ include 'controllers/query_stokbarang.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['stok_title'] ?? 'Inventory' ?> - HR Warehouse</title>
+    <title>WC | <?= $lang['stok_title'] ?? 'Inventory' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
@@ -41,10 +41,10 @@ include 'controllers/query_stokbarang.php';
                         <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['stok_subtitle'] ?? 'Manajemen inventaris seragam dan kelengkapan' ?></p>
                     </div>
             </div>
-
+            
             <!-- Area Filter dan Pencarian -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Tab Filter Status -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <!-- Tab Filter Status (Kiri) -->
                 <div class="d-flex gap-2 bg-white p-1 rounded border shadow-sm align-items-center">
                     <a href="?tab=semua&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'semua' ? 'active' : '' ?>"><?= $lang['tab_semua'] ?? 'Semua' ?></a>
                     <a href="?tab=available&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'available' ? 'active' : '' ?>"><?= $lang['tab_available'] ?? 'Available' ?></a>
@@ -52,17 +52,22 @@ include 'controllers/query_stokbarang.php';
                     <a href="?tab=inactive&search=<?= urlencode($search) ?>" class="filter-tab <?= $tab === 'inactive' ? 'active' : '' ?>"><?= $lang['tab_inactive'] ?? 'Inactive' ?></a>
                 </div>
                 
-                <!-- Form Pencarian -->
-                <div class="input-group" style="width: 250px;">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-secondary"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>">
-
-                    <!-- Tombol Export Excel langsung memanggil parameter controller ini -->
-                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-cetak-excel fw-bold btn-sm px-3 py-2 shadow-sm" style="font-size: 13px;">
+                <!-- Bagian Kanan: Tombol Export Excel & Form Pencarian -->
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Tombol Export Excel -->
+                    <a href="?tab=<?= urlencode($tab) ?>&search=<?= urlencode($search) ?>&export=excel" class="btn btn-cetak-excel fw-bold btn-sm px-3 py-2 shadow-sm text-nowrap" style="font-size: 13px;">
                         <i class="bi bi-file-earmark-excel me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
                     </a>
+
+                    <!-- Form Pencarian -->
+                    <div class="input-group" style="width: 250px;">
+                        <input type="text" id="searchInput" class="form-control border-end-0 ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
+                        <span class="input-group-text bg-white border-start-0"><i class="bi bi-search text-secondary"></i></span>
+                    </div>
                 </div>
             </div>
+
+            
             
             <!-- Table Container (Card) -->
             <div class="table-card shadow-sm border-0 rounded-3 mb-4">

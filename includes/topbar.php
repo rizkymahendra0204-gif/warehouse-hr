@@ -192,7 +192,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 </li>
                 <!-- FIX PATH LINK PROFIL & LOGOUT -->
                 <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>profile.php"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
-                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
+                <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>setting.php"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                 <li><hr class="dropdown-divider my-1"></li>
                 <li>
                     <a class="dropdown-item text-danger py-2" href="<?= $prefix ?>logout.php">

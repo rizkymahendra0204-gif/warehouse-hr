@@ -60,10 +60,10 @@ $sidebar_class = $is_collapsed ? 'collapsed' : 'false';
             <span><?= $lang['menu_generate_barcode'] ?? 'Generate Barcode' ?></span>
         </a>
         
-        <!-- 7. Warehouse Management (Pengganti Internal Audit) -->
+        <!-- 7. Warehouse Management / Manajemen Gudang -->
         <a href="<?= $prefix ?>warehouse_management.php" class="nav-link <?= ($current_page == 'warehouse_management.php' || $current_page == 'audit_item.php') ? 'active' : '' ?>">
             <i class="bi bi-boxes"></i>
-            <span><?= $lang['whm_title'] ?? 'Manajemen Gudang' ?></span>
+            <span><?= $lang['menu_closing'] ?? 'Manajemen Gudang' ?></span>
         </a>
 
         <!-- 8. Inventory (Stok Barang) -->
@@ -79,5 +79,13 @@ $sidebar_class = $is_collapsed ? 'collapsed' : 'false';
             <i class="bi bi-ui-checks"></i>
             <span><?= $lang['menu_activity_log'] ?? 'Activity Log' ?></span>
         </a>
+
+        <!-- 10. manajemen user -->
+        <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
+        <a href="<?= $prefix ?>users.php" class="nav-link <?= ($current_page == 'users.php') ? 'active' : '' ?>">
+            <i class="bi bi-people-fill"></i>
+            <span><?= $lang['menu_users'] ?? 'Manajemen Pengguna' ?></span>
+        </a>
+        <?php endif; ?>
     </div>
 </aside>

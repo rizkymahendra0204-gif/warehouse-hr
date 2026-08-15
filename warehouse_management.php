@@ -9,7 +9,7 @@ include 'controllers/query_audit.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $lang['whm_title'] ?? 'Warehouse Management' ?> - HR Warehouse</title>
+    <title>WC | <?= $lang['whm_title'] ?? 'Warehouse Management' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
@@ -26,37 +26,19 @@ include 'controllers/query_audit.php';
         <?php include 'includes/topbar.php'; ?>
         
         <main class="content-area p-4">
-            <!-- Header & Tombol Action Toggle -->
+            <!-- Header Page (Judul Dinamis mengikuti Bahasa Aktif) -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="page-title">
-                    <h4 class="fw-bold mb-0"><?= $lang['whm_title'] ?? 'Warehouse Management' ?></h4>
+                    <h4 class="fw-bold mb-0"><?= $lang['whm_title'] ?? 'Manajemen Gudang' ?></h4>
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['audit_subtitle'] ?? 'Ringkasan ketersediaan stok gudang dan evaluasi barang return'; ?></p>
                 </div>
-                
-                <!-- Tombol Toggle Mode -->
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                <form method="POST" action="">
-                    <input type="hidden" name="action_type" value="toggle_audit">
-                    <?php if ($is_audit_active): ?>
-                        <input type="hidden" name="audit_status" value="0">
-                        <button type="submit" class="btn btn-proses fw-bold shadow-sm" onclick="return confirm('<?= htmlspecialchars($lang['confirm_close_period'] ?? 'Tutup periode Warehouse Management?', ENT_QUOTES) ?>')">
-                            <i class="bi bi-unlock-fill me-1"></i> <?= $lang['btn_close_period'] ?? 'Tutup Periode' ?>
-                        </button>
-                    <?php else: ?>
-                        <input type="hidden" name="audit_status" value="1">
-                        <button type="submit" class="btn btn-proses-custom fw-bold shadow-sm" onclick="return confirm('<?= htmlspecialchars($lang['confirm_open_period'] ?? 'Buka periode Warehouse Management?', ENT_QUOTES) ?>')">
-                            <i class="bi bi-lock-fill me-1"></i> <?= $lang['btn_open_period'] ?? 'Buka Periode' ?>
-                        </button>
-                    <?php endif; ?>
-                </form>
-                <?php endif; ?>
             </div>
 
-            <!-- 1. CONTAINER RINGKASAN: STOK TERSEDIA DI GUDANG (AVAILABLE & ACTIVE) -->
+            <!-- 1. CONTAINER RINGKASAN: STOK TERSEDIA (Kata Current Dihapus & Aktif Bahasa) -->
             <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
                 <div class="d-flex align-items-center mb-3">
                     <div class="text-success fw-bold text-uppercase" style="font-size: 13px; letter-spacing: 0.5px;">
-                        <i class="bi bi-box-seam me-2"></i> <?= $lang['remaining_stock_title'] ?? 'Stok Tersedia di Gudang' ?> (Available & Active)
+                        <i class="bi bi-box-seam me-2"></i> <?= $lang['remaining_stock_title'] ?? 'Stok Tersedia di Gudang' ?> (<?= $lang['badge_active'] ?? 'Available & Active' ?>)
                     </div>
                 </div>
                 <div class="row g-4">
@@ -146,22 +128,47 @@ include 'controllers/query_audit.php';
                 </div>
             </div>
 
-            <!-- Banner Pemberitahuan Status Audit -->
-            <?php if (!$is_audit_active): ?>
-                <div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
-                    <i class="bi bi-lock-fill me-2 fs-5"></i>
-                    <div>
-                        <?= $lang['audit_banner_closed'] ?? '<strong>Periode Warehouse Management Ditutup:</strong> Perubahan status barang dikunci sementara.' ?>
-                    </div>
+            <!-- AREA STATUS TERPISAH: KOTAK INFORMASI STATUS DAN KOTAK TOMBOL BUKA/TUTUP PERIODE -->
+            <div class="d-flex justify-content-between align-items-center mb-3 gap-3 flex-wrap flex-md-nowrap">
+                <!-- Kotak Status Info Sendiri -->
+                <div class="flex-grow-1 w-100">
+                    <?php if (!$is_audit_active): ?>
+                        <div class="alert alert-warning d-flex align-items-center m-0 shadow-sm" role="alert">
+                            <i class="bi bi-lock-fill me-2 fs-5"></i>
+                            <div>
+                                <?= $lang['audit_banner_closed'] ?? '<strong>Periode Warehouse Management Ditutup:</strong> Perubahan status barang dikunci sementara.' ?>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-success d-flex align-items-center m-0 shadow-sm" role="alert">
+                            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                            <div>
+                                <?= $lang['audit_banner_active'] ?? '<strong>Mode Warehouse Management Aktif:</strong> Silakan lakukan perubahan status.' ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
-            <?php else: ?>
-                <div class="alert alert-success d-flex align-items-center mb-3" role="alert">
-                    <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                    <div>
-                        <?= $lang['audit_banner_active'] ?? '<strong>Mode Warehouse Management Aktif:</strong> Silakan lakukan perubahan status.' ?>
+
+                <!-- Kotak Tombol Buka/Tutup Periode Terpisah (Warna Asli Default Sesuai CSS Awal) -->
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                    <div class="flex-shrink-0">
+                        <form method="POST" action="" class="m-0">
+                            <input type="hidden" name="action_type" value="toggle_audit">
+                            <?php if ($is_audit_active): ?>
+                                <input type="hidden" name="audit_status" value="0">
+                                <button type="submit" class="btn btn-proses fw-bold shadow-sm px-4 py-2 text-nowrap" onclick="return confirm('<?= htmlspecialchars($lang['confirm_close_period'] ?? 'Tutup periode Warehouse Management?', ENT_QUOTES) ?>')">
+                                    <i class="bi bi-unlock-fill me-1"></i> <?= $lang['btn_close_period'] ?? 'Tutup Periode' ?>
+                                </button>
+                            <?php else: ?>
+                                <input type="hidden" name="audit_status" value="1">
+                                <button type="submit" class="btn btn-proses-custom fw-bold shadow-sm px-4 py-2 text-nowrap" onclick="return confirm('<?= htmlspecialchars($lang['confirm_open_period'] ?? 'Buka periode Warehouse Management?', ENT_QUOTES) ?>')">
+                                    <i class="bi bi-lock-fill me-1"></i> <?= $lang['btn_open_period'] ?? 'Buka Periode' ?>
+                                </button>
+                            <?php endif; ?>
+                        </form>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
 
             <!-- Alert Notifikasi Session -->
             <div class="floating-alert-container">
@@ -306,6 +313,35 @@ include 'controllers/query_audit.php';
         </div>
     </div>
 </div>
+
+<td class="text-center">
+    <?php if ($is_audit_active && $is_inactive_available && isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+        <!-- Tombol Aktif HANYA untuk Admin saat periode dibuka -->
+        <button type="button" 
+                class="btn btn-sm btn-proses-custom fw-bold px-3"
+                data-bs-toggle="modal" 
+                data-bs-target="#modalAudit"
+                onclick="setAuditData('<?php echo $barcode; ?>', '<?php echo addslashes($detail); ?>', '<?php echo $st_tx; ?>', '<?php echo $st_brg; ?>')">
+            <i class="bi bi-pencil-square me-1"></i> <?= $lang['btn_change_status'] ?? 'Ubah Status' ?>
+        </button>
+    <?php elseif (!$is_audit_active): ?>
+        <!-- Saat Periode Ditutup -->
+        <button type="button" 
+                class="btn btn-proses fw-bold px-3" 
+                disabled 
+                title="<?= $lang['title_access_locked'] ?? 'Akses dikunci: Periode sedang ditutup' ?>">
+            <i class="bi bi-lock-fill me-1"></i> <?= $lang['badge_locked'] ?? 'Terkunci' ?>
+        </button>
+    <?php else: ?>
+        <!-- Jika User Biasa atau Status Barang Tidak Perlu Diubah -->
+        <button type="button" 
+                class="btn btn-sm btn-light text-muted fw-bold px-3" 
+                disabled 
+                title="Hanya Administrator yang dapat mengubah status">
+            <i class="bi bi-shield-lock me-1"></i> <?= $lang['badge_compliant'] ?? 'Sesuai' ?>
+        </button>
+    <?php endif; ?>
+</td>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -12,8 +12,8 @@ if (!isset($conn) && isset($pdo)) {
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    $username = trim($_POST['username'] ?? '');
+    $password = trim($_POST['password'] ?? '');
 
     if (!empty($username) && !empty($password)) {
         try {
@@ -22,35 +22,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
-                // 1. Jika ini login pertama kali
-                if ($user['is_first_login'] == 1) {
-                    if ($password === $user['password']) { 
-                        $_SESSION['temp_user_id']   = $user['user_id'];
-                        $_SESSION['temp_user_name'] = $user['nama_lengkap'];
+                // Fungsi pembantu verifikasi password (mendukung Bcrypt, plain text, maupun MD5)
+                $is_password_correct = password_verify($password, $user['password']) 
+                                    || ($password === $user['password']) 
+                                    || (md5($password) === $user['password']);
+
+                if ($is_password_correct) {
+                    $is_first = isset($user['is_first_login']) ? (int)$user['is_first_login'] : 0;
+
+                    // 1. Jika akun ditandai wajib ganti password pertama kali
+                    if ($is_first === 1) {
+                        $_SESSION['temp_user_id']   = $user['user_id'] ?? $user['id'] ?? $user['username'];
+                        $_SESSION['temp_user_name'] = $user['nama_lengkap'] ?? $user['username'];
                         
                         session_write_close();
                         header("Location: change_password.php");
                         exit();
-                    } else {
-                        $error_message = "Username atau password default salah!";
-                    }
-                } 
-                // 2. Jika login normal (bukan login pertama)
-                else {
-                    if (password_verify($password, $user['password'])) {
-                        // DIPERBAIKI: Menggunakan $user['user_id'] sesuai nama kolom di database
-                        $_SESSION['user_id']      = $user['user_id'];
+                    } 
+                    // 2. Login normal
+                    else {
+                        $_SESSION['user_id']      = $user['user_id'] ?? $user['id'] ?? $user['username'];
                         $_SESSION['username']     = $user['username'];
-                        $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
-                        $_SESSION['role']         = $user['role'];
-                        $_SESSION['foto_profil']  = $user['foto_profil'];
+                        $_SESSION['nama_lengkap'] = $user['nama_lengkap'] ?? $user['username'];
+                        $_SESSION['role']         = strtolower($user['role'] ?? 'user');
+                        $_SESSION['foto_profil']  = $user['foto_profil'] ?? 'default.png';
 
                         session_write_close();
                         header("Location: index.php");
                         exit();
-                    } else {
-                        $error_message = "Username atau password salah!";
                     }
+                } else {
+                    $error_message = "Username atau password salah!";
                 }
             } else {
                 $error_message = "Username tidak ditemukan!";
@@ -62,4 +64,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "Harap isi username dan password.";
     }
 }
-?>

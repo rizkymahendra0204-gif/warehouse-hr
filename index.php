@@ -8,7 +8,7 @@ include 'controllers/query_dashboard.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WC | Dashboard</title>
+    <title>WC | <?= $lang['tab_gen_title'] ?? 'Statistik' ?></title>
     
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     

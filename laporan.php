@@ -15,7 +15,7 @@ include __DIR__ . '/controllers/query_laporan.php';
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
-    <title><?= $report_type === 'finance' ? ($lang['tab_lap_keuangan'] ?? 'Laporan Keuangan') : ($lang['rep_title'] ?? 'Laporan Pergerakan Stok') ?> - HR Warehouse</title>
+    <title>WC | <?= $report_type === 'finance' ? ($lang['tab_lap_keuangan'] ?? 'Laporan Keuangan') : ($lang['rep_title'] ?? 'Laporan Pergerakan Stok') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -75,7 +75,7 @@ include __DIR__ . '/controllers/query_laporan.php';
                 <input type="hidden" name="type" value="<?= htmlspecialchars($report_type) ?>">
                 
                 <!-- CONTAINER 1: Card Metric Utama + Filter Tanggal -->
-                <div class="bg-white border rounded-3 p-3 mb-3 shadow-sm sticky-detail-pesanan">
+                <div class="bg-white border rounded-3 p-3 mb-3 shadow-sm <!--sticky-detail-pesanan-->">
                     <div class="row g-2 align-items-stretch">
                         <!-- Card 1: Utama (Master Stok / Total Akumulasi Biaya) -->
                         <div class="col-md-4">
