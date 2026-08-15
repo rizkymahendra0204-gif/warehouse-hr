@@ -80,12 +80,5 @@ $sidebar_class = $is_collapsed ? 'collapsed' : 'false';
             <span><?= $lang['menu_activity_log'] ?? 'Activity Log' ?></span>
         </a>
 
-        <!-- 10. manajemen user -->
-        <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
-        <a href="<?= $prefix ?>users.php" class="nav-link <?= ($current_page == 'users.php') ? 'active' : '' ?>">
-            <i class="bi bi-people-fill"></i>
-            <span><?= $lang['menu_users'] ?? 'Manajemen Pengguna' ?></span>
-        </a>
-        <?php endif; ?>
     </div>
 </aside>
