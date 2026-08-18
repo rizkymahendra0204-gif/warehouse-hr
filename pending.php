@@ -118,7 +118,7 @@ if (!isset($requests_done)) {
                                 <table class="table align-middle mb-0">
                                     <thead class="table-light text-secondary small border-bottom">
                                         <tr>
-                                            <th scope="col" width="15%"><?= $lang['th_no_request'] ?? 'NO. REQUEST' ?></th>
+                                            <th scope="col" width="15%" class="text-center"><?= $lang['th_no_request'] ?? 'NO. REQUEST' ?></th>
                                             <th scope="col" width="45%"><?= $lang['th_detail_karyawan'] ?? 'DETAIL KARYAWAN & ITEM' ?></th>
                                             <th scope="col" width="15%" class="text-center"><?= $lang['table_status'] ?? 'STATUS' ?></th>
                                             <th scope="col" width="25%" class="text-center"><?= $lang['table_action'] ?? 'AKSI' ?></th>
@@ -137,7 +137,7 @@ if (!isset($requests_done)) {
                                                 $pembayaran = $row['pembayaran_text'];
                                             ?>
                                                 <tr class="border-bottom">
-                                                    <td><span class="req-badge">#<?= htmlspecialchars($req_id) ?></span></td>
+                                                    <td class="text-center small"><span class="req-badge">#<?= htmlspecialchars($req_id) ?></span></td>
                                                     <td>
                                                         <div class="fw-bold text-dark" style="font-size: 15px;"><?= $pt ?></div>
                                                         <div class="text-secondary mt-1" style="font-size: 13px;">
@@ -283,7 +283,7 @@ if (!isset($requests_done)) {
                             <table class="table align-middle mb-0">
                                 <thead class="table-light text-secondary small border-bottom">
                                     <tr>
-                                        <th scope="col" width="15%"><?= $lang['th_no_request'] ?? 'NO. REQUEST' ?></th>
+                                        <th scope="col" width="15%" class="text-center"><?= $lang['th_no_request'] ?? 'NO. REQUEST' ?></th>
                                         <th scope="col" width="45%"><?= $lang['th_detail_karyawan'] ?? 'DETAIL KARYAWAN & ITEM' ?></th>
                                         <th scope="col" width="15%" class="text-center"><?= $lang['table_status'] ?? 'STATUS' ?></th>
                                         <th scope="col" width="25%" class="text-center"><?= $lang['table_action'] ?? 'AKSI' ?></th>
@@ -301,7 +301,7 @@ if (!isset($requests_done)) {
                                             $file_name  = $row_done['file_name'];
                                         ?>
                                             <tr class="border-bottom">
-                                                <td><span class="req-badge">#<?= htmlspecialchars($req_id) ?></span></td>
+                                                <td class="text-center small"><span class="req-badge">#<?= htmlspecialchars($req_id) ?></span></td>
                                                 <td>
                                                     <div class="fw-bold text-dark" style="font-size: 15px;"><?= $pt ?></div>
                                                     <div class="text-secondary mt-1" style="font-size: 13px;">

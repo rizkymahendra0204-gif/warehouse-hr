@@ -10,7 +10,7 @@ if (isset($_GET['lang'])) {
 }
 
 // 2. Set bahasa default ke 'id' jika belum ada di Session
-$current_lang = $_SESSION['lang'] ?? 'id';
+$current_lang = $_SESSION['lang'] ?? 'en';
 
 // 3. Load file kamus yang sesuai
 $lang_file = __DIR__ . "/../lang/{$current_lang}.php";

@@ -35,35 +35,111 @@ $url_lang_id = '?' . http_build_query($queryParams);
 $queryParams['lang'] = 'en';
 $url_lang_en = '?' . http_build_query($queryParams);
 
-// 5. Query Ambil Data Pending Request
+// 5. AMBIL PREFERENSI NOTIFIKASI USER (INTEGRASI SETTING)
+$user_notif_req   = 1;
+$user_notif_ret   = 1;
+$user_notif_stock = 0;
+
+if (isset($pdo) && !empty($_SESSION['username'])) {
+    try {
+        $stmt_u = $pdo->prepare("SELECT notif_request, notif_return, notif_stock FROM users WHERE username = ?");
+        $stmt_u->execute([$_SESSION['username']]);
+        if ($u_setting = $stmt_u->fetch(PDO::FETCH_ASSOC)) {
+            $user_notif_req   = (int)($u_setting['notif_request'] ?? 1);
+            $user_notif_ret   = (int)($u_setting['notif_return'] ?? 1);
+            $user_notif_stock = (int)($u_setting['notif_stock'] ?? 0);
+        }
+    } catch (PDOException $e) {}
+}
+
+// Override dari session mode jika ada
+if (isset($_SESSION['notif_settings'])) {
+    $user_notif_req   = $_SESSION['notif_settings']['request'] ?? $user_notif_req;
+    $user_notif_ret   = $_SESSION['notif_settings']['return']  ?? $user_notif_ret;
+    $user_notif_stock = $_SESSION['notif_settings']['stock']   ?? $user_notif_stock;
+}
+
+// 6. QUERY DATA NOTIFIKASI SESUAI STATUS SWITCH ACTIVE
 $notif_items = [];
-$total_pending = 0;
+$total_notif = 0;
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        $sql_notif = "SELECT rf.request_id, rf.perusahaan, rf.nama_sa 
-                      FROM request_form rf 
-                      LEFT JOIN transaksi t ON rf.request_id = t.request_id 
-                      WHERE t.request_id IS NULL 
-                      ORDER BY rf.request_id DESC LIMIT 5";
-        
-        $stmt_notif = $pdo->query($sql_notif);
-        if ($stmt_notif) {
-            $notif_items = $stmt_notif->fetchAll(PDO::FETCH_ASSOC);
+        // A. Notifikasi Request Baru (Jika Switch Request ON)
+        if ($user_notif_req == 1) {
+            $sql_notif = "SELECT rf.request_id, rf.perusahaan, rf.nama_sa 
+                          FROM request_form rf 
+                          LEFT JOIN transaksi t ON rf.request_id = t.request_id 
+                          WHERE t.request_id IS NULL 
+                          ORDER BY rf.request_id DESC LIMIT 5";
+            $stmt_notif = $pdo->query($sql_notif);
+            if ($stmt_notif) {
+                while ($row = $stmt_notif->fetch(PDO::FETCH_ASSOC)) {
+                    $notif_items[] = [
+                        'type'     => 'request',
+                        'title'    => htmlspecialchars($row['perusahaan']),
+                        'desc'     => '#' . htmlspecialchars($row['request_id']) . ' — SA: ' . htmlspecialchars($row['nama_sa']),
+                        'link'     => $prefix . 'pending.php?req=' . urlencode($row['request_id']),
+                        'badge'    => 'Request',
+                        'badge_bg' => 'bg-danger'
+                    ];
+                }
+            }
+
+            $sql_count = "SELECT COUNT(DISTINCT rf.request_id) as total 
+                          FROM request_form rf 
+                          LEFT JOIN transaksi t ON rf.request_id = t.request_id 
+                          WHERE t.request_id IS NULL";
+            $stmt_count = $pdo->query($sql_count);
+            if ($stmt_count && $row_c = $stmt_count->fetch(PDO::FETCH_ASSOC)) {
+                $total_notif += (int)($row_c['total'] ?? 0);
+            }
         }
 
-        $sql_count = "SELECT COUNT(DISTINCT rf.request_id) as total 
-                      FROM request_form rf 
-                      LEFT JOIN transaksi t ON rf.request_id = t.request_id 
-                      WHERE t.request_id IS NULL";
-        
-        $stmt_count = $pdo->query($sql_count);
-        if ($stmt_count && $row_c = $stmt_count->fetch(PDO::FETCH_ASSOC)) {
-            $total_pending = (int)($row_c['total'] ?? 0);
+        // B. Notifikasi Return (Jika Switch Return ON)
+        if ($user_notif_ret == 1) {
+            $sql_ret = "SELECT transaction_id, tgl_return FROM return_items ORDER BY tgl_return DESC LIMIT 3";
+            $stmt_ret = $pdo->query($sql_ret);
+            if ($stmt_ret) {
+                while ($row = $stmt_ret->fetch(PDO::FETCH_ASSOC)) {
+                    $notif_items[] = [
+                        'type'     => 'return',
+                        'title'    => 'Barang Retur Diterima',
+                        'desc'     => 'Transaksi #' . htmlspecialchars($row['transaction_id']),
+                        'link'     => $prefix . 'return.php',
+                        'badge'    => 'Return',
+                        'badge_bg' => 'bg-warning text-dark'
+                    ];
+                }
+            }
         }
+
+        // C. Alert Stok Menipis (Jika Switch Low Stock ON)
+        if ($user_notif_stock == 1) {
+            $sql_stk = "SELECT tipe, gender, size, COUNT(*) as sisa 
+                        FROM master_item 
+                        WHERE status_transaksi = 'Available' 
+                        GROUP BY tipe, gender, size 
+                        HAVING sisa < 5 LIMIT 3";
+            $stmt_stk = $pdo->query($sql_stk);
+            if ($stmt_stk) {
+                while ($row = $stmt_stk->fetch(PDO::FETCH_ASSOC)) {
+                    $notif_items[] = [
+                        'type'     => 'stock',
+                        'title'    => 'Stok Menipis (' . $row['sisa'] . ' Pcs)',
+                        'desc'     => $row['tipe'] . ' ' . $row['gender'] . ' Size ' . $row['size'],
+                        'link'     => $prefix . 'stockcard.php',
+                        'badge'    => 'Stok',
+                        'badge_bg' => 'bg-danger'
+                    ];
+                    $total_notif++;
+                }
+            }
+        }
+
     } catch (PDOException $e) {
         $notif_items = [];
-        $total_pending = 0;
+        $total_notif = 0;
     }
 }
 ?>
@@ -76,64 +152,37 @@ if (isset($pdo) && $pdo instanceof PDO) {
     </button>
 
     <div class="profile-section d-flex align-items-center gap-3">
-
-        <!-- DROPDOWN PENGATURAN BAHASA -->
-        <div class="dropdown me-3">
-            <button class="btn btn-sm btn-light border dropdown-toggle fw-bold d-flex align-items-center gap-2" 
-                    type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 13px; border-radius: 8px;">
-                <i class="bi bi-globe text-primary"></i>
-                <span><?= strtoupper($_SESSION['lang'] ?? 'ID') ?></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 13px;">
-                <li>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'id' ? 'fw-bold active' : '' ?>" 
-                    href="<?= htmlspecialchars($url_lang_id) ?>">
-                        <span>🇮🇩 Bahasa Indonesia</span>
-                        <?php if (($_SESSION['lang'] ?? 'id') === 'id'): ?>
-                            <i class="bi bi-check2 ms-2"></i>
-                        <?php endif; ?>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between <?= ($_SESSION['lang'] ?? 'id') === 'id' ? '' : 'fw-bold active' ?>" 
-                    href="<?= htmlspecialchars($url_lang_en) ?>">
-                        <span>🇬🇧 English</span>
-                        <?php if (($_SESSION['lang'] ?? 'id') === 'en'): ?>
-                            <i class="bi bi-check2 ms-2"></i>
-                        <?php endif; ?>
-                    </a>
-                </li>
-            </ul>
-        </div>
         
         <!-- 1. Notification Dropdown -->
         <div class="dropdown">
             <div class="notification" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
                 <i class="bi bi-bell-fill"></i>
-                <?php if ($total_pending > 0): ?>
+                <?php if ($total_notif > 0): ?>
                     <div class="notification-dot"></div>
                 <?php endif; ?>
             </div>
             
-            <ul class="dropdown-menu dropdown-menu-end notification-dropdown shadow-sm border-0 mt-2">
+            <ul class="dropdown-menu dropdown-menu-end notification-dropdown shadow-sm border-0 mt-2" style="min-width: 280px;">
                 <li class="notification-header d-flex justify-content-between align-items-center px-3 py-2 fw-bold text-secondary border-bottom" style="font-size: 13px;">
-                    <span>Pending Requests</span>
-                    <?php if ($total_pending > 0): ?>
-                        <span class="badge bg-danger rounded-pill" style="font-size: 10px;"><?php echo $total_pending; ?> Baru</span>
+                    <span>Pemberitahuan</span>
+                    <?php if ($total_notif > 0): ?>
+                        <span class="badge bg-danger rounded-pill" style="font-size: 10px;"><?php echo $total_notif; ?> Baru</span>
                     <?php endif; ?>
                 </li>
                 
-                <!-- RENDER DATA DINAMIS PENDING REQUEST -->
+                <!-- RENDER DATA DINAMIS NOTIFIKASI -->
                 <?php if (!empty($notif_items)): ?>
                     <?php foreach ($notif_items as $notif): ?>
                         <li>
-                            <!-- FIX PATH LINK PENDING -->
-                            <a class="dropdown-item notification-item py-2 border-bottom" href="<?= $prefix ?>pending.php?req=<?php echo urlencode($notif['request_id']); ?>">
-                                <span class="notif-title fw-bold d-block text-dark" style="font-size: 13px;">
-                                    <?php echo htmlspecialchars($notif['perusahaan']); ?>
-                                </span>
-                                <span class="notif-desc text-muted small" style="font-size: 12px;">
-                                    #<?php echo htmlspecialchars($notif['request_id']); ?> — SA: <?php echo htmlspecialchars($notif['nama_sa']); ?>
+                            <a class="dropdown-item notification-item py-2 border-bottom" href="<?= $notif['link']; ?>">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="notif-title fw-bold text-dark" style="font-size: 13px;">
+                                        <?php echo $notif['title']; ?>
+                                    </span>
+                                    <span class="badge <?php echo $notif['badge_bg']; ?>" style="font-size: 9px;"><?php echo $notif['badge']; ?></span>
+                                </div>
+                                <span class="notif-desc text-muted small d-block" style="font-size: 12px;">
+                                    <?php echo $notif['desc']; ?>
                                 </span>
                             </a>
                         </li>
@@ -141,15 +190,14 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <?php else: ?>
                     <li>
                         <div class="dropdown-item text-center text-muted py-3 small">
-                            <i class="bi bi-check-circle me-1 text-success"></i> Tidak ada request pending
+                            <i class="bi bi-check-circle me-1 text-success"></i> Tidak ada pemberitahuan
                         </div>
                     </li>
                 <?php endif; ?>
                 
                 <li>
-                    <!-- FIX PATH LINK LIHAT SEMUA -->
                     <a class="dropdown-item text-center py-2" href="<?= $prefix ?>pending.php" style="color: #556ee6; font-weight: 600; font-size: 13px;">
-                        Lihat Semua Request (<?php echo $total_pending; ?>)
+                        Lihat Semua Request (<?php echo $total_notif; ?>)
                     </a>
                 </li>
             </ul>
@@ -190,7 +238,6 @@ if (isset($pdo) && $pdo instanceof PDO) {
                         <?php echo htmlspecialchars($role_user); ?> Account
                     </span>
                 </li>
-                <!-- FIX PATH LINK PROFIL & LOGOUT -->
                 <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>profile.php"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
                 <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>setting.php"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                 <li><hr class="dropdown-divider my-1"></li>
@@ -204,7 +251,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
 
     <script>
         // Passing PHP language array to Javascript Global Object
-        window.I18N = <?php echo json_encode($lang); ?>;
+        window.I18N = <?php echo json_encode($lang ?? []); ?>;
 
         // Helper Function untuk Translate di JS + mengganti placeholder dinamis {var}
         function t(key, params = {}) {

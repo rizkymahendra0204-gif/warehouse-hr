@@ -9,7 +9,7 @@ try {
     $sql_pending = "SELECT rf.* FROM request_form rf 
                     LEFT JOIN transaksi t ON rf.request_id = t.request_id 
                     WHERE t.request_id IS NULL 
-                    ORDER BY rf.request_id DESC";
+                    ORDER BY rf.request_id ASC";
                     
     $stmt_pending = $pdo->prepare($sql_pending);
     $stmt_pending->execute();

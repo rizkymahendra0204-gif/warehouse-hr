@@ -351,6 +351,13 @@ return [
     'plc_password'           => 'Masukkan password',
     'alert_notif_success'    => 'Pengaturan notifikasi berhasil diperbarui!',
     'alert_notif_session'    => 'Pengaturan notifikasi disimpan (Session Mode)!',
+    // --- Pengaturan Bahasa ---
+    'title_language_settings' => 'Pilih Bahasa Antarmuka',
+    'desc_language_settings'  => 'Pilih bahasa operasional sistem yang ingin Anda gunakan.',
+    'lang_id_title'           => 'Bahasa Indonesia',
+    'lang_id_desc'            => 'Bahasa Utama',
+    'lang_en_title'           => 'English',
+    'lang_en_desc'            => 'Bahasa Inggris',
     
     
 ];

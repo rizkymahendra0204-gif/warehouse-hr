@@ -12,6 +12,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing; // Tambahkan namespace Drawing
 
 // 3. Tangkap Parameter URL
 $type = $_GET['type'] ?? '';
@@ -153,32 +154,39 @@ if ($type === 'barcode' || $type === 'stockcard') {
     $start_date = $_GET['start_date'] ?? date('Y-m-01');
     $end_date   = $_GET['end_date']   ?? date('Y-m-t');
 
+    // Base URL web jika file bukti berformat PDF
+    $baseUrl = "http://127.0.0.1/Request.Form.2/";
+    
+    // Path direktori absolut folder XAMPP di mana file upload berada
+    $uploadDir = 'C:/xampp/htdocs/Request.Form.2/';
+
     try {
         $sql = "SELECT 
-                    COALESCE(t.tgl_transaksi, rf.tgl_request) AS tgl_transaksi,
+                    t.tgl_transaksi,
                     rf.request_id,
                     rf.perusahaan,
                     rf.brand,
                     rf.nama_sa,
                     rf.pembayaran,
+                    rf.upload,
                     rf.total_harga AS harga,
-                    COALESCE(COUNT(td.barcode), 0) AS total_pcs
+                    COUNT(td.barcode) AS total_pcs
                 FROM request_form rf
-                LEFT JOIN transaksi t ON rf.request_id = t.request_id
+                INNER JOIN transaksi t ON rf.request_id = t.request_id
                 LEFT JOIN transaksi_detail td ON t.transaction_id = td.transaction_id
-                WHERE DATE(COALESCE(t.tgl_transaksi, rf.tgl_request)) BETWEEN :start_date AND :end_date
-                  AND rf.request_id LIKE '%FR%'
+                WHERE DATE(t.tgl_transaksi) BETWEEN :start_date AND :end_date
+                  AND rf.request_id LIKE 'FR%'
                 GROUP BY 
+                    t.transaction_id,
                     rf.request_id, 
-                    t.transaction_id, 
                     t.tgl_transaksi, 
-                    rf.tgl_request, 
                     rf.perusahaan, 
                     rf.brand, 
                     rf.nama_sa, 
                     rf.pembayaran, 
+                    rf.upload,
                     rf.total_harga
-                ORDER BY COALESCE(t.tgl_transaksi, rf.tgl_request) DESC";
+                ORDER BY t.tgl_transaksi DESC";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':start_date' => $start_date, ':end_date' => $end_date]);
@@ -200,9 +208,10 @@ if ($type === 'barcode' || $type === 'stockcard') {
     ];
 
     $sheet->setTitle('Laporan Finance');
-    $headers = ['NO', 'TANGGAL', 'NO REQUEST', 'PERUSAHAAN / BRAND', 'NAMA SA', 'METODE PEMBAYARAN', 'TOTAL PCS', 'TOTAL TAGIHAN (RP)'];
+    
+    $headers = ['NO', 'TANGGAL', 'NO REQUEST', 'PERUSAHAAN / BRAND', 'NAMA SA', 'METODE PEMBAYARAN', 'BUKTI PEMBAYARAN', 'TOTAL PCS', 'TOTAL TAGIHAN (RP)'];
     $sheet->fromArray($headers, NULL, 'A1');
-    $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+    $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
 
     $rowNum = 2;
     if (!empty($data)) {
@@ -217,24 +226,60 @@ if ($type === 'barcode' || $type === 'stockcard') {
             $sheet->setCellValue("D{$rowNum}", $perusahaan_brand);
             $sheet->setCellValue("E{$rowNum}", $row['nama_sa']);
             $sheet->setCellValue("F{$rowNum}", ucfirst($row['pembayaran'] ?? '-'));
-            $sheet->setCellValue("G{$rowNum}", (int)$row['total_pcs'] . ' Pcs');
-            $sheet->setCellValue("H{$rowNum}", (float)($row['harga'] ?? 0));
+
+            // --- EMBEDDED DRAWING LOGIC UNTUK BUKTI PEMBAYARAN ---
+            $relativePath = $row['upload'] ?? '';
+            $fullFilePath = $uploadDir . $relativePath;
+
+            if (!empty($relativePath) && file_exists($fullFilePath)) {
+                $ext = strtolower(pathinfo($fullFilePath, PATHINFO_EXTENSION));
+
+                // Gambar (JPG/PNG) ditanam langsung di sel Excel
+                if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                    $drawing = new Drawing();
+                    $drawing->setName('Bukti Pembayaran');
+                    $drawing->setDescription('Bukti Transfer');
+                    $drawing->setPath($fullFilePath);
+                    $drawing->setHeight(35); // Tinggi gambar dalam pixel
+                    $drawing->setCoordinates("G{$rowNum}");
+                    $drawing->setOffsetX(15);
+                    $drawing->setOffsetY(4);
+                    $drawing->setWorksheet($sheet);
+
+                    // Sesuaikan tinggi baris sel Excel agar gambar muat rapi
+                    $sheet->getRowDimension($rowNum)->setRowHeight(40);
+                } else {
+                    // Berkas PDF dialihkan ke hyperlink web
+                    $fileUrl = $baseUrl . $relativePath;
+                    $sheet->setCellValue("G{$rowNum}", 'Lihat PDF');
+                    $sheet->getCell("G{$rowNum}")->getHyperlink()->setUrl($fileUrl);
+                    $sheet->getStyle("G{$rowNum}")->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('0000FF'));
+                    $sheet->getStyle("G{$rowNum}")->getFont()->setUnderline(true);
+                }
+            } else {
+                $sheet->setCellValue("G{$rowNum}", '-');
+            }
+
+            $sheet->setCellValue("H{$rowNum}", (int)$row['total_pcs'] . ' Pcs');
+            $sheet->setCellValue("I{$rowNum}", (float)($row['harga'] ?? 0));
             $rowNum++;
         }
         $lastRow = $rowNum - 1;
 
         $sheet->getStyle("A2:C{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("F2:G{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("H2:H{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-        $sheet->getStyle("H2:H{$lastRow}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
-        $sheet->getStyle("A1:H{$lastRow}")->applyFromArray(['borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]]);
+        $sheet->getStyle("F2:H{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("F2:H{$lastRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle("I2:I{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle("I2:I{$lastRow}")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle("I2:I{$lastRow}")->getNumberFormat()->setFormatCode('"Rp "#,##0');
+        $sheet->getStyle("A1:I{$lastRow}")->applyFromArray(['borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]]]);
     } else {
-        $sheet->mergeCells('A2:H2');
+        $sheet->mergeCells('A2:I2');
         $sheet->setCellValue('A2', 'Tidak ada data transaksi keuangan pada periode ini.');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
     }
 
-    $lastCol = 'H';
+    $lastCol = 'I';
     $filename = "Laporan_Finance_" . date('d-m-Y', strtotime($start_date)) . "_sd_" . date('d-m-Y', strtotime($end_date)) . ".xlsx";
 
 // =========================================================================
@@ -385,7 +430,11 @@ if ($type === 'barcode' || $type === 'stockcard') {
 
 // Auto-size Lebar Seluruh Kolom
 foreach (range('A', $lastCol) as $col) {
-    $sheet->getColumnDimension($col)->setAutoSize(true);
+    if ($col === 'G' && $type === 'finance') {
+        $sheet->getColumnDimension('G')->setWidth(18); // Lebar khusus untuk sel gambar bukti
+    } else {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
 }
 
 // Output Download (.xlsx)

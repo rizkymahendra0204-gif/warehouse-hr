@@ -1,77 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/auth_check.php';
-include 'includes/db.php';
-
-// Pastikan koneksi PDO tersedia
-if (!isset($conn) && isset($pdo)) {
-    $conn = $pdo;
-}
-
-// 1. VALIDASI LOGIN
-if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit;
-}
-
-$is_admin = isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin';
-
-// Atur tab aktif (User biasa langsung ke tab notifikasi)
-$active_tab = $_GET['tab'] ?? ($is_admin ? 'users' : 'notif');
-
-// 2. PENANGANAN FORM NOTIFIKASI (POST HANDLER)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notifications'])) {
-    $notif_request = isset($_POST['notif_request']) ? 1 : 0;
-    $notif_return  = isset($_POST['notif_return'])  ? 1 : 0;
-    $notif_stock   = isset($_POST['notif_stock'])   ? 1 : 0;
-    $username_curr = $_SESSION['username'] ?? '';
-
-    try {
-        $stmt_notif = $conn->prepare("UPDATE users SET 
-            notif_request = :notif_request, 
-            notif_return  = :notif_return, 
-            notif_stock   = :notif_stock 
-            WHERE username = :uname");
-
-        $stmt_notif->execute([
-            ':notif_request' => $notif_request,
-            ':notif_return'  => $notif_return,
-            ':notif_stock'   => $notif_stock,
-            ':uname'         => $username_curr
-        ]);
-
-        $_SESSION['alert_message'] = $lang['alert_notif_success'] ?? "Pengaturan notifikasi berhasil diperbarui!";
-        $_SESSION['alert_type']    = "success";
-    } catch (PDOException $e) {
-        $_SESSION['notif_settings'] = [
-            'request' => $notif_request,
-            'return'  => $notif_return,
-            'stock'   => $notif_stock
-        ];
-        $_SESSION['alert_message'] = $lang['alert_notif_session'] ?? "Pengaturan notifikasi disimpan (Session Mode)!";
-        $_SESSION['alert_type']    = "success";
-    }
-
-    header("Location: setting.php?tab=notif");
-    exit;
-}
-
-// 3. FETCH DAFTAR USER (KHUSUS ADMIN)
-$list_users = [];
-if ($is_admin) {
-    try {
-        $stmt = $conn->query("SELECT * FROM users ORDER BY username ASC");
-        $list_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $_SESSION['alert_message'] = "Error mengambil data user: " . $e->getMessage();
-        $_SESSION['alert_type'] = "danger";
-    }
-}
-
-// 4. FETCH DATA USER AKTIF
-$current_username = $_SESSION['username'] ?? '';
-$stmt_curr = $conn->prepare("SELECT * FROM users WHERE username = :uname LIMIT 1");
-$stmt_curr->execute([':uname' => $current_username]);
-$data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
+include 'controllers/query_setting.php';
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
@@ -98,7 +26,7 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
             <!-- Header Halaman -->
             <div class="mb-4">
                 <h4 class="fw-bold mb-1"><?= $lang['setting_title'] ?? 'Pengaturan Sistem' ?></h4>
-                <p class="text-secondary m-0" style="font-size: 14px;"><?= $lang['setting_subtitle'] ?? 'Kelola akun pengguna operasional dan konfigurasi notifikasi sistem.' ?></p>
+                <p class="text-secondary m-0" style="font-size: 14px;"><?= $lang['setting_subtitle'] ?? 'Kelola akun pengguna operasional, bahasa, dan konfigurasi notifikasi sistem.' ?></p>
             </div>
 
             <!-- Notifikasi Alert -->
@@ -147,6 +75,9 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
                                     <i class="bi bi-gear-wide-connected me-2"></i>Status: <span class="text-success fw-bold"><?= $lang['lbl_status_active'] ?? 'Aktif' ?></span>
                                 </div>
                                 <div class="mb-2">
+                                    <i class="bi bi-globe me-2"></i>Bahasa: <span class="fw-bold text-dark"><?= ($_SESSION['lang'] ?? 'id') === 'id' ? '🇮🇩 Indonesia' : 'en English' ?></span>
+                                </div>
+                                <div class="mb-2">
                                     <i class="bi bi-shield-lock me-2"></i>Akses: <?= $is_admin ? ($lang['access_full'] ?? 'Penuh (Administrator)') : ($lang['access_restricted'] ?? 'Terbatas (Staff Operasional)'); ?>
                                 </div>
                             </div>
@@ -154,22 +85,29 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
                     </div>
                 </div>
 
-                <!-- KOLOM KANAN: Form Tabbed (Manajemen User & Notifikasi) -->
+                <!-- KOLOM KANAN: Form Tabbed -->
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm rounded-3 bg-white">
                         <div class="card-header bg-white border-0 pt-3 px-4 pb-0">
                             <ul class="nav nav-tabs card-header-tabs" id="settingTab" role="tablist">
                                 <?php if ($is_admin): ?>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link <?= $active_tab !== 'notif' ? 'active' : '' ?> py-3" id="users-tab" data-bs-toggle="tab" data-bs-target="#user-management" type="button" role="tab">
+                                    <button class="nav-link <?= $active_tab === 'users' ? 'active' : '' ?> py-3" id="users-tab" data-bs-toggle="tab" data-bs-target="#user-management" type="button" role="tab">
                                         <i class="bi bi-people-fill me-2"></i><?= $lang['tab_user_management'] ?? 'Manajemen Pengguna' ?>
                                     </button>
                                 </li>
                                 <?php endif; ?>
 
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link <?= ($active_tab === 'notif' || !$is_admin) ? 'active' : '' ?> py-3" id="notif-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
+                                    <button class="nav-link <?= $active_tab === 'notif' || (!$is_admin && $active_tab !== 'language') ? 'active' : '' ?> py-3" id="notif-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">
                                         <i class="bi bi-bell-fill me-2"></i><?= $lang['tab_notifications'] ?? 'Pengaturan Notifikasi' ?>
+                                    </button>
+                                </li>
+
+                                <!-- TAB BARU: BAHASA -->
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link <?= $active_tab === 'language' ? 'active' : '' ?> py-3" id="language-tab" data-bs-toggle="tab" data-bs-target="#language-settings" type="button" role="tab">
+                                        <i class="bi bi-globe me-2"></i><?= $lang['tab_language'] ?? 'Bahasa (Language)' ?>
                                     </button>
                                 </li>
                             </ul>
@@ -180,7 +118,7 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
                                 
                                 <?php if ($is_admin): ?>
                                 <!-- TAB 1: MANAJEMEN PENGGUNA (KHUSUS ADMIN) -->
-                                <div class="tab-pane fade <?= $active_tab !== 'notif' ? 'show active' : '' ?>" id="user-management" role="tabpanel">
+                                <div class="tab-pane fade <?= $active_tab === 'users' ? 'show active' : '' ?>" id="user-management" role="tabpanel">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="fw-bold m-0 text-dark"><?= $lang['title_user_list'] ?? 'Daftar Akun Pengguna' ?></h6>
                                         <button type="button" class="btn btn-biru-solid btn-sm fw-bold shadow-sm px-3 py-2" onclick="openModalTambahUser()">
@@ -242,7 +180,7 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
                                 <?php endif; ?>
 
                                 <!-- TAB 2: PENGATURAN NOTIFIKASI -->
-                                <div class="tab-pane fade <?= ($active_tab === 'notif' || !$is_admin) ? 'show active' : '' ?>" id="notifications" role="tabpanel">
+                                <div class="tab-pane fade <?= $active_tab === 'notif' || (!$is_admin && $active_tab !== 'language') ? 'show active' : '' ?>" id="notifications" role="tabpanel">
                                     <form action="setting.php" method="POST">
                                         <div class="row g-3">
                                             <div class="col-12">
@@ -264,13 +202,13 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
                                                     </div>
                                                 </div>
 
-                                                <div class="card p-3 border rounded-3 mb-3 bg-light">
+                                                <!-- <div class="card p-3 border rounded-3 mb-3 bg-light">
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" id="notifReturn" name="notif_return" <?= $ret_checked ?>>
                                                         <label class="form-check-label fw-bold" for="notifReturn"><?= $lang['notif_ret_title'] ?? 'Notifikasi Pengembalian (Return)' ?></label>
                                                         <div class="form-text small"><?= $lang['notif_ret_desc'] ?? 'Pemberitahuan otomatis ketika transaksi barang retur diterima oleh sistem.' ?></div>
                                                     </div>
-                                                </div>
+                                                </div> -->
 
                                                 <div class="card p-3 border rounded-3 mb-3 bg-light">
                                                     <div class="form-check form-switch">
@@ -288,6 +226,52 @@ $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
                                             </div>
                                         </div>
                                     </form>
+                                </div>
+
+                                <!-- TAB 3: PENGATURAN BAHASA -->
+                                <div class="tab-pane fade <?= $active_tab === 'language' ? 'show active' : '' ?>" id="language-settings" role="tabpanel">
+                                    <div class="mb-3">
+                                        <h6 class="fw-bold mb-1 text-dark"><?= $lang['title_language_settings'] ?? 'Pilih Bahasa Antarmuka' ?></h6>
+                                        <p class="text-muted small"><?= $lang['desc_language_settings'] ?? 'Pilih bahasa operasional sistem yang ingin Anda gunakan.' ?></p>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <!-- Opsi 1: Bahasa Indonesia -->
+                                        <div class="col-md-6">
+                                            <a href="<?= htmlspecialchars($url_lang_id) ?>" class="card p-3 border rounded-3 text-decoration-none shadow-sm transition-all <?= ($_SESSION['lang'] ?? 'id') === 'id' ? 'border-primary bg-primary-subtle' : 'bg-light hover-shadow' ?>">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="badge bg-dark text-white px-2 py-1 fw-bold" style="font-size: 13px;">ID</span>
+                                                        <div>
+                                                            <h6 class="fw-bold m-0 text-dark"><?= $lang['lang_id_title'] ?? 'Bahasa Indonesia' ?></h6>
+                                                            <small class="text-muted"><?= $lang['lang_id_desc'] ?? 'Bahasa Utama' ?></small>
+                                                        </div>
+                                                    </div>
+                                                    <?php if (($_SESSION['lang'] ?? 'id') === 'id'): ?>
+                                                        <i class="bi bi-check-circle-fill text-primary fs-4"></i>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </a>
+                                        </div>
+
+                                        <!-- Opsi 2: English -->
+                                        <div class="col-md-6">
+                                            <a href="<?= htmlspecialchars($url_lang_en) ?>" class="card p-3 border rounded-3 text-decoration-none shadow-sm transition-all <?= ($_SESSION['lang'] ?? 'id') === 'en' ? 'border-primary bg-primary-subtle' : 'bg-light hover-shadow' ?>">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="badge bg-dark text-white px-2 py-1 fw-bold" style="font-size: 13px;">EN</span>
+                                                        <div>
+                                                            <h6 class="fw-bold m-0 text-dark"><?= $lang['lang_en_title'] ?? 'English' ?></h6>
+                                                            <small class="text-muted"><?= $lang['lang_en_desc'] ?? 'English Language' ?></small>
+                                                        </div>
+                                                    </div>
+                                                    <?php if (($_SESSION['lang'] ?? 'id') === 'en'): ?>
+                                                        <i class="bi bi-check-circle-fill text-primary fs-4"></i>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
 
                             </div>

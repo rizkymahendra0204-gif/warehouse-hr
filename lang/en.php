@@ -347,6 +347,13 @@ return [
     'plc_password'           => 'Enter password',
     'alert_notif_success'    => 'Notification settings successfully updated!',
     'alert_notif_session'    => 'Notification settings saved (Session Mode)!',
+    // --- Language Settings ---
+    'title_language_settings' => 'Select Interface Language',
+    'desc_language_settings'  => 'Choose the operational system language you want to use.',
+    'lang_id_title'           => 'Indonesian',
+    'lang_id_desc'            => 'Indonesian Language',
+    'lang_en_title'           => 'English',
+    'lang_en_desc'            => 'English Language',
 
 
 ];

@@ -74,16 +74,37 @@ include 'controllers/query_transaksi.php';
                                         <tbody id="rincian-item-list">
                                             <?php if ($is_auto && $total_qty > 0): ?>
                                                 
-                                                <?php if ($qty_top > 0): ?>
+                                                <?php if (!empty($brand)): ?>
                                                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                                                    <td class="fw-bold py-2 ps-0 text-secondary" width="15%"><?= $lang['lbl_nama_brand'] ?? 'Nama Brand' ?></td>
+                                                    <td class="fw-bold py-2 ps-0 text-secondary" width="25%"><?= $lang['lbl_nama_brand'] ?? 'Nama Brand' ?></td>
                                                     <td class="py-2 text-dark">: <?php echo $brand; ?></td>
                                                 </tr>
                                                 <?php endif; ?>
 
                                                 <tr>
                                                     <td class="fw-bold py-2 ps-0 text-secondary"><?= $lang['modal_total_jumlah'] ?? 'Total Jumlah' ?></td>
-                                                    <td class="py-2 text-dark fw-bold">: <?php echo $total_qty; ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?></td>
+                                                    <td class="py-2 text-dark fw-bold">
+                                                        : <?php echo $total_qty; ?> <?= $lang['unit_pcs'] ?? 'Pcs' ?>
+                                                        
+                                                        <?php 
+                                                        // Penentuan label gender
+                                                        $g_label = in_array(strtolower($gender ?? ''), ['female', 'wanita', '2']) ? 'Wanita' : 'Pria';
+                                                        
+                                                        $items_detail = [];
+                                                        if (!empty($qty_top) && $qty_top > 0) {
+                                                            $items_detail[] = "Atasan {$g_label} {$qty_top}";
+                                                        }
+                                                        
+                                                        $bot_qty = $qty_bottoms ?? $qty_bottom ?? 0;
+                                                        if (!empty($bot_qty) && $bot_qty > 0) {
+                                                            $items_detail[] = "Bawahan {$g_label} {$bot_qty}";
+                                                        }
+                                                        
+                                                        if (!empty($items_detail)) {
+                                                            echo '<span class="fw-normal text-muted ms-1">( ' . implode(' & ', $items_detail) . ' )</span>';
+                                                        }
+                                                        ?>
+                                                    </td>
                                                 </tr>
                                                 
                                             <?php else: ?>
