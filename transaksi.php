@@ -58,7 +58,7 @@ include 'controllers/query_transaksi.php';
 
             <div class="container-fluid px-0">
                 
-                <form action="controllers/proses_transaksi.php" method="POST" id="formTransaksi">
+                <form action="controllers/proses_transaksi" method="POST" id="formTransaksi">
 
                     <div class="row g-4">
                         <div class="col-12">

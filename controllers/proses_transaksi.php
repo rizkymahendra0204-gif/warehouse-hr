@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['alert_message'] = "Transaksi Berhasil Disimpan dengan No. Transaksi: <strong>{$transaction_id}</strong>";
         $_SESSION['alert_type']    = "success";
 
-        echo "<script>alert('Transaksi Berhasil Disimpan dengan No. Transaksi: " . $transaction_id . "'); window.location.href='../pending.php';</script>";
+        echo "<script>alert('Transaksi Berhasil Disimpan dengan No. Transaksi: " . $transaction_id . "'); window.location.href='../pending';</script>";
         exit();
 
     } catch (Exception $e) {

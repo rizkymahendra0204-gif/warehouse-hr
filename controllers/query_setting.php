@@ -1,29 +1,35 @@
 <?php
+// Perbaikan path include agar tidak Fatal Error
 require_once __DIR__ . '/../includes/auth_check.php';
-include 'includes/db.php';
+require_once __DIR__ . '/../includes/db.php';
 
-// Pastikan koneksi PDO tersedia
 if (!isset($conn) && isset($pdo)) {
     $conn = $pdo;
 }
 
-// 1. VALIDASI LOGIN
-if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit;
-}
-
+// 1. Validasi Akses Admin
 $is_admin = isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin';
-
-// Atur tab aktif (Default: 'users' untuk Admin, 'notif' untuk User biasa)
 $active_tab = $_GET['tab'] ?? ($is_admin ? 'users' : 'notif');
 
-// URL Penangan Bahasa (Menyesuaikan halaman saat ini)
-$current_page = 'setting.php?tab=' . urlencode($active_tab);
+// 2. Tangkap & Simpan Perubahan Bahasa Permanen ke DB
+if (isset($_GET['lang'])) {
+    $selected_lang = $_GET['lang'] === 'id' ? 'id' : 'en';
+    $_SESSION['lang'] = $selected_lang;
+
+    if (isset($_SESSION['username']) && isset($conn)) {
+        try {
+            $stmt_lang = $conn->prepare("UPDATE users SET lang = :lang WHERE username = :uname");
+            $stmt_lang->execute([':lang' => $selected_lang, ':uname' => $_SESSION['username']]);
+        } catch (PDOException $e) {}
+    }
+}
+
+// 3. Inisialisasi URL Ganti Bahasa
+$current_page = 'setting?tab=' . urlencode($active_tab);
 $url_lang_id  = $current_page . '&lang=id';
 $url_lang_en  = $current_page . '&lang=en';
 
-// 2. PENANGANAN FORM NOTIFIKASI (POST HANDLER)
+// 4. Penanganan Form Simpan Notifikasi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notifications'])) {
     $notif_request = isset($_POST['notif_request']) ? 1 : 0;
     $notif_return  = isset($_POST['notif_return'])  ? 1 : 0;
@@ -44,37 +50,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notifications'])
             ':uname'         => $username_curr
         ]);
 
-        $_SESSION['alert_message'] = $lang['alert_notif_success'] ?? "Pengaturan notifikasi berhasil diperbarui!";
-        $_SESSION['alert_type']    = "success";
-    } catch (PDOException $e) {
+        // Perbarui Session
         $_SESSION['notif_settings'] = [
             'request' => $notif_request,
             'return'  => $notif_return,
             'stock'   => $notif_stock
         ];
-        $_SESSION['alert_message'] = $lang['alert_notif_session'] ?? "Pengaturan notifikasi disimpan (Session Mode)!";
+
+        $_SESSION['alert_message'] = $lang['alert_notif_success'] ?? "Pengaturan notifikasi berhasil diperbarui!";
         $_SESSION['alert_type']    = "success";
+    } catch (PDOException $e) {
+        $_SESSION['alert_message'] = "Error: " . $e->getMessage();
+        $_SESSION['alert_type']    = "danger";
     }
 
-    header("Location: setting.php?tab=notif");
+    header("Location: setting?tab=notif");
     exit;
 }
 
-// 3. FETCH DAFTAR USER (KHUSUS ADMIN)
-$list_users = [];
-if ($is_admin) {
-    try {
-        $stmt = $conn->query("SELECT * FROM users ORDER BY username ASC");
-        $list_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $_SESSION['alert_message'] = "Error mengambil data user: " . $e->getMessage();
-        $_SESSION['alert_type'] = "danger";
-    }
-}
-
-// 4. FETCH DATA USER AKTIF
+// 5. Fetch Data Pengguna Aktif & Daftar Users
 $current_username = $_SESSION['username'] ?? '';
 $stmt_curr = $conn->prepare("SELECT * FROM users WHERE username = :uname LIMIT 1");
 $stmt_curr->execute([':uname' => $current_username]);
 $data_user = $stmt_curr->fetch(PDO::FETCH_ASSOC) ?: [];
+
+$list_users = [];
+if ($is_admin) {
+    try {
+        $stmt_users = $conn->query("SELECT * FROM users ORDER BY username ASC");
+        $list_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {}
+}
 ?>

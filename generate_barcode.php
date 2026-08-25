@@ -61,7 +61,7 @@ if (session_status() === PHP_SESSION_NONE) {
             </div>
 
             <!-- FORM UNIFIED SETUP BARCODE -->
-            <form action="generate_barcode.php" method="POST" class="d-print-none" id="formGenerateBarcode">
+            <form action="generate_barcode" method="POST" class="d-print-none" id="formGenerateBarcode">
                 <div class="row g-4">
                     <!-- CARD 1: PARAMETER SKU -->
                     <div class="col-md-6 mb-3">
@@ -169,7 +169,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                     </button>
 
                                     <!-- Tombol 2: Export to Excel -->
-                                    <a href="controllers/export_excel.php?type=barcode&gender=<?= urlencode($gender) ?>&tipe=<?= urlencode($tipe) ?>&ukuran=<?= urlencode($ukuran) ?>&range_awal=<?= $range_awal ?>&range_akhir=<?= $range_akhir ?>" 
+                                    <a href="controllers/export_excel?type=barcode&gender=<?= urlencode($gender) ?>&tipe=<?= urlencode($tipe) ?>&ukuran=<?= urlencode($ukuran) ?>&range_awal=<?= $range_awal ?>&range_akhir=<?= $range_akhir ?>" 
                                         id="btnExportExcel" class="btn btn-cetak-excel fw-bold px-3 d-print-none me-2">
                                         <i class="bi bi-file-earmark-excel-fill me-1"></i> <?= $lang['btn_export_excel'] ?? 'Export ke Excel' ?>
                                     </a>

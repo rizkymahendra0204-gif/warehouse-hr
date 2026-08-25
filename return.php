@@ -131,9 +131,9 @@ if ($is_auto) {
                     
                     <!-- Search Input -->
                     <div class="input-group mb-2" style="width: 250px;">
-                        <input type="text" id="searchInput" class="form-control ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
-                        <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
-                    </div>
+                    <input type="text" id="searchInput" class="form-control ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
+                </div>
                 </div>
 
                 <!-- TABEL DATA ITEM -->
@@ -296,7 +296,7 @@ if ($is_auto) {
                     <p class="text-secondary m-0 mt-1" style="font-size: 14px;"><?= $lang['ret_subtitle'] ?? 'Pencatatan pengembalian item dari transaksi yang telah selesai' ?></p>
                 </div>
 
-                <form action="controllers/proses_return.php" method="POST" id="formReturn">
+                <form action="controllers/proses_return" method="POST" id="formReturn">
 
                     <!-- SECTION 1: Detail Pesanan -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">

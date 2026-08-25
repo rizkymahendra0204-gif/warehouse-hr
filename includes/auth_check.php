@@ -14,7 +14,7 @@ require_once __DIR__ . '/language.php';
 if (!isset($_SESSION['user_id']) && !isset($_SESSION['username'])) {
     $_SESSION['alert_message'] = "Anda harus login terlebih dahulu untuk mengakses halaman ini.";
     $_SESSION['alert_type']    = "danger";
-    header("Location: login.php");
+    header("Location: login");
     exit;
 }
 ?>

@@ -17,7 +17,7 @@ $path_foto        = $prefix . 'assets/img/profile/' . $foto_user;
 $has_foto         = !empty($foto_user) && $foto_user !== 'default.png' && file_exists($server_foto_path);
 
 $initial_user = strtoupper(substr(trim($nama_user), 0, 1));
-$current_page = basename($_SERVER['PHP_SELF']); 
+$current_page = pathinfo(basename($_SERVER['PHP_SELF']), PATHINFO_FILENAME); 
 
 // 3. Pastikan koneksi database PDO tersedia
 if (!isset($pdo)) {
@@ -79,7 +79,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                         'type'     => 'request',
                         'title'    => htmlspecialchars($row['perusahaan']),
                         'desc'     => '#' . htmlspecialchars($row['request_id']) . ' — SA: ' . htmlspecialchars($row['nama_sa']),
-                        'link'     => $prefix . 'pending.php?req=' . urlencode($row['request_id']),
+                        'link'     => $prefix . 'pending?req=' . urlencode($row['request_id']),
                         'badge'    => 'Request',
                         'badge_bg' => 'bg-danger'
                     ];
@@ -106,7 +106,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                         'type'     => 'return',
                         'title'    => 'Barang Retur Diterima',
                         'desc'     => 'Transaksi #' . htmlspecialchars($row['transaction_id']),
-                        'link'     => $prefix . 'return.php',
+                        'link'     => $prefix . 'return',
                         'badge'    => 'Return',
                         'badge_bg' => 'bg-warning text-dark'
                     ];
@@ -128,7 +128,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                         'type'     => 'stock',
                         'title'    => 'Stok Menipis (' . $row['sisa'] . ' Pcs)',
                         'desc'     => $row['tipe'] . ' ' . $row['gender'] . ' Size ' . $row['size'],
-                        'link'     => $prefix . 'stockcard.php',
+                        'link'     => $prefix . 'stockcard',
                         'badge'    => 'Stok',
                         'badge_bg' => 'bg-danger'
                     ];
@@ -196,7 +196,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <?php endif; ?>
                 
                 <li>
-                    <a class="dropdown-item text-center py-2" href="<?= $prefix ?>pending.php" style="color: #556ee6; font-weight: 600; font-size: 13px;">
+                    <a class="dropdown-item text-center py-2" href="<?= $prefix ?>pending" style="color: #556ee6; font-weight: 600; font-size: 13px;">
                         Lihat Semua Request (<?php echo $total_notif; ?>)
                     </a>
                 </li>
@@ -238,11 +238,11 @@ if (isset($pdo) && $pdo instanceof PDO) {
                         <?php echo htmlspecialchars($role_user); ?> Account
                     </span>
                 </li>
-                <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>profile.php"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
-                <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>setting.php"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
+                <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>profile"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
+                <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>setting"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                 <li><hr class="dropdown-divider my-1"></li>
                 <li>
-                    <a class="dropdown-item text-danger py-2" href="<?= $prefix ?>logout.php">
+                    <a class="dropdown-item text-danger py-2" href="<?= $prefix ?>logout">
                         <i class="bi bi-box-arrow-right me-2"></i> Logout
                     </a>
                 </li>

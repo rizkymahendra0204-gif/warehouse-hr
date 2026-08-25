@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Commit seluruh perubahan ke database (return_items + master_item + log_activity)
         $pdo->commit();
 
-        echo "<script>alert('Proses Return Berhasil Disimpan!'); window.location.href='../return.php';</script>";
+        echo "<script>alert('Proses Return Berhasil Disimpan!'); window.location.href='../return';</script>";
         exit();
 
     } catch (Exception $e) {

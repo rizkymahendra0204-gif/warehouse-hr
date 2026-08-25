@@ -6,32 +6,57 @@ if (!isset($conn) && isset($pdo)) {
 }
 
 // ==========================================
-// 1. TANGKAP FILTER TANGGAL & PENCARIAN
+// 1. TANGKAP FILTER TANGGAL, PENCARIAN & PAGINATION
 // ==========================================
 $start_date = isset($_GET['start_date']) && !empty($_GET['start_date']) ? $_GET['start_date'] : date('Y-m-01');
 $end_date   = isset($_GET['end_date']) && !empty($_GET['end_date'])     ? $_GET['end_date']   : date('Y-m-d');
 $search     = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// Pengaturan Pagination (Limit Data)
+$limit = 10; // Jumlah data per halaman
+$page  = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+if ($page < 1) { $page = 1; }
+$offset = ($page - 1) * $limit;
+
 // ==========================================
-// 2. QUERY FETCH DATA LOG ACTIVITY
+// 2. QUERY FETCH DATA LOG ACTIVITY (WITH LIMIT)
 // ==========================================
 try {
-    $sql = "SELECT * FROM log_activity WHERE DATE(created_at) BETWEEN :start_date AND :end_date";
+    // Klausa kondisi dasar
+    $where_clause = " WHERE DATE(created_at) BETWEEN :start_date AND :end_date";
     $params = [
         ':start_date' => $start_date,
         ':end_date'   => $end_date
     ];
 
     if (!empty($search)) {
-        $sql .= " AND (nama_user LIKE :search OR aktivitas LIKE :search OR keterangan LIKE :search OR modul LIKE :search)";
+        $where_clause .= " AND (nama_user LIKE :search OR aktivitas LIKE :search OR keterangan LIKE :search OR modul LIKE :search)";
         $params[':search'] = "%{$search}%";
     }
 
-    $sql .= " ORDER BY created_at DESC";
+    // A. Hitung Total Data (Untuk mengetahui total halaman)
+    $sql_count  = "SELECT COUNT(*) FROM log_activity" . $where_clause;
+    $stmt_count = $conn->prepare($sql_count);
+    $stmt_count->execute($params);
+    $total_rows  = $stmt_count->fetchColumn();
+    $total_pages = ceil($total_rows / $limit);
 
+    // B. Query Ambil Data dengan LIMIT & OFFSET
+    $sql  = "SELECT * FROM log_activity" . $where_clause . " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $conn->prepare($sql);
-    $stmt->execute($params);
+
+    // Binding variabel pencarian/tanggal
+    foreach ($params as $key => $val) {
+        $stmt->bindValue($key, $val, PDO::PARAM_STR);
+    }
+
+    // Binding limit & offset khusus integer
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
+    $stmt->execute();
     $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
     die("Error Database Log: " . $e->getMessage());
 }

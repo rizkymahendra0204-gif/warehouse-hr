@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth_check.php';
-include 'controllers/query_log.php'; // Controller PDO
+include 'controllers/query_log.php'; // Controller PDO yang sudah diberi Limit & Offset
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +30,7 @@ include 'controllers/query_log.php'; // Controller PDO
         <!-- MAIN CONTENT AREA -->
         <main class="content-area p-4">
             
-            <!-- Header Halaman (Jarak bawah dikurangi jadi mb-3) -->
+            <!-- Header Halaman -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="page-title mb-0">
                     <h4 class="fw-bold m-0" style="color: #1e293b;"><?= $lang['menu_log_activity'] ?? 'Log Activity' ?></h4>
@@ -38,7 +38,7 @@ include 'controllers/query_log.php'; // Controller PDO
                 </div>
             </div>
 
-            <!-- Form Filter Tanggal dan Pencarian (Rapat & Pas Sejajar) -->
+            <!-- Form Filter Tanggal dan Pencarian -->
             <form method="GET" action="log_activity.php" class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 
                 <!-- Filter Tanggal (Date Range) -->
@@ -52,15 +52,15 @@ include 'controllers/query_log.php'; // Controller PDO
                     </button>
                 </div>
                 
-                <!-- Input Pencarian -->
-                <div class="input-group" style="width: 250px;">
+                <!-- Input Pencarian (Kirim via GET agar Pagination Tetap Berjalan) -->
+                <div class="input-group mb-2" style="width: 250px;">
                     <input type="text" id="searchInput" class="form-control ps-3" placeholder="<?= $lang['search_placeholder'] ?? 'Cari ...' ?>" style="font-size: 13px;">
                     <span class="input-group-text bg-white"><i class="bi bi-search text-secondary"></i></span>
                 </div>
             </form>
             
             <!-- Table Container (Card) -->
-            <div class="table-card shadow-sm border-0 rounded-3 mb-4">
+            <div class="table-card shadow-sm border-0 rounded-3 mb-4 bg-white">
                 <div class="table-responsive">
                     <table class="table align-middle mb-0">
                         <thead class="table-light border-bottom text-secondary small">
@@ -81,7 +81,6 @@ include 'controllers/query_log.php'; // Controller PDO
                                         $modul        = !empty($row['modul']) ? $row['modul'] : 'Sistem';
                                         $theme        = getLogTheme($modul);
                                         
-                                        // Ambil 1 huruf pertama nama user untuk avatar
                                         $nama_user    = $row['nama_user'] ?? 'User';
                                         $initial_user = strtoupper(substr($nama_user, 0, 1));
                                     ?>
@@ -130,6 +129,40 @@ include 'controllers/query_log.php'; // Controller PDO
                         </tbody>
                     </table>
                 </div>
+
+                <!-- FOOTER / NAVIGASI PAGINATION -->
+                <?php if (isset($total_pages) && $total_pages > 1): ?>
+                <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                    <div class="small text-muted">
+                        <?= $lang['page_info_showing'] ?? 'Menampilkan' ?> <b><?= $offset + 1 ?></b> <?= $lang['page_info_to'] ?? 'sampai' ?> <b><?= min($offset + $limit, $total_rows) ?></b> <?= $lang['page_info_of'] ?? 'dari total' ?> <b><?= $total_rows ?></b> <?= $lang['page_info_entries'] ?? 'data' ?>
+                    </div>
+                    <nav aria-label="Navigasi Halaman Log">
+                        <ul class="pagination pagination-sm m-0">
+                            <!-- Tombol Previous -->
+                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $page - 1 ?>&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>&search=<?= urlencode($search) ?>">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Angka Halaman -->
+                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                                    <a class="page-link" href="?page=<?= $i ?>&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>&search=<?= urlencode($search) ?>"><?= $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <!-- Tombol Next -->
+                            <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                                <a class="page-link" href="?page=<?= $page + 1 ?>&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>&search=<?= urlencode($search) ?>">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <?php endif; ?>
+
             </div>
             
         </main>

@@ -89,12 +89,12 @@ function showAlert(msg, type) {
 }
 
 /**
- * Action Handler untuk Redirect Halaman Return
+ * Action Handler untuk Redirect Halaman Return (Clean URL)
  */
 function openProcessPage(id, sales, nama, detail, barcodes) {
   if (!id) return;
 
-  let url = "return.php?req=" + encodeURIComponent(id);
+  let url = "return?req=" + encodeURIComponent(id);
   if (sales) url += "&sales=" + encodeURIComponent(sales);
   if (nama) url += "&nama=" + encodeURIComponent(nama);
   if (detail) url += "&detail=" + encodeURIComponent(detail);
@@ -107,7 +107,7 @@ function openProcessPage(id, sales, nama, detail, barcodes) {
 }
 
 function cancelProcess() {
-  window.location.href = "return.php";
+  window.location.href = "return";
 }
 
 /**
@@ -442,13 +442,13 @@ async function validateAllItems() {
   let errors = [];
   let scannedItems = [];
 
-  // Validasi Database via API Controller
+  // Validasi Database via API Controller (Clean URL Endpoint)
   for (const input of inputs) {
     const val = input.value.trim();
 
     if (val) {
       try {
-        const response = await fetch("controllers/validate_barcode.php", {
+        const response = await fetch("controllers/validate_barcode", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -668,7 +668,7 @@ $(document).ready(function () {
     $(".sidebar").addClass("collapsed");
   }
 
-  $("#sidebarToggle").on("click", function () {
+  $("#sidebarToggle").off("click").on("click", function () {
     $(".sidebar").toggleClass("collapsed");
     const isCollapsed = $(".sidebar").hasClass("collapsed");
     localStorage.setItem("sidebar_collapsed", isCollapsed);
@@ -783,12 +783,12 @@ $(document).ready(function () {
     });
   }
 
-  // --- 5.3 AJAX LOOKUPS & SEARCH FILTERS ---
+  // --- 5.3 AJAX LOOKUPS & SEARCH FILTERS (Clean URL Endpoint) ---
   $("#id_request").on("blur", function () {
     var idRequest = $(this).val();
     if (idRequest !== "") {
       $.ajax({
-        url: "get_data_request.php",
+        url: "get_data_request",
         method: "POST",
         data: { id: idRequest },
         dataType: "json",
@@ -978,7 +978,7 @@ $(document).ready(function () {
     });
   });
 
-  // --- 5.7 REAL-TIME POLLING PENDING REQUESTS ---
+  // --- 5.7 REAL-TIME POLLING PENDING REQUESTS (Clean URL Endpoint) ---
   if ($("#pending-tab-wrapper").length > 0) {
     console.log("✅ Elemen #pending-tab-wrapper ditemukan! Memulai polling...");
 

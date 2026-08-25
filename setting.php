@@ -181,7 +181,7 @@ include 'controllers/query_setting.php';
 
                                 <!-- TAB 2: PENGATURAN NOTIFIKASI -->
                                 <div class="tab-pane fade <?= $active_tab === 'notif' || (!$is_admin && $active_tab !== 'language') ? 'show active' : '' ?>" id="notifications" role="tabpanel">
-                                    <form action="setting.php" method="POST">
+                                    <form action="setting" method="POST">
                                         <div class="row g-3">
                                             <div class="col-12">
                                                 <p class="text-muted small mb-3"><?= $lang['notif_desc'] ?? 'Atur pemberitahuan sistem yang ingin Anda aktifkan untuk akun operasional ini.' ?></p>
@@ -202,13 +202,13 @@ include 'controllers/query_setting.php';
                                                     </div>
                                                 </div>
 
-                                                <!-- <div class="card p-3 border rounded-3 mb-3 bg-light">
+                                                <div class="card p-3 border rounded-3 mb-3 bg-light">
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" id="notifReturn" name="notif_return" <?= $ret_checked ?>>
                                                         <label class="form-check-label fw-bold" for="notifReturn"><?= $lang['notif_ret_title'] ?? 'Notifikasi Pengembalian (Return)' ?></label>
                                                         <div class="form-text small"><?= $lang['notif_ret_desc'] ?? 'Pemberitahuan otomatis ketika transaksi barang retur diterima oleh sistem.' ?></div>
                                                     </div>
-                                                </div> -->
+                                                </div>
 
                                                 <div class="card p-3 border rounded-3 mb-3 bg-light">
                                                     <div class="form-check form-switch">
@@ -289,7 +289,7 @@ include 'controllers/query_setting.php';
 <div class="modal fade" id="modalTambahUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <form action="controllers/user_controller.php" method="POST">
+            <form action="controllers/user_controller" method="POST">
                 <input type="hidden" name="action" value="tambah_user">
                 
                 <div class="modal-header">
@@ -332,7 +332,7 @@ include 'controllers/query_setting.php';
 <div class="modal fade" id="modalHapusUser" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow">
-            <form action="controllers/user_controller.php" method="POST">
+            <form action="controllers/user_controller" method="POST">
                 <input type="hidden" name="action" value="hapus_user">
                 <input type="hidden" name="username" id="hapus_username_input">
 

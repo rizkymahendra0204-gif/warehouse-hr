@@ -240,7 +240,7 @@ if (!isset($requests_done)) {
 
                                                                             <!-- TOMBOL APPROVE -->
                                                                             <div class="mt-auto pt-2">
-                                                                                <a href="transaksi.php?id=<?= urlencode($req_id) ?>&pt=<?= urlencode($row['perusahaan']) ?>" class="btn btn-aprove-custom fw-bold w-100 py-2 shadow-sm">
+                                                                                <a href="transaksi?id=<?= urlencode($req_id) ?>&pt=<?= urlencode($row['perusahaan']) ?>" class="btn btn-aprove-custom fw-bold w-100 py-2 shadow-sm">
                                                                                     <i class="bi bi-check-circle me-1"></i> <?= $lang['modal_approve_trx'] ?? 'Approve Request' ?>
                                                                                 </a>
                                                                             </div>

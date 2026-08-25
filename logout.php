@@ -7,6 +7,6 @@ session_start();
 $_SESSION['alert_message'] = "Anda berhasil keluar dari sistem.";
 $_SESSION['alert_type']    = "success";
 
-header("Location: login.php");
+header("Location: login");
 exit;
 ?>

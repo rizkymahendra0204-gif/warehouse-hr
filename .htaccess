@@ -1,0 +1,16 @@
+RewriteEngine On
+RewriteBase /warehouse-hr/
+
+# Redirect direct request to .php into the clean URL.
+# Menggunakan path dari RewriteRule agar /warehouse-hr/ tidak terduplikasi.
+RewriteCond %{THE_REQUEST} \s/+[^\s?]*\.php(?:[?\s]) [NC]
+RewriteRule ^(.+)\.php$ $1 [R=301,L,NE]
+
+# Jangan rewrite file atau folder yang memang sudah ada.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Internal rewrite dari clean URL ke file .php.
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^/]+)/?$ $1.php [L]

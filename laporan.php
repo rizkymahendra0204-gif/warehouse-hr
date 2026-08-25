@@ -56,13 +56,13 @@ include __DIR__ . '/controllers/query_laporan.php';
             <ul class="nav nav-tabs nav-tabs-custom mb-4 border-bottom">
                 <li class="nav-item">
                     <a class="nav-link <?= $report_type === 'internal' ? 'active' : '' ?>" 
-                       href="laporan.php?type=internal&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>">
+                       href="laporan?type=internal&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>">
                         <i class="bi bi-box-seam me-2"></i><?= $lang['tab_lap_stok'] ?? 'Laporan Stok' ?>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?= $report_type === 'finance' ? 'active' : '' ?>" 
-                       href="laporan.php?type=finance&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>">
+                       href="laporan?type=finance&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>">
                         <i class="bi bi-wallet2 me-2"></i><?= $lang['tab_lap_keuangan'] ?? 'Laporan Keuangan' ?>
                     </a>
                 </li>
@@ -117,7 +117,7 @@ include __DIR__ . '/controllers/query_laporan.php';
                                     </div>
 
                                     <div class="col-sm-5 d-flex flex-column gap-1">
-                                        <a href="controllers/export_excel.php?type=<?= $report_type ?>&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>" 
+                                        <a href="controllers/export_excel?type=<?= $report_type ?>&start_date=<?= urlencode($start_date) ?>&end_date=<?= urlencode($end_date) ?>" 
                                            class="btn btn-cetak-excel btn-sm fw-bold w-100 text-center py-2" style="font-size: 12px;">
                                             <?= $lang['btn_export_excel'] ?? 'Export To Excel' ?>
                                         </a>
