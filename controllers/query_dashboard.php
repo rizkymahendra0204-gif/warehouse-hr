@@ -98,18 +98,18 @@ if ($res_inactive) {
 // ==========================================
 $total_return = (int)($inactive_stock['total'] ?? 0);
 
-if ($total_return >= 20) {
+if ($total_return >= 15) {
     // 🔴 Merah Gelap (20+)
     $card_style  = 'background-color: #842029; border-color: #842029;';
     $text_class  = 'text-white';
     $unit_class  = 'text-white-50';
-} elseif ($total_return >= 10) {
-    // 🟠 Merah Sedang (10 - 19)
+} elseif ($total_return >= 8) {
+    // 🟠 Merah Sedang (8 - 15)
     $card_style  = 'background-color: #f8d7da; border-color: #f5c2c7;';
     $text_class  = 'text-danger';
     $unit_class  = 'text-secondary';
 } else {
-    // 🟡 Merah Terang / Soft (< 10)
+    // 🟡 Merah Terang / Soft (< 8)
     $card_style  = 'background-color: #fef2f2; border-color: #fee2e2;';
     $text_class  = 'text-danger';
     $unit_class  = 'text-muted';
