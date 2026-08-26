@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing; // Tambahkan namespace Drawing
 
+
 // 3. Tangkap Parameter URL
 $type = $_GET['type'] ?? '';
 
@@ -38,6 +39,10 @@ if ($type === 'barcode' || $type === 'stockcard') {
 
     if (empty($gender) || empty($tipe) || empty($ukuran)) {
         die("Error: Parameter (Gender, Tipe, Ukuran) tidak lengkap untuk melakukan export barcode!");
+    }
+
+    if ($range_akhir < $range_awal) {
+        $range_akhir = $range_awal;
     }
 
     // Pemetaan Kode Komponen Barcode 9 Digit

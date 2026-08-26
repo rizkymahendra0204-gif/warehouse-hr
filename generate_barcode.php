@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/auth_check.php';
 include 'controllers/proses_generate.php';
 
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
