@@ -1,123 +1,14 @@
 <?php
-// Pastikan session sudah diaktifkan untuk pencatatan Audit Log
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-require_once __DIR__ . '/../includes/db.php';
-
-// Handshake / Fallback Variabel PDO ($pdo / $conn)
-if (!isset($pdo) && isset($conn)) {
-    $pdo = $conn;
-}
-
-// =========================================================================
-// 1. AKSI AJAX: SIMPAN BATCH KE STOK BARANG (PDO)
-// =========================================================================
-$rawInput = file_get_contents('php://input');
-$jsonData = json_decode($rawInput, true);
-
-if (isset($jsonData['action']) && $jsonData['action'] === 'simpan_stok_batch') {
-    header('Content-Type: application/json; charset=utf-8');
-    
-    $barcodes = $jsonData['barcodes'] ?? [];
-
-    if (empty($barcodes) || !is_array($barcodes)) {
-        echo json_encode(['success' => false, 'message' => 'Data barcode kosong.']);
-        exit();
-    }
-
-    if (!$pdo) {
-        echo json_encode(['success' => false, 'message' => 'Koneksi database (PDO) tidak ditemukan.']);
-        exit();
-    }
-
+require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../services/inventory.php';
+$jsonData = wh_input();
+if (($jsonData['action'] ?? '') === 'simpan_stok_batch') {
+    wh_require_post();
     try {
-        // Mulai Transaksi Atomic PDO
-        $pdo->beginTransaction();
-
-        $insertedCount = 0;
-        $skippedCount  = 0;
-
-        // Pemetaan Komponen Digit Barcode (9 Digit)
-        $genderMap = ['1' => 'Pria', '2' => 'Wanita'];
-        $typeMap   = ['01' => 'Baju', '02' => 'Celana'];
-        $sizeMap   = [
-            '01' => 'S', '02' => 'M', '03' => 'L', '04' => 'XL',
-            '28' => '28', '30' => '30', '32' => '32', '34' => '34', '36' => '36'
-        ];
-
-        // Optimized Prepared Statement menggunakan INSERT IGNORE
-        $stmtInsert = $pdo->prepare("INSERT IGNORE INTO master_item 
-            (barcode, gender, tipe, size, status_transaksi, status_barang, created_at) 
-            VALUES (?, ?, ?, ?, 'Available', 'Active', NOW())");
-
-        foreach ($barcodes as $code) {
-            $code = trim($code);
-            if (strlen($code) !== 9 || !ctype_digit($code)) {
-                continue; // Skip jika format tidak 9 digit angka
-            }
-
-            // Parse Digit Barcode
-            $genderCode = substr($code, 0, 1);
-            $typeCode   = substr($code, 1, 2);
-            $sizeCode   = substr($code, 3, 2);
-
-            $gender = $genderMap[$genderCode] ?? 'Unknown';
-            $tipe   = $typeMap[$typeCode]   ?? 'Item';
-            $size   = $sizeMap[$sizeCode]   ?? 'Unknown';
-
-            // Insert ke Tabel Stok Barang
-            $stmtInsert->execute([$code, $gender, $tipe, $size]);
-            
-            // rowCount > 0 berarti berhasil di-insert, rowCount == 0 berarti dilewati (karena duplikat/IGNORE)
-            if ($stmtInsert->rowCount() > 0) {
-                $insertedCount++;
-            } else {
-                $skippedCount++;
-            }
-        }
-
-        if ($insertedCount > 0) {
-            // Pencatatan Audit Log Activity
-            $user_id   = $_SESSION['user_id'] ?? 1;
-            $nama_user = $_SESSION['nama_user'] ?? ($_SESSION['nama_lengkap'] ?? 'Staff');
-            $role      = $_SESSION['role'] ?? 'User';
-            
-            $keterangan = "Berhasil menambahkan {$insertedCount} item barcode baru ke Stok Barang.";
-            if ($skippedCount > 0) {
-                $keterangan .= " ({$skippedCount} item dilewati karena sudah terdaftar).";
-            }
-
-            $stmtLog = $pdo->prepare("INSERT INTO log_activity 
-                (user_id, nama_user, role, aktivitas, keterangan, modul, created_at) 
-                VALUES (?, ?, ?, 'Batch Generate Stok', ?, 'Generate Barcode', NOW())");
-            $stmtLog->execute([$user_id, $nama_user, $role, $keterangan]);
-
-            // Commit Transaksi
-            $pdo->commit();
-
-            echo json_encode([
-                'success' => true,
-                'message' => "{$insertedCount} barcode berhasil disimpan ke Stok Barang!" . ($skippedCount > 0 ? " ({$skippedCount} barcode dilewati karena sudah terdaftar)." : "")
-            ]);
-        } else {
-            $pdo->rollBack();
-            echo json_encode([
-                'success' => false,
-                'message' => 'Seluruh barcode pada preview ini sudah pernah terdaftar di database.'
-            ]);
-        }
-
-    } catch (Exception $e) {
-        if ($pdo && $pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
-        echo json_encode(['success' => false, 'message' => 'Gagal menyimpan stok: ' . $e->getMessage()]);
-    }
-    exit();
+        $result = wh_add_stock($pdo, $jsonData['barcodes'] ?? []);
+        wh_json(['success' => true, 'message' => $result['inserted'] . ' barcode disimpan; ' . $result['skipped'] . ' sudah terdaftar.', 'data' => $result]);
+    } catch (DomainException $error) { wh_http_error(422, $error->getMessage()); }
 }
-
 // =========================================================================
 // 2. LOGIKA FORM PROCESS & RUNNING NUMBER CHECKING
 // =========================================================================
@@ -178,7 +69,8 @@ if (!empty($prefix) && strlen($prefix) === 5 && isset($pdo)) {
         $last_number = ($raw_last !== null && $raw_last !== false) ? (int)$raw_last : 0;
         $range_awal  = $last_number + 1; // Otomatis mulai dari nomor urut berikutnya
     } catch (PDOException $e) {
-        $error_msg = "Terjadi kesalahan database: " . $e->getMessage();
+    error_log('[Warehouse HR] ' . $e);
+        $error_msg = "Terjadi kesalahan database: " . 'Operasi database gagal. Hubungi administrator.';
     }
 }
 
@@ -188,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     // Aksi 1: Cek Running Number Terakhir
     if ($action === 'check_last') {
-        if (empty($gender) || empty($tipe) || empty($ukuran)) {
+        if (strlen($prefix) !== 5) {
             $error_msg = "Harap pilih Gender, Tipe, dan Ukuran terlebih dahulu!";
         } else {
             if ($last_number > 0) {
@@ -201,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } 
     // Aksi 2: Generate Preview Range Barcode
     elseif ($action === 'generate_range') {
-        if (empty($gender) || empty($tipe) || empty($ukuran)) {
+        if (strlen($prefix) !== 5) {
             $error_msg = "Semua parameter SKU (Gender, Tipe, Ukuran) wajib diisi!";
         } else {
             // Hitung range_akhir & jumlah cetak
@@ -223,6 +115,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             // Validasi Batas Pembuatan
             if ($jumlah_cetak <= 0) {
                 $error_msg = "Jumlah barcode yang dibuat minimal 1!";
+            } elseif ($range_akhir > 9999) {
+                $error_msg = 'Nomor urut barcode sudah melewati 9999 untuk SKU ini.';
             } elseif ($jumlah_cetak > 300) {
                 $error_msg = "Batasi pembuatan maksimal 300 barcode per sesi cetak.";
             } else {

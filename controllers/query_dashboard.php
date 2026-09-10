@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 // dashboard.php / controllers/query_dashboard.php
-include 'includes/db.php';
+require_once __DIR__ . '/../includes/db.php';
 
-$conn = new mysqli("localhost", "root", "", "db_warehouse");
+$conn = wh_mysqli();
 
 // ==========================================
 // 1. QUERY MENGHITUNG DATA KPI CARDS

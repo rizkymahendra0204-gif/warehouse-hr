@@ -1,0 +1,12 @@
+{
+  "name": "warehouse-hr-ui-tests",
+  "private": true,
+  "scripts": {
+    "scanner": "node scanner.spec.cjs",
+    "scanner:dom": "node scanner-dom.spec.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "jsdom": "26.1.0"
+  }
+}

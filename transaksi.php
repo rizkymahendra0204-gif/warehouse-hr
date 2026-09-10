@@ -6,6 +6,7 @@ include 'controllers/query_transaksi.php';
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WC | <?= $lang['trx_title'] ?? 'Transaksi' ?></title>
@@ -13,8 +14,8 @@ include 'controllers/query_transaksi.php';
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     
     <!-- CSS Utama -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -59,6 +60,7 @@ include 'controllers/query_transaksi.php';
             <div class="container-fluid px-0">
                 
                 <form action="controllers/proses_transaksi" method="POST" id="formTransaksi">
+<?= wh_csrf_field() ?>
 
                     <div class="row g-4">
                         <div class="col-12">
@@ -232,20 +234,20 @@ include 'controllers/query_transaksi.php';
 </div>
 
 <!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 
 <!-- BRIDGE DATA PHP KE JAVASCRIPT -->
 <script>
     window.transactionData = {
-        isAuto: <?php echo json_encode($is_auto ?? false); ?>,
-        idRequest: <?php echo json_encode($auto_id_request ?? ''); ?>,
-        qtyTop: <?php echo json_encode((int)($qty_top ?? 0)); ?>,
-        qtyBottoms: <?php echo json_encode((int)($qty_bottoms ?? 0)); ?>,
-        totalQty: <?php echo json_encode((int)($total_qty ?? 0)); ?>,
-        sizeTop: <?php echo json_encode($size_top ?? ''); ?>,
-        sizeBottoms: <?php echo json_encode($size_bottoms ?? ''); ?>,
-        gender: <?php echo json_encode($gender ?? ''); ?>
+        isAuto: <?php echo wh_js($is_auto ?? false); ?>,
+        idRequest: <?php echo wh_js($auto_id_request ?? ''); ?>,
+        qtyTop: <?php echo wh_js((int)($qty_top ?? 0)); ?>,
+        qtyBottoms: <?php echo wh_js((int)($qty_bottoms ?? 0)); ?>,
+        totalQty: <?php echo wh_js((int)($total_qty ?? 0)); ?>,
+        sizeTop: <?php echo wh_js($size_top ?? ''); ?>,
+        sizeBottoms: <?php echo wh_js($size_bottoms ?? ''); ?>,
+        gender: <?php echo wh_js($gender ?? ''); ?>
     };
 </script>
 

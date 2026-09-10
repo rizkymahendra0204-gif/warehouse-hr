@@ -1,124 +1,57 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-require_once __DIR__ . '/../includes/db.php'; 
-
-// Penanganan variabel koneksi ($conn / $pdo)
-if (!isset($pdo) && isset($conn)) {
-    $pdo = $conn;
-}
-
-// Proteksi Halaman: Pastikan user sudah login (berdasarkan username)
-if (empty($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
+require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../includes/activity.php';
 $username = $_SESSION['username'];
-$pesan_sukses = '';
-$pesan_error = '';
-
-// ==========================================
-// 1. PROSES UPDATE PROFIL / DATA DIRI
-// ==========================================
-if (isset($_POST['update_profile'])) {
-    $nama_lengkap = trim($_POST['nama_lengkap']);
-
+$pesan_sukses = ''; $pesan_error = '';
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $newFile = null;
     try {
-        // Ambil data foto saat ini berdasarkan username
-        $stmt_current = $pdo->prepare("SELECT foto_profil FROM users WHERE username = ?");
-        $stmt_current->execute([$username]);
-        $current_user = $stmt_current->fetch(PDO::FETCH_ASSOC);
-        $nama_foto = $current_user['foto_profil'] ?? 'default.png';
-
-        // Proses Upload Foto Profil Baru (jika ada file diunggah)
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $file_tmp    = $_FILES['foto']['tmp_name'];
-            $file_name   = $_FILES['foto']['name'];
-            $file_ext    = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-            $allowed_ext = ['jpg', 'jpeg', 'png', 'webp'];
-
-            if (in_array($file_ext, $allowed_ext)) {
-                $nama_foto  = 'user_' . preg_replace('/[^a-zA-Z0-9]/', '', $username) . '_' . time() . '.' . $file_ext;
-                $target_dir = 'assets/img/profile/';
-                
-                if (!is_dir($target_dir)) {
-                    mkdir($target_dir, 0777, true);
-                }
-
-                move_uploaded_file($file_tmp, $target_dir . $nama_foto);
-            } else {
-                $pesan_error = "Format foto harus JPG, JPEG, PNG, atau WEBP!";
+        if (isset($_POST['update_profile'])) {
+            $name = wh_text($_POST, 'nama_lengkap', 100);
+            $stmt = $pdo->prepare('SELECT foto_profil FROM users WHERE user_id = ?');
+            $stmt->execute([$_SESSION['user_id']]); $oldPhoto = $stmt->fetchColumn();
+            $photo = basename($oldPhoto ?: 'default.png');
+            if (isset($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $upload = $_FILES['foto'];
+                if ($upload['error'] !== UPLOAD_ERR_OK || $upload['size'] > 2 * 1024 * 1024 || !is_uploaded_file($upload['tmp_name'])) { throw new DomainException('Foto harus berhasil diunggah dan maksimal 2 MB.'); }
+                $mime = (new finfo(FILEINFO_MIME_TYPE))->file($upload['tmp_name']);
+                $dimensions = @getimagesize($upload['tmp_name']);
+                if (!in_array($mime, ['image/jpeg','image/png','image/webp'], true) || !$dimensions || $dimensions[0] > 2048 || $dimensions[1] > 2048) { throw new DomainException('Foto harus JPG/PNG/WEBP dengan ukuran maksimal 2048 × 2048 piksel.'); }
+                $image = @imagecreatefromstring(file_get_contents($upload['tmp_name']));
+                if (!$image) { throw new DomainException('Isi file foto tidak valid.'); }
+                $directory = __DIR__ . '/../assets/img/profile';
+                if (!is_dir($directory) && !mkdir($directory, 0750, true)) { throw new RuntimeException('Cannot create profile directory.'); }
+                $photo = 'user_' . (int)$_SESSION['user_id'] . '_' . bin2hex(random_bytes(16)) . '.png';
+                $newFile = $directory . '/' . $photo;
+                if (!imagepng($image, $newFile)) { throw new RuntimeException('Cannot store profile image.'); }
+                imagedestroy($image); chmod($newFile, 0640);
             }
-        }
-
-        if (empty($pesan_error)) {
-            // Update Database berdasarkan username
-            $stmt = $pdo->prepare("UPDATE users SET nama_lengkap = ?, foto_profil = ? WHERE username = ?");
-            $stmt->execute([$nama_lengkap, $nama_foto, $username]);
-
-            // Update Session agar nama & foto di header langsung berubah
-            $_SESSION['nama_lengkap'] = $nama_lengkap;
-            $_SESSION['foto_profil']  = $nama_foto;
-
-            // Catat Log Activity jika fungsi tersedia
-            if (function_exists('writeLog')) {
-                writeLog($pdo, $username, $_SESSION['nama_lengkap'] ?? $username, $_SESSION['role'] ?? 'user', 'Edit Profil', 'Profil', 'Pengguna memperbarui data profil');
-            }
-
-            $pesan_sukses = "Profil berhasil diperbarui!";
-        }
-    } catch (PDOException $e) {
-        $pesan_error = "Terjadi kesalahan database: " . $e->getMessage();
+            $pdo->beginTransaction();
+            $pdo->prepare('UPDATE users SET nama_lengkap = ?, foto_profil = ? WHERE user_id = ?')->execute([$name, $photo, $_SESSION['user_id']]);
+            wh_activity($pdo, 'Edit Profil', 'Pengguna memperbarui profil.', 'Profil');
+            $pdo->commit();
+            $_SESSION['nama_lengkap'] = $name; $_SESSION['foto_profil'] = $photo;
+            $newFile = null;
+            $pesan_sukses = 'Profil berhasil diperbarui!';
+        } elseif (isset($_POST['update_password'])) {
+            $old = $_POST['pass_lama'] ?? ''; $new = $_POST['pass_baru'] ?? ''; $confirmation = $_POST['konfirmasi_pass'] ?? '';
+            if (!is_string($old) || !wh_password_valid($new) || $new !== $confirmation) { throw new DomainException('Password baru harus 12–72 byte dan sesuai konfirmasi.'); }
+            $pdo->beginTransaction();
+            $stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ? FOR UPDATE');
+            $stmt->execute([$_SESSION['user_id']]); $account = $stmt->fetch();
+            if (!$account || !password_verify($old, $account['password'])) { throw new DomainException('Password saat ini salah.'); }
+            if (password_verify($new, $account['password'])) { throw new DomainException('Password baru harus berbeda dari password lama.'); }
+            $pdo->prepare('UPDATE users SET password = ?, auth_version = auth_version + 1 WHERE user_id = ?')->execute([password_hash($new, PASSWORD_BCRYPT, ['cost' => 12]), $account['user_id']]);
+            wh_activity($pdo, 'Ubah Password', 'Password diganti; sesi lain dicabut.', 'Keamanan');
+            $pdo->commit(); $account['auth_version']++; wh_set_login($account);
+            $pesan_sukses = 'Password berhasil diperbarui. Sesi login lain telah dicabut.';
+        } else { throw new DomainException('Tindakan tidak dikenal.'); }
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) { $pdo->rollBack(); }
+        if ($newFile && is_file($newFile)) { unlink($newFile); }
+        if ($error instanceof DomainException) { $pesan_error = $error->getMessage(); }
+        else { throw $error; }
     }
 }
-
-// ==========================================
-// 2. PROSES UBAH PASSWORD
-// ==========================================
-if (isset($_POST['update_password'])) {
-    $pass_lama  = $_POST['pass_lama'];
-    $pass_baru  = $_POST['pass_baru'];
-    $konfirmasi = $_POST['konfirmasi_pass'];
-
-    if (empty($pass_lama) || empty($pass_baru) || empty($konfirmasi)) {
-        $pesan_error = "Semua bidang password wajib diisi!";
-    } elseif ($pass_baru !== $konfirmasi) {
-        $pesan_error = "Konfirmasi password baru tidak cocok!";
-    } elseif (strlen($pass_baru) < 6) {
-        $pesan_error = "Password baru minimal harus 6 karakter!";
-    } else {
-        try {
-            // Ambil password tersimpan berdasarkan username
-            $stmt = $pdo->prepare("SELECT password FROM users WHERE username = ?");
-            $stmt->execute([$username]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($user && password_verify($pass_lama, $user['password'])) {
-                // Hash Password Baru
-                $hashed_password = password_hash($pass_baru, PASSWORD_DEFAULT);
-
-                $update = $pdo->prepare("UPDATE users SET password = ? WHERE username = ?");
-                $update->execute([$hashed_password, $username]);
-
-                if (function_exists('writeLog')) {
-                    writeLog($pdo, $username, $_SESSION['nama_lengkap'] ?? $username, $_SESSION['role'] ?? 'user', 'Ubah Password', 'Keamanan', 'Pengguna berhasil mengubah password akun');
-                }
-
-                $pesan_sukses = "Password berhasil diperbarui!";
-            } else {
-                $pesan_error = "Password saat ini salah!";
-            }
-        } catch (PDOException $e) {
-            $pesan_error = "Terjadi kesalahan database: " . $e->getMessage();
-        }
-    }
-}
-
-// Fetch Data User Terbaru berdasarkan username untuk Tampilan Form Profil
-$stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-$stmt->execute([$username]);
-$data_user = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-?>
+$stmt = $pdo->prepare('SELECT * FROM users WHERE user_id = ?');
+$stmt->execute([$_SESSION['user_id']]); $data_user = $stmt->fetch() ?: [];

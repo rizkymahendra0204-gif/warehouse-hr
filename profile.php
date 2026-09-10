@@ -6,6 +6,7 @@ include 'controllers/query_profile.php';
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['profile_title'] ?? 'Profil Saya' ?> - HR Warehouse</title>
@@ -13,8 +14,8 @@ include 'controllers/query_profile.php';
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
     <!-- Bootstrap 5 CSS & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     
     <link rel="stylesheet" href="assets/css/style.css"> 
 </head>
@@ -137,6 +138,7 @@ include 'controllers/query_profile.php';
                                 <!-- TAB 1: FORM EDIT DATA DIRI -->
                                 <div class="tab-pane fade show active" id="edit-profile" role="tabpanel">
                                     <form action="" method="POST" enctype="multipart/form-data">
+<?= wh_csrf_field() ?>
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold"><?= $lang['lbl_username'] ?? 'Username' ?></label>
@@ -172,6 +174,7 @@ include 'controllers/query_profile.php';
                                 <!-- TAB 2: FORM UBAH PASSWORD -->
                                 <div class="tab-pane fade" id="change-password" role="tabpanel">
                                     <form action="" method="POST">
+<?= wh_csrf_field() ?>
                                         <div class="row g-3">
                                             <div class="col-12">
                                                 <label class="form-label fw-semibold"><?= $lang['lbl_current_pass'] ?? 'Password Saat Ini' ?></label>
@@ -180,7 +183,7 @@ include 'controllers/query_profile.php';
 
                                             <div class="col-md-6">
                                                 <label class="form-label fw-semibold"><?= $lang['lbl_new_pass'] ?? 'Password Baru' ?></label>
-                                                <input type="password" name="pass_baru" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_new_pass'] ?? 'Minimal 6 karakter') ?>" required>
+                                                <input type="password" name="pass_baru" minlength="12" maxlength="72" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_new_pass'] ?? 'Minimal 12 karakter') ?>" required>
                                             </div>
 
                                             <div class="col-md-6">
@@ -209,8 +212,8 @@ include 'controllers/query_profile.php';
 </div>
 
 <!-- JS Bootstrap Bundle -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 
 </body>

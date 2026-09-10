@@ -1,11 +1,16 @@
 {
     "require": {
-        "phpoffice/phpspreadsheet": "^1.29"
+        "phpoffice/phpspreadsheet": "^1.30.6",
+        "php": "^8.3",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-mysqli": "*"
     },
     "config": {
-        "platform-check": false,
+        "platform-check": true,
         "platform": {
-            "php": "8.0.30"
-        }
+            "php": "8.3.0"
+        },
+        "allow-plugins": false
     }
 }

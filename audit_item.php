@@ -9,14 +9,15 @@ include 'controllers/query_audit.php';
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $lang['audit_page_title'] ?? 'Audit & Kelola Status Stok'; ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -38,6 +39,7 @@ include 'controllers/query_audit.php';
                 <!-- Tombol Toggle Mode Audit -->
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                 <form method="POST" action="">
+<?= wh_csrf_field() ?>
                     <input type="hidden" name="action_type" value="toggle_audit">
                     <?php if ($is_audit_active): ?>
                         <input type="hidden" name="audit_status" value="0">
@@ -125,7 +127,7 @@ include 'controllers/query_audit.php';
                                                         class="btn btn-sm btn-proses-custom fw-bold px-3"
                                                         data-bs-toggle="modal" 
                                                         data-bs-target="#modalAudit"
-                                                        onclick="setAuditData('<?php echo $barcode; ?>', '<?php echo addslashes($detail); ?>', '<?php echo $st_tx; ?>', '<?php echo $st_brg; ?>')">
+                                                        onclick="setAuditData(<?= wh_escape(wh_js(html_entity_decode($barcode, ENT_QUOTES, 'UTF-8'))) ?>, <?= wh_escape(wh_js(html_entity_decode($detail, ENT_QUOTES, 'UTF-8'))) ?>, <?= wh_escape(wh_js(html_entity_decode($st_tx, ENT_QUOTES, 'UTF-8'))) ?>, <?= wh_escape(wh_js(html_entity_decode($st_brg, ENT_QUOTES, 'UTF-8'))) ?>)">
                                                     <i class="bi bi-pencil-square me-1"></i> <?php echo $lang['btn_change_status'] ?? 'Ubah Status'; ?>
                                                 </button>
                                             <?php elseif (!$is_audit_active): ?>
@@ -166,6 +168,7 @@ include 'controllers/query_audit.php';
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form method="POST" action="">
+<?= wh_csrf_field() ?>
                 <input type="hidden" name="action_type" value="update_status">
                 <input type="hidden" name="barcode" id="modal_barcode">
 
@@ -185,7 +188,6 @@ include 'controllers/query_audit.php';
                         <label class="form-label fw-bold small text-secondary"><?php echo $lang['lbl_status_transaksi'] ?? 'Status Transaksi'; ?></label>
                         <select class="form-select" name="status_transaksi" id="modal_status_tx" required>
                             <option value="Available"><?php echo $lang['opt_available'] ?? 'Available (Siap Dijual / Direquest)'; ?></option>
-                            <option value="Sold Out"><?php echo $lang['opt_sold_out'] ?? 'Sold Out (Sudah Terjual)'; ?></option>
                         </select>
                         <div class="form-text small"><?php echo $lang['help_status_tx'] ?? 'Pilih <b>Available</b> agar barang bisa dipilih kembali pada transaksi baru.'; ?></div>
                     </div>
@@ -210,8 +212,8 @@ include 'controllers/query_audit.php';
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js"></script>
 <script>
 function setAuditData(barcode, detail, statusTx, statusBrg) {
@@ -228,6 +230,6 @@ function setAuditData(barcode, detail, statusTx, statusBrg) {
 
 <?php 
 if(isset($conn)){
-    $conn->close();
+    $conn = null;
 }
 ?>

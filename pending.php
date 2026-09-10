@@ -24,6 +24,7 @@ if (!isset($requests_done)) {
 <!DOCTYPE html>
 <html lang="<?= $_SESSION['lang'] ?? 'id'; ?>">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> WC | <?= $lang['pending_title'] ?? 'Manajemen Request Seragam' ?></title>
@@ -31,8 +32,8 @@ if (!isset($requests_done)) {
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     
     <!-- CSS Utama -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -377,8 +378,8 @@ if (!isset($requests_done)) {
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js?v=<?= time() ?>"></script>
 </body>
 </html>

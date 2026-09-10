@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 // 1. Panggil koneksi database PDO
 require_once __DIR__ . '/../includes/db.php';
 
@@ -15,7 +16,7 @@ $filter_size   = trim($_GET['size'] ?? '');   // Filter Ukuran (S, M, L, XL, 30,
 $export        = $_GET['export'] ?? '';
 
 // Parameter Pagination
-$limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 100; // Default 100 data per halaman
+$limit = isset($_GET['limit']) ? min(500, max(1, (int)$_GET['limit'])) : 100; // Default 100 data per halaman
 $page  = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 
@@ -99,7 +100,8 @@ if ($export === 'excel') {
         <?php
         exit;
     } catch (PDOException $e) {
-        die("Error Export: " . $e->getMessage());
+    error_log('[Warehouse HR] ' . $e);
+        die("Error Export: " . 'Operasi database gagal. Hubungi administrator.');
     }
 }
 
@@ -111,7 +113,8 @@ try {
     $total_rows  = (int)$stmt_count->fetchColumn();
     $total_pages = ceil($total_rows / $limit);
 } catch (PDOException $e) {
-    die("Error Count Database: " . $e->getMessage());
+    error_log('[Warehouse HR] ' . $e);
+    die("Error Count Database: " . 'Operasi database gagal. Hubungi administrator.');
 }
 
 // 6. Eksekusi Query dengan LIMIT & OFFSET untuk Tampilan Halaman (View)
@@ -133,6 +136,7 @@ try {
     // Nomor awal urutan tabel pada halaman aktif
     $no_awal = $offset + 1;
 } catch (PDOException $e) {
-    die("Error Query Database: " . $e->getMessage());
+    error_log('[Warehouse HR] ' . $e);
+    die("Error Query Database: " . 'Operasi database gagal. Hubungi administrator.');
 }
 ?>

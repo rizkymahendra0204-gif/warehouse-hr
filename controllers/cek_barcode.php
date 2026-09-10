@@ -1,5 +1,6 @@
 <?php
-require_once '../includes/db.php'; // Sesuaikan lokasi koneksi PDO kamu
+require_once __DIR__ . '/../includes/auth_check.php';
+require_once __DIR__ . '/../includes/db.php'; // Sesuaikan lokasi koneksi PDO kamu
 
 header('Content-Type: application/json');
 

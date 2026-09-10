@@ -1,17 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/auth_check.php';
-include 'includes/db.php';
+require_once __DIR__ . '/includes/db.php';
 
-// 1. Inisialisasi Koneksi Database via PDO (Lengkap dengan Mode Error Exception)
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ]);
-} catch (PDOException $e) {
-    die("Koneksi Database Gagal: " . $e->getMessage());
-}
+$conn = $pdo;
 
 // 2. Catch Parameter URL (jika dipanggil via GET)
 $auto_id_transaksi   = isset($_GET['req']) ? $_GET['req'] : '';
@@ -39,12 +30,13 @@ if ($is_auto) {
     }
     
     $bc_list = $stmt_get_bc->fetchAll(PDO::FETCH_COLUMN);
-    $auto_barcodes_json = json_encode($bc_list);
+    $auto_barcodes_json = wh_js($bc_list);
 }
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WC | <?= $lang['ret_title'] ?? 'Retur Barang' ?></title>
@@ -52,8 +44,8 @@ if ($is_auto) {
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
     
     <!-- Bootstrap & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     
     <!-- CSS File -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -229,10 +221,10 @@ if ($is_auto) {
                                         <td class="text-center small"><span class="badge-trx">#<?php echo $no_trx; ?></span></td>
 
                                         <!-- BRAND -->
-                                        <td class="text-center"><span><?php echo addslashes($row['brand'] ?? '-'); ?></span></td>
+                                        <td class="text-center"><span><?php echo wh_escape($row['brand'] ?? '-'); ?></span></td>
 
                                         <!-- ID SALES -->
-                                        <td class="text-center"><span><?php echo addslashes($row['id_sales'] ?? '-'); ?></span></td>
+                                        <td class="text-center"><span><?php echo wh_escape($row['id_sales'] ?? '-'); ?></span></td>
                                         
                                         <!-- DETAIL ITEM DENGAN FORMAT [BARCODE] -->
                                         <td>
@@ -260,13 +252,7 @@ if ($is_auto) {
                                                 </span>
                                             <?php else: ?>
                                                 <button type="button" class="btn btn-proses btn-sm w-100 fw-bold px-2 py-1" 
-                                                        onclick="openProcessPage(
-                                                            '<?php echo addslashes($no_trx); ?>', 
-                                                            '<?php echo addslashes($row['id_sales']); ?>', 
-                                                            '<?php echo addslashes($row['nama_sa']); ?>', 
-                                                            '<?php echo addslashes($detail_with_barcode); ?>',
-                                                            <?php echo $single_barcode_json; ?>
-                                                        )">
+                                                        onclick="openProcessPage(<?= wh_escape(wh_js($row['transaction_id'])) ?>, <?= wh_escape(wh_js($row['id_sales'])) ?>, <?= wh_escape(wh_js($row['nama_sa'])) ?>, <?= wh_escape(wh_js($row['tipe'] . ' ' . $row['gender'] . ' - Size ' . $row['size'])) ?>, <?= wh_escape(wh_js([$row['barcode_item']])) ?>)">
                                                     Return Item <i class="bi bi-arrow-right-circle ms-1"></i>
                                                 </button>
                                             <?php endif; ?>
@@ -297,6 +283,7 @@ if ($is_auto) {
                 </div>
 
                 <form action="controllers/proses_return" method="POST" id="formReturn">
+<?= wh_csrf_field() ?>
 
                     <!-- SECTION 1: Detail Pesanan -->
                     <div class="bg-white border rounded-3 p-4 mb-4 shadow-sm">
@@ -370,8 +357,8 @@ if ($is_auto) {
 </div>
 
 <!-- Scripts Utama (jQuery & Bootstrap) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 
 <!-- Jembatan PHP ke JS (Wajib di atas scripts.js) -->
 <script>

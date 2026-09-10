@@ -1,0 +1,51 @@
+// Run through tests/run.py with WH_UI_TEST=1, after installing Playwright + Chromium.
+const { chromium } = require(process.env.WH_PLAYWRIGHT_MODULE || 'playwright');
+const assert = require('node:assert/strict');
+const base = process.env.WH_TEST_URL;
+if (!base || !/^http:\/\/127\.0\.0\.1:\d+$/.test(base)) throw new Error('Local test URL required');
+(async () => {
+  const browser = await chromium.launch({ headless: true, ...(process.env.WH_CHROMIUM_PATH ? { executablePath: process.env.WH_CHROMIUM_PATH } : {}) });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(base + '/login', { waitUntil: 'domcontentloaded' });
+    assert.equal(await page.locator('form input[name="csrf_token"]').count(), 1);
+    await page.locator('[name="username"]').fill('admin_fixture');
+    await page.locator('[name="password"]').fill('Fixture-password-2026');
+    await Promise.all([page.waitForURL('**/index'), page.locator('button[type="submit"]').click()]);
+    await page.goto(base + '/transaksi?id=REQ-UI', { waitUntil: 'networkidle' });
+    assert.equal(await page.locator('#dynamic-item-container .item-row').count(), 0, 'No empty card before scanning');
+    await page.locator('#mainBarcodeInput').fill('101019999');
+    await page.locator('#mainBarcodeInput').press('Enter');
+    await page.evaluate(() => scanQueue);
+    assert.equal(await page.locator('#dynamic-item-container .item-row').count(), 0, 'Unknown barcode stays hidden');
+    await page.locator('#mainBarcodeInput').fill('101010009');
+    await page.locator('#mainBarcodeInput').press('Enter');
+    await page.locator('#dynamic-item-container .item-row').waitFor();
+    assert.equal(await page.locator('.barcode-item-input').inputValue(), '101010009');
+    await page.locator('#mainBarcodeInput').fill('101010009');
+    await page.locator('#mainBarcodeInput').press('Enter');
+    await page.evaluate(() => scanQueue);
+    assert.equal(await page.locator('#dynamic-item-container .item-row').count(), 1, 'Repeated scan adds no second card');
+    await page.locator('.btn-remove-item').click();
+    assert.equal(await page.locator('#dynamic-item-container .item-row').count(), 0, 'Removing last card returns to empty state');
+    await page.evaluate(async () => { await Promise.all([processAutoScan('101010009'), processAutoScan('101010010')]); });
+    assert.equal(await page.locator('#dynamic-item-container .item-row').count(), 2, 'Rapid scans validated in sequence');
+    await page.locator('#id_sales').fill('1234');
+    await page.locator('#department').selectOption({ label: 'Mens Casual' });
+    await page.locator('#btn-validate').click();
+    await page.waitForFunction(() => document.getElementById('btnProses').disabled === false);
+    await Promise.all([page.waitForURL('**/pending'), page.locator('#btnProses').click()]);
+    assert.match(await page.content(), /REQ-UI/);
+    await page.goto(base + '/setting?tab=language', { waitUntil: 'networkidle' });
+    await Promise.all([page.waitForURL('**/setting?tab=language'), page.locator('form:has(input[name="lang"][value="id"]) button').click()]);
+    assert.equal(await page.locator('html').getAttribute('lang'), 'id');
+    await page.goto(base + '/return', { waitUntil: 'networkidle' });
+    assert.equal(await page.evaluate(() => window.__warehouseInjection), undefined, 'Request text cannot execute scripts');
+    await page.goto(base + '/warehouse_management', { waitUntil: 'networkidle' });
+    assert.equal(await page.locator('body > td').count(), 0, 'No stray audit action cell');
+    assert.deepEqual(errors, [], 'No uncaught browser JavaScript errors');
+    console.log('PASS browser: scanner, CSRF forms, transaction submit, language, safe rendering');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exit(1); });

@@ -1,0 +1,6 @@
+
+# Production secrets and local test dependencies
+/config/local.php
+/tests/node_modules/
+*.log
+*.sql.bak

@@ -36,6 +36,7 @@ if ($type === 'barcode' || $type === 'stockcard') {
     $ukuran     = trim($_GET['ukuran']     ?? '');
     $range_awal = (int)($_GET['range_awal'] ?? 1);
     $range_akhir= (int)($_GET['range_akhir'] ?? $range_awal);
+    if ($range_awal < 1 || $range_akhir < $range_awal || $range_akhir > 9999 || $range_akhir - $range_awal >= 300) { wh_http_error(422, 'Range ekspor barcode harus 1–300 item dan nomor urut maksimal 9999.'); }
 
     if (empty($gender) || empty($tipe) || empty($ukuran)) {
         die("Error: Parameter (Gender, Tipe, Ukuran) tidak lengkap untuk melakukan export barcode!");
@@ -160,10 +161,10 @@ if ($type === 'barcode' || $type === 'stockcard') {
     $end_date   = $_GET['end_date']   ?? date('Y-m-t');
 
     // Base URL web jika file bukti berformat PDF
-    $baseUrl = "http://127.0.0.1/Request.Form.2/";
+    $baseUrl = rtrim((string)wh_config('REQUEST_UPLOAD_BASE_URL', '/Request.Form.2/'), '/') . '/';
     
     // Path direktori absolut folder XAMPP di mana file upload berada
-    $uploadDir = 'C:/xampp/htdocs/Request.Form.2/';
+    $uploadDir = (string)wh_config('REQUEST_UPLOAD_DIR', '');
 
     try {
         $sql = "SELECT 
@@ -197,7 +198,8 @@ if ($type === 'barcode' || $type === 'stockcard') {
         $stmt->execute([':start_date' => $start_date, ':end_date' => $end_date]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die("Error Export Finance: " . $e->getMessage());
+    error_log('[Warehouse HR] ' . $e);
+        die("Error Export Finance: " . 'Operasi database gagal. Hubungi administrator.');
     }
 
     $headerStyle = [
@@ -228,13 +230,15 @@ if ($type === 'barcode' || $type === 'stockcard') {
             $sheet->setCellValue("A{$rowNum}", $no++);
             $sheet->setCellValue("B{$rowNum}", date('d/m/Y', strtotime($row['tgl_transaksi'])));
             $sheet->setCellValue("C{$rowNum}", '#' . $req_id);
-            $sheet->setCellValue("D{$rowNum}", $perusahaan_brand);
-            $sheet->setCellValue("E{$rowNum}", $row['nama_sa']);
-            $sheet->setCellValue("F{$rowNum}", ucfirst($row['pembayaran'] ?? '-'));
+            $sheet->setCellValueExplicit("D{$rowNum}", (string)($perusahaan_brand), DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit("E{$rowNum}", (string)($row['nama_sa']), DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit("F{$rowNum}", (string)(ucfirst($row['pembayaran'] ?? '-')), DataType::TYPE_STRING);
 
             // --- EMBEDDED DRAWING LOGIC UNTUK BUKTI PEMBAYARAN ---
             $relativePath = $row['upload'] ?? '';
-            $fullFilePath = $uploadDir . $relativePath;
+            $rootDir = $uploadDir !== '' ? realpath($uploadDir) : false;
+            $fullFilePath = $rootDir ? realpath($rootDir . DIRECTORY_SEPARATOR . ltrim($relativePath, '/\\')) : false;
+            if (!$fullFilePath || !str_starts_with(str_replace('\\','/',$fullFilePath), rtrim(str_replace('\\','/',$rootDir ?: ''), '/') . '/')) { $fullFilePath = ''; }
 
             if (!empty($relativePath) && file_exists($fullFilePath)) {
                 $ext = strtolower(pathinfo($fullFilePath, PATHINFO_EXTENSION));
@@ -334,7 +338,8 @@ if ($type === 'barcode' || $type === 'stockcard') {
         $stmt->execute([':start_date' => $start_date, ':end_date' => $end_date]);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die("Error Export Internal: " . $e->getMessage());
+    error_log('[Warehouse HR] ' . $e);
+        die("Error Export Internal: " . 'Operasi database gagal. Hubungi administrator.');
     }
 
     $headerStyle = [
@@ -404,11 +409,11 @@ if ($type === 'barcode' || $type === 'stockcard') {
 
             $sheet->setCellValue("A{$rowNum}", $no++);
             $sheet->setCellValue("B{$rowNum}", date('d/m/Y', strtotime($row['tgl_transaksi'])));
-            $sheet->setCellValue("C{$rowNum}", $row['perusahaan']);
+            $sheet->setCellValueExplicit("C{$rowNum}", (string)($row['perusahaan']), DataType::TYPE_STRING);
             $sheet->setCellValue("D{$rowNum}", $gender_txt);
-            $sheet->setCellValue("E{$rowNum}", $row['raw_items'] ?? '-');
-            $sheet->setCellValue("F{$rowNum}", $row['brand'] ?? '-');
-            $sheet->setCellValue("G{$rowNum}", $row['nama_sa']);
+            $sheet->setCellValueExplicit("E{$rowNum}", (string)($row['raw_items'] ?? '-'), DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit("F{$rowNum}", (string)($row['brand'] ?? '-'), DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit("G{$rowNum}", (string)($row['nama_sa']), DataType::TYPE_STRING);
             $sheet->setCellValue("H{$rowNum}", $str_items);
             $sheet->setCellValue("I{$rowNum}", $total_pcs_diberikan . ' Pcs');
             $sheet->setCellValue("J{$rowNum}", $str_returns);

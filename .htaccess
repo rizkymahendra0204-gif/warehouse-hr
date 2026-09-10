@@ -1,18 +1,21 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.php
 RewriteEngine On
-RewriteBase /warehouse-hr/
 
-# Redirect direct request to .php into the clean URL.
-# Menggunakan path dari RewriteRule agar /warehouse-hr/ tidak terduplikasi.
+# Private code, deployment assets, credentials and backups are never web resources.
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^(?:config|includes|services|database|tests|docs|vendor)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:composer\.(?:json|lock)|README.*|CHANGELOG.*)$ - [F,L,NC]
+RewriteRule \.(?:sql|zip|log|ini|bak|env)$ - [F,L,NC]
+RewriteRule ^assets/.*\.(?:php[0-9]?|phtml|phar|cgi|pl)$ - [F,L,NC]
+
+# Canonicalize GET/HEAD only. Redirecting a POST can silently discard its body.
+RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
 RewriteCond %{THE_REQUEST} \s/+[^\s?]*\.php(?:[?\s]) [NC]
 RewriteRule ^(.+)\.php$ $1 [R=301,L,NE]
 
-# Jangan rewrite file atau folder yang memang sudah ada.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
-
-# Internal rewrite dari clean URL ke file .php.
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.+)/?$ $1.php [QSA,L]
-
-
+RewriteRule ^(.+?)/?$ $1.php [QSA,L]

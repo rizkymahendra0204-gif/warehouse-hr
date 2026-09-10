@@ -4,13 +4,14 @@ include 'controllers/query_setting.php';
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $lang['setting_title'] ?? 'Pengaturan Sistem' ?> - HR Warehouse</title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body class="bg-light">
@@ -182,6 +183,7 @@ include 'controllers/query_setting.php';
                                 <!-- TAB 2: PENGATURAN NOTIFIKASI -->
                                 <div class="tab-pane fade <?= $active_tab === 'notif' || (!$is_admin && $active_tab !== 'language') ? 'show active' : '' ?>" id="notifications" role="tabpanel">
                                     <form action="setting" method="POST">
+<?= wh_csrf_field() ?>
                                         <div class="row g-3">
                                             <div class="col-12">
                                                 <p class="text-muted small mb-3"><?= $lang['notif_desc'] ?? 'Atur pemberitahuan sistem yang ingin Anda aktifkan untuk akun operasional ini.' ?></p>
@@ -238,7 +240,9 @@ include 'controllers/query_setting.php';
                                     <div class="row g-3">
                                         <!-- Opsi 1: Bahasa Indonesia -->
                                         <div class="col-md-6">
-                                            <a href="<?= htmlspecialchars($url_lang_id) ?>" class="card p-3 border rounded-3 text-decoration-none shadow-sm transition-all <?= ($_SESSION['lang'] ?? 'id') === 'id' ? 'border-primary bg-primary-subtle' : 'bg-light hover-shadow' ?>">
+                                            <form method="POST" action="controllers/change_language">
+<?= wh_csrf_field() ?>
+<input type="hidden" name="lang" value="id"><button type="submit" style="width:100%;text-align:left" class="card p-3 border rounded-3 text-decoration-none shadow-sm transition-all <?= ($_SESSION['lang'] ?? 'id') === 'id' ? 'border-primary bg-primary-subtle' : 'bg-light hover-shadow' ?>">
                                                 <div class="d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center gap-3">
                                                         <span class="badge bg-dark text-white px-2 py-1 fw-bold" style="font-size: 13px;">ID</span>
@@ -251,12 +255,14 @@ include 'controllers/query_setting.php';
                                                         <i class="bi bi-check-circle-fill text-primary fs-4"></i>
                                                     <?php endif; ?>
                                                 </div>
-                                            </a>
+                                            </button></form>
                                         </div>
 
                                         <!-- Opsi 2: English -->
                                         <div class="col-md-6">
-                                            <a href="<?= htmlspecialchars($url_lang_en) ?>" class="card p-3 border rounded-3 text-decoration-none shadow-sm transition-all <?= ($_SESSION['lang'] ?? 'id') === 'en' ? 'border-primary bg-primary-subtle' : 'bg-light hover-shadow' ?>">
+                                            <form method="POST" action="controllers/change_language">
+<?= wh_csrf_field() ?>
+<input type="hidden" name="lang" value="en"><button type="submit" style="width:100%;text-align:left" class="card p-3 border rounded-3 text-decoration-none shadow-sm transition-all <?= ($_SESSION['lang'] ?? 'id') === 'en' ? 'border-primary bg-primary-subtle' : 'bg-light hover-shadow' ?>">
                                                 <div class="d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center gap-3">
                                                         <span class="badge bg-dark text-white px-2 py-1 fw-bold" style="font-size: 13px;">EN</span>
@@ -269,7 +275,7 @@ include 'controllers/query_setting.php';
                                                         <i class="bi bi-check-circle-fill text-primary fs-4"></i>
                                                     <?php endif; ?>
                                                 </div>
-                                            </a>
+                                            </button></form>
                                         </div>
                                     </div>
                                 </div>
@@ -290,6 +296,7 @@ include 'controllers/query_setting.php';
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <form action="controllers/user_controller" method="POST">
+<?= wh_csrf_field() ?>
                 <input type="hidden" name="action" value="tambah_user">
                 
                 <div class="modal-header">
@@ -308,12 +315,12 @@ include 'controllers/query_setting.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-secondary"><?= $lang['lbl_password'] ?? 'Password' ?></label>
-                        <input type="password" name="password" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_password'] ?? 'Masukkan password') ?>" required>
+                        <input type="password" name="password" minlength="12" maxlength="72" class="form-control" placeholder="<?= htmlspecialchars($lang['plc_password'] ?? 'Masukkan password') ?>" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-secondary"><?= $lang['lbl_role'] ?? 'Role / Hak Akses' ?></label>
                         <select name="role" class="form-select" required>
-                            <option value="user" selected><?= $lang['opt_role_user'] ?? 'User Biasa (Staff Operasional)' ?></option>
+                            <option value="staff" selected><?= $lang['opt_role_user'] ?? 'User Biasa (Staff Operasional)' ?></option>
                             <option value="admin"><?= $lang['opt_role_admin'] ?? 'Administrator' ?></option>
                         </select>
                     </div>
@@ -333,6 +340,7 @@ include 'controllers/query_setting.php';
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow">
             <form action="controllers/user_controller" method="POST">
+<?= wh_csrf_field() ?>
                 <input type="hidden" name="action" value="hapus_user">
                 <input type="hidden" name="username" id="hapus_username_input">
 
@@ -352,8 +360,8 @@ include 'controllers/query_setting.php';
 <?php endif; ?>
 
 <!-- SCRIPTS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js?v=<?= time(); ?>"></script>
 
 </body>

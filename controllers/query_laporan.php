@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 // controllers/query_laporan.php
 require_once __DIR__ . '/../includes/db.php';
 
@@ -178,6 +179,7 @@ try {
         $list_data = $data = $stmt_fin->fetchAll(PDO::FETCH_ASSOC);
     }
 } catch (PDOException $e) {
+    error_log('[Warehouse HR] ' . $e);
     $list_data = [];
     $data      = [];
 }

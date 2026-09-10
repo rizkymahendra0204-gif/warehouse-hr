@@ -1,0 +1,36 @@
+{
+    "master_item": {
+        "rows": 1431,
+        "data_unchanged": true
+    },
+    "request_form": {
+        "rows": 16,
+        "data_unchanged": true
+    },
+    "transaksi": {
+        "rows": 7,
+        "data_unchanged": true
+    },
+    "transaksi_detail": {
+        "rows": 15,
+        "data_unchanged": true
+    },
+    "return_items": {
+        "rows": 2,
+        "data_unchanged": true
+    },
+    "settings": {
+        "rows": 1,
+        "data_unchanged": true
+    },
+    "log_activity": {
+        "rows": 47,
+        "original_values_preserved": true,
+        "unique_new_ids": 47
+    },
+    "users": {
+        "rows": 2,
+        "identities_passwords_profiles_preserved": true,
+        "invalid_roles_mapped_to_staff": 1
+    }
+}

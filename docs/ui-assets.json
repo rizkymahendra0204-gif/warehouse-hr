@@ -1,0 +1,37 @@
+[
+  {
+    "file": "bootstrap/bootstrap.min.css",
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+    "sha256": "7f1d37f0d90b6385354c2ac10e2bb91563c46bd7a266ed351222ebcac8496c2a"
+  },
+  {
+    "file": "bootstrap/bootstrap.bundle.min.js",
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+    "sha256": "aa53d582f97eb594c2a5cc5824574707f9ba9837bce3046bfa5f3556860f4e04"
+  },
+  {
+    "file": "bootstrap-icons/bootstrap-icons.css",
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+    "sha256": "d8824f7067cdfea38afec7e9ffaf072125266824206d69ef1f112d72153a505e"
+  },
+  {
+    "file": "bootstrap-icons/fonts/bootstrap-icons.woff2",
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/fonts/bootstrap-icons.woff2",
+    "sha256": "cfe45b981d1b91b173361a34cfce5f60893dbd1ac4af2c3ac11fc17552c5401f"
+  },
+  {
+    "file": "bootstrap-icons/fonts/bootstrap-icons.woff",
+    "source": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/fonts/bootstrap-icons.woff",
+    "sha256": "999550fafbfbc0e0474b3b5c945df287b079d2a23dc07dcc6240a7d2f18e081d"
+  },
+  {
+    "file": "jquery/jquery-3.6.0.min.js",
+    "source": "https://code.jquery.com/jquery-3.6.0.min.js",
+    "sha256": "ff1523fb7389539c84c65aba19260648793bb4f5e29329d2ee8804bc37a3fe6e"
+  },
+  {
+    "file": "jsbarcode/JsBarcode.all.min.js",
+    "source": "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js",
+    "sha256": "e307d9489aca4985f8e1c9bc246e8c275a091953c539e2b7b50b511efea59509"
+  }
+]

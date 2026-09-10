@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/db.php';
 
 if (!isset($conn) && isset($pdo)) {
@@ -58,7 +59,8 @@ try {
     $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    die("Error Database Log: " . $e->getMessage());
+    error_log('[Warehouse HR] ' . $e);
+    die("Error Database Log: " . 'Operasi database gagal. Hubungi administrator.');
 }
 
 // Helper Function untuk Warna Badges & Icon

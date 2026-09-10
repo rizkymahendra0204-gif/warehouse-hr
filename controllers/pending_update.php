@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 // Header anti-cache agar browser selalu membaca data database paling up-to-date
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
@@ -22,8 +23,9 @@ try {
         'total_pending' => (int)$totalPending
     ]);
 } catch (PDOException $e) {
+    error_log('[Warehouse HR] ' . $e);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'message' => 'Operasi database gagal. Hubungi administrator.'
     ]);
 }

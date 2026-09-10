@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 // controllers/query_transaksi.php
-include 'includes/db.php';
+require_once __DIR__ . '/../includes/db.php';
 
-$conn = new mysqli($host, $user, $pass, $db);
+$conn = wh_mysqli();
 
 // Menangkap ID otomatis dari URL
 $auto_id_request = isset($_GET['id']) ? $_GET['id'] : '';
@@ -15,6 +16,7 @@ $bg_class      = $is_auto ? 'bg-light' : '';
 $brand = ''; 
 $nama_sa = ''; 
 $gender_txt = '';
+$gender = '';
 $qty_top = 0; 
 $size_top = '';
 $qty_bottoms = 0; 
@@ -30,6 +32,7 @@ if ($is_auto && !$conn->connect_error) {
     $result = $stmt->get_result();
 
     if ($row = $result->fetch_assoc()) {
+        $gender       = $row['gender'];
         $brand        = $row['brand']; // Langsung mengambil dari kolom 'brand' sesuai ERD baru
         $nama_sa      = $row['nama_sa'];
         $gender_txt   = ($row['gender'] === 'male') ? 'SA Pria' : 'SA Wanita';

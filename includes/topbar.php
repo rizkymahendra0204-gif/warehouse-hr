@@ -49,7 +49,8 @@ if (isset($pdo) && !empty($_SESSION['username'])) {
             $user_notif_ret   = (int)($u_setting['notif_return'] ?? 1);
             $user_notif_stock = (int)($u_setting['notif_stock'] ?? 0);
         }
-    } catch (PDOException $e) {}
+    } catch (PDOException $e) {
+    error_log('[Warehouse HR] ' . $e);}
 }
 
 // Override dari session mode jika ada
@@ -127,8 +128,8 @@ if (isset($pdo) && $pdo instanceof PDO) {
                     $notif_items[] = [
                         'type'     => 'stock',
                         'title'    => 'Stok Menipis (' . $row['sisa'] . ' Pcs)',
-                        'desc'     => $row['tipe'] . ' ' . $row['gender'] . ' Size ' . $row['size'],
-                        'link'     => $prefix . 'stockcard',
+                        'desc'     => wh_escape($row['tipe'] . ' ' . $row['gender'] . ' Size ' . $row['size']),
+                        'link'     => $prefix . 'stok_barang',
                         'badge'    => 'Stok',
                         'badge_bg' => 'bg-danger'
                     ];
@@ -138,6 +139,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
         }
 
     } catch (PDOException $e) {
+    error_log('[Warehouse HR] ' . $e);
         $notif_items = [];
         $total_notif = 0;
     }
@@ -215,7 +217,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
                          style="width: 36px; height: 36px; object-fit: cover;">
                 <?php else: ?>
                     <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px; font-size: 14px; background-color: #556ee6 !important;">
-                        <?php echo $initial_user; ?>
+                        <?php echo wh_escape($initial_user); ?>
                     </div>
                 <?php endif; ?>
                 
@@ -242,9 +244,9 @@ if (isset($pdo) && $pdo instanceof PDO) {
                 <li><a class="dropdown-item py-2 mt-1" href="<?= $prefix ?>setting"><i class="bi bi-gear me-2"></i> Pengaturan</a></li>
                 <li><hr class="dropdown-divider my-1"></li>
                 <li>
-                    <a class="dropdown-item text-danger py-2" href="<?= $prefix ?>logout">
+                    <form method="POST" action="<?= wh_escape(wh_url('logout')) ?>"><?= wh_csrf_field() ?><button type="submit" class="dropdown-item text-danger py-2">
                         <i class="bi bi-box-arrow-right me-2"></i> Logout
-                    </a>
+                    </button></form>
                 </li>
             </ul>
         </div>

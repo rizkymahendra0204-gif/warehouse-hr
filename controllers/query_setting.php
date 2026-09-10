@@ -11,24 +11,6 @@ if (!isset($conn) && isset($pdo)) {
 $is_admin = isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin';
 $active_tab = $_GET['tab'] ?? ($is_admin ? 'users' : 'notif');
 
-// 2. Tangkap & Simpan Perubahan Bahasa Permanen ke DB
-if (isset($_GET['lang'])) {
-    $selected_lang = $_GET['lang'] === 'id' ? 'id' : 'en';
-    $_SESSION['lang'] = $selected_lang;
-
-    if (isset($_SESSION['username']) && isset($conn)) {
-        try {
-            $stmt_lang = $conn->prepare("UPDATE users SET lang = :lang WHERE username = :uname");
-            $stmt_lang->execute([':lang' => $selected_lang, ':uname' => $_SESSION['username']]);
-        } catch (PDOException $e) {}
-    }
-}
-
-// 3. Inisialisasi URL Ganti Bahasa
-$current_page = 'setting?tab=' . urlencode($active_tab);
-$url_lang_id  = $current_page . '&lang=id';
-$url_lang_en  = $current_page . '&lang=en';
-
 // 4. Penanganan Form Simpan Notifikasi
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notifications'])) {
     $notif_request = isset($_POST['notif_request']) ? 1 : 0;
@@ -60,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notifications'])
         $_SESSION['alert_message'] = $lang['alert_notif_success'] ?? "Pengaturan notifikasi berhasil diperbarui!";
         $_SESSION['alert_type']    = "success";
     } catch (PDOException $e) {
-        $_SESSION['alert_message'] = "Error: " . $e->getMessage();
+    error_log('[Warehouse HR] ' . $e);
+        $_SESSION['alert_message'] = "Error: " . 'Operasi database gagal. Hubungi administrator.';
         $_SESSION['alert_type']    = "danger";
     }
 
@@ -79,6 +62,7 @@ if ($is_admin) {
     try {
         $stmt_users = $conn->query("SELECT * FROM users ORDER BY username ASC");
         $list_users = $stmt_users->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {}
+    } catch (PDOException $e) {
+    error_log('[Warehouse HR] ' . $e);}
 }
 ?>

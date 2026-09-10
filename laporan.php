@@ -10,14 +10,15 @@ include __DIR__ . '/controllers/query_laporan.php';
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
     <title>WC | <?= $report_type === 'finance' ? ($lang['tab_lap_keuangan'] ?? 'Laporan Keuangan') : ($lang['rep_title'] ?? 'Laporan Pergerakan Stok') ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .nav-tabs-custom .nav-link {
@@ -327,8 +328,8 @@ include __DIR__ . '/controllers/query_laporan.php';
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js?v=<?= time(); ?>"></script>
 </body>
 </html>

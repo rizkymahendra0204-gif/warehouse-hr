@@ -320,7 +320,7 @@ return [
     'lbl_current_pass'        => 'Password Saat Ini',
     'plc_old_pass'            => 'Masukkan password lama',
     'lbl_new_pass'            => 'Password Baru',
-    'plc_new_pass'            => 'Minimal 6 karakter',
+    'plc_new_pass'            => 'Minimal 12 karakter',
     'lbl_confirm_pass'        => 'Konfirmasi Password Baru',
     'plc_confirm_pass'        => 'Ulangi password baru',
     'btn_update_password'     => 'Perbarui Password',

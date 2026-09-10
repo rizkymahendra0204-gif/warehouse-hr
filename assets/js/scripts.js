@@ -1,3 +1,27 @@
+// CSRF tokens are sent only to same-origin requests.
+function warehouseCsrfToken() {
+  return document.querySelector('meta[name="csrf-token"]')?.content || '';
+}
+function escapeHTML(value) {
+  const element = document.createElement('span');
+  element.textContent = String(value ?? '');
+  return element.innerHTML;
+}
+if (window.jQuery) {
+  $.ajaxPrefilter(function(options, original, xhr) {
+    const url = new URL(options.url, window.location.href);
+    if (url.origin === window.location.origin && !/^(GET|HEAD|OPTIONS)$/i.test(options.type || 'GET')) {
+      xhr.setRequestHeader('X-CSRF-Token', warehouseCsrfToken());
+    }
+  });
+}
+let scanQueue = Promise.resolve();
+function processAutoScan(value) {
+  scanQueue = scanQueue.then(() => validateAndAddScan(value)).catch(() => {
+    showAlert('Gagal memvalidasi barcode. Silakan coba lagi.', 'danger');
+  });
+  return scanQueue;
+}
 /**
  * WAREHOUSE-HR - Main Application JavaScript
  * File ini berisi seluruh logika interaktif sistem (100% Pure JS & Multi-Language)
@@ -136,11 +160,11 @@ function setAuditData(barcode, detail, statusTx, statusBrg) {
  */
 function parseBarcode(rawCode) {
   const clean = String(rawCode).replace(/\*/g, "").trim();
-  if (clean.length !== 9 || isNaN(clean)) {
+  if (!/^[12]0[12][0-9]{6}$/.test(clean)) {
     return {
-      raw: clean,
-      label: `(Barcode: ${clean})`,
-      text: `(Barcode: ${clean})`,
+      raw: "",
+      label: `(Barcode tidak valid)`,
+      text: `(Barcode tidak valid)`,
       isValid: false,
     };
   }
@@ -165,7 +189,7 @@ function parseBarcode(rawCode) {
 /**
  * Eksekusi Pindaian Otomatis Barcode
  */
-function processAutoScan(barcodeVal) {
+async function validateAndAddScan(barcodeVal) {
   const parsed = parseBarcode(barcodeVal);
 
   if (!parsed.isValid) {
@@ -204,6 +228,16 @@ function processAutoScan(barcodeVal) {
     return;
   }
 
+  const response = await fetch("controllers/validate_barcode", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRF-Token": warehouseCsrfToken() },
+    body: JSON.stringify({ barcode: parsed.raw })
+  });
+  const result = await response.json();
+  if (!response.ok || !result.success) {
+    showAlert(escapeHTML(result.message || 'Barcode tidak dapat digunakan.'), 'danger');
+    return;
+  }
   const emptyInput = Array.from(
     document.querySelectorAll(".barcode-item-input")
   ).find((input) => !input.value.trim());
@@ -389,28 +423,9 @@ function removeItemCard(id) {
     scannedBarcodes.delete(barcodeVal);
   }
 
-  const cards = document.querySelectorAll("#dynamic-item-container .item-row");
-
-  if (cards.length === 1) {
-    if (input) {
-      input.value = "";
-      input.readOnly = false;
-      input.classList.remove("bg-light");
-    }
-    const textElement = document.getElementById(`detail-text-${id}`);
-    const hiddenElement = document.getElementById(`detail-hidden-${id}`);
-
-    if (textElement) textElement.innerText = "";
-    if (hiddenElement) hiddenElement.value = "";
-
-    showAlert(t("alert_item1_cleared", "Item #1 berhasil dikosongkan."), "info");
-  } else {
-    const card = document.getElementById(`item-card-${id}`);
-    if (card) {
-      card.remove();
-    }
-    showAlert(t("alert_item_deleted", "Item berhasil dihapus."), "info");
-  }
+  const card = document.getElementById(`item-card-${id}`);
+  if (card) card.remove();
+  showAlert(t("alert_item_deleted", "Item berhasil dihapus."), "info");
 
   reindexItemCards();
   updateRemoveButtons();
@@ -452,6 +467,7 @@ async function validateAllItems() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "X-CSRF-Token": warehouseCsrfToken(),
           },
           body: JSON.stringify({ barcode: val }),
         });
@@ -473,14 +489,14 @@ async function validateAllItems() {
           validCount++;
           scannedItems.push(parsed);
         } else {
-          errors.push(`Barcode <b>${val}</b>: ${result.message}`);
+          errors.push(`Barcode <b>${escapeHTML(val)}</b>: ${escapeHTML(result.message)}`);
         }
       } catch (err) {
         errors.push(
           t(
             "err_db_connect_barcode",
             "Gagal terhubung ke database untuk barcode <b>{barcode}</b>",
-            { barcode: val },
+            { barcode: escapeHTML(val) },
           ),
         );
       }
@@ -603,7 +619,7 @@ async function validateAllItems() {
     });
 
     const targetQtyTop = parseInt(tData.qtyTop) || 0;
-    if (targetQtyTop > 0 && countTop !== targetQtyTop) {
+    if (countTop !== targetQtyTop) {
       ticketErrors.push(
         t(
           "err_qty_top_mismatch",
@@ -614,7 +630,7 @@ async function validateAllItems() {
     }
 
     const targetQtyBottoms = parseInt(tData.qtyBottoms) || 0;
-    if (targetQtyBottoms > 0 && countBottom !== targetQtyBottoms) {
+    if (countBottom !== targetQtyBottoms) {
       ticketErrors.push(
         t(
           "err_qty_bottom_mismatch",
@@ -724,16 +740,6 @@ $(document).ready(function () {
   if ($("#dynamic-item-container").length > 0) {
     invalidateForm();
 
-    if ($("#dynamic-item-container .item-row").length === 0 && $("#formTransaksi").length > 0) {
-      if (window.transactionData && window.transactionData.isAuto && window.transactionData.totalQty > 0) {
-        for (let i = 0; i < window.transactionData.totalQty; i++) {
-          addItemCard();
-        }
-      } else {
-        addItemCard();
-      }
-    }
-
     if (window.IS_AUTO_RETURN && Array.isArray(window.AUTO_BARCODES) && window.AUTO_BARCODES.length > 0) {
       const container = $("#dynamic-item-container");
       container.empty();
@@ -788,7 +794,7 @@ $(document).ready(function () {
     var idRequest = $(this).val();
     if (idRequest !== "") {
       $.ajax({
-        url: "get_data_request",
+        url: "controllers/get_data_request",
         method: "POST",
         data: { id: idRequest },
         dataType: "json",

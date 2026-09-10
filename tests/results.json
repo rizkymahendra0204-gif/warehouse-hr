@@ -1,0 +1,353 @@
+{
+  "passed": 86,
+  "checks": 86,
+  "results": [
+    {
+      "name": "migration dry run leaves legacy schema untouched",
+      "passed": true
+    },
+    {
+      "name": "migration repeat preserves users and legacy zero ID",
+      "passed": true
+    },
+    {
+      "name": "migration assigns unique log IDs and preserves original IDs",
+      "passed": true
+    },
+    {
+      "name": "invalid legacy staff role restored without admin privileges",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated writes blocked: controllers/proses_transaksi",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated writes blocked: controllers/proses_return",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated writes blocked: controllers/proses_tambah_item",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated writes blocked: controllers/proses_generate",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated writes blocked: controllers/audit_action",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated writes blocked: controllers/user_controller",
+      "passed": true
+    },
+    {
+      "name": "unauthenticated barcode read blocked",
+      "passed": true
+    },
+    {
+      "name": "login requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "legacy zero-ID admin logs in and session ID rotates",
+      "passed": true
+    },
+    {
+      "name": "staff login works",
+      "passed": true
+    },
+    {
+      "name": "page renders: index",
+      "passed": true
+    },
+    {
+      "name": "page renders: pending",
+      "passed": true
+    },
+    {
+      "name": "page renders: transaksi",
+      "passed": true
+    },
+    {
+      "name": "page renders: return",
+      "passed": true
+    },
+    {
+      "name": "page renders: stok_barang",
+      "passed": true
+    },
+    {
+      "name": "page renders: warehouse_management",
+      "passed": true
+    },
+    {
+      "name": "page renders: audit_item",
+      "passed": true
+    },
+    {
+      "name": "page renders: generate_barcode",
+      "passed": true
+    },
+    {
+      "name": "page renders: setting",
+      "passed": true
+    },
+    {
+      "name": "page renders: profile",
+      "passed": true
+    },
+    {
+      "name": "page renders: laporan",
+      "passed": true
+    },
+    {
+      "name": "page renders: log_activity",
+      "passed": true
+    },
+    {
+      "name": "staff cannot manage users",
+      "passed": true
+    },
+    {
+      "name": "staff cannot open audit period",
+      "passed": true
+    },
+    {
+      "name": "stock update requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "malformed stock barcode rejected",
+      "passed": true
+    },
+    {
+      "name": "valid stock batch accepted",
+      "passed": true
+    },
+    {
+      "name": "batch replay does not duplicate stock",
+      "passed": true
+    },
+    {
+      "name": "transaction rejects empty items",
+      "passed": true
+    },
+    {
+      "name": "transaction rejects duplicate scan",
+      "passed": true
+    },
+    {
+      "name": "transaction rejects wrong quantity",
+      "passed": true
+    },
+    {
+      "name": "transaction rejects wrong gender",
+      "passed": true
+    },
+    {
+      "name": "transaction rejects zero-category violation",
+      "passed": true
+    },
+    {
+      "name": "transaction rejects missing request",
+      "passed": true
+    },
+    {
+      "name": "failed validation changes no stock/header/log",
+      "passed": true
+    },
+    {
+      "name": "valid transaction commits stock and request",
+      "passed": true
+    },
+    {
+      "name": "completed request replay rejected",
+      "passed": true
+    },
+    {
+      "name": "retur rejects barcode from another transaction",
+      "passed": true
+    },
+    {
+      "name": "mixed valid/invalid return rolls back all items",
+      "passed": true
+    },
+    {
+      "name": "retur reason validated",
+      "passed": true
+    },
+    {
+      "name": "valid return becomes Available/Inactive",
+      "passed": true
+    },
+    {
+      "name": "duplicate return rejected",
+      "passed": true
+    },
+    {
+      "name": "closed period blocks stock evaluation",
+      "passed": true
+    },
+    {
+      "name": "admin can open period",
+      "passed": true
+    },
+    {
+      "name": "audit cannot invent Sold Out state",
+      "passed": true
+    },
+    {
+      "name": "staff can evaluate returned stock in open period",
+      "passed": true
+    },
+    {
+      "name": "active stock cannot be reevaluated",
+      "passed": true
+    },
+    {
+      "name": "reissued item cannot return against old transaction",
+      "passed": true
+    },
+    {
+      "name": "reissued item can return against current transaction",
+      "passed": true
+    },
+    {
+      "name": "concurrent issue of same barcode succeeds exactly once",
+      "passed": true
+    },
+    {
+      "name": "concurrent independent transactions get unique numbers",
+      "passed": true
+    },
+    {
+      "name": "concurrent return succeeds exactly once",
+      "passed": true
+    },
+    {
+      "name": "return log records actual authenticated user",
+      "passed": true
+    },
+    {
+      "name": "audit-log failure rolls back header/request/stock",
+      "passed": true
+    },
+    {
+      "name": "SQL details stay out of error response",
+      "passed": true
+    },
+    {
+      "name": "language change requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "language change works by POST",
+      "passed": true
+    },
+    {
+      "name": "admin creates staff with valid role and generated ID",
+      "passed": true
+    },
+    {
+      "name": "first login requires password activation",
+      "passed": true
+    },
+    {
+      "name": "first login cannot access inventory yet",
+      "passed": true
+    },
+    {
+      "name": "first login updates password and correct user_id",
+      "passed": true
+    },
+    {
+      "name": "activated user can access app",
+      "passed": true
+    },
+    {
+      "name": "change password succeeds",
+      "passed": true
+    },
+    {
+      "name": "password change revokes other sessions",
+      "passed": true
+    },
+    {
+      "name": "stored hash cannot be used as password",
+      "passed": true
+    },
+    {
+      "name": "login throttling survives new browser session",
+      "passed": true
+    },
+    {
+      "name": "GET logout cannot mutate session",
+      "passed": true
+    },
+    {
+      "name": "POST logout succeeds",
+      "passed": true
+    },
+    {
+      "name": "logged out session cannot write",
+      "passed": true
+    },
+    {
+      "name": "upload rejects disguised script content",
+      "passed": true
+    },
+    {
+      "name": "upload requires CSRF",
+      "passed": true
+    },
+    {
+      "name": "valid image is stored under random PNG name",
+      "passed": true
+    },
+    {
+      "name": "stored upload is a real PNG",
+      "passed": true
+    },
+    {
+      "name": "export fixture transaction succeeds",
+      "passed": true
+    },
+    {
+      "name": "request text is escaped in return HTML",
+      "passed": true
+    },
+    {
+      "name": "XLSX export responds: controllers/export_excel?type=internal",
+      "passed": true
+    },
+    {
+      "name": "request text remains text in XLSX: controllers/export_excel?type=internal",
+      "passed": true
+    },
+    {
+      "name": "XLSX export responds: controllers/export_excel?type=finance",
+      "passed": true
+    },
+    {
+      "name": "request text remains text in XLSX: controllers/export_excel?type=finance",
+      "passed": true
+    },
+    {
+      "name": "XLSX export responds: controllers/export_excel?gender=Pria&tipe=Baju&ukuran=S&range_awal=1&range_akhir=3",
+      "passed": true
+    },
+    {
+      "name": "request text remains text in XLSX: controllers/export_excel?gender=Pria&tipe=Baju&ukuran=S&range_awal=1&range_akhir=3",
+      "passed": true
+    },
+    {
+      "name": "DOM scanner with real HTTP validation and form submit",
+      "passed": true
+    }
+  ],
+  "php": "PHP 8.3.6 (cli) (built: Jul 16 2026 18:30:41) (NTS)",
+  "real_browser_run": false,
+  "dom_http_run": true
+}

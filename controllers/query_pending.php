@@ -1,9 +1,10 @@
 <?php
+require_once __DIR__ . '/../includes/auth_check.php';
 require_once __DIR__ . '/../includes/db.php';
 
 try {
     // Base URL ke project Form Request (menggunakan port 8080 sesuai XAMPP)
-    $base_upload_url = '/Request.Form.2/';
+    $base_upload_url = (string)wh_config('REQUEST_UPLOAD_BASE_URL', '/Request.Form.2/');
 
     // 1. Query Data Pending (Request yang BELUM ada di tabel transaksi)
     $sql_pending = "SELECT rf.* FROM request_form rf 
@@ -73,6 +74,7 @@ try {
     }
 
 } catch (PDOException $e) {
+    error_log('[Warehouse HR] ' . $e);
     // Fallback jika terjadi kesalahan query
     $requests_pending = [];
     $requests_done    = [];

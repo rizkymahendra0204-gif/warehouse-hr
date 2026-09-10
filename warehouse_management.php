@@ -7,14 +7,15 @@ include 'controllers/query_audit.php';
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['lang'] ?? 'id'; ?>">
 <head>
+    <meta name="csrf-token" content="<?= wh_escape(wh_csrf_token()) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WC | <?= $lang['whm_title'] ?? 'Warehouse Management' ?></title>
 
     <link rel="icon" type="image/png" href="assets/img/favicon-icon.png">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor-ui/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -153,6 +154,7 @@ include 'controllers/query_audit.php';
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
                     <div class="flex-shrink-0">
                         <form method="POST" action="" class="m-0">
+<?= wh_csrf_field() ?>
                             <input type="hidden" name="action_type" value="toggle_audit">
                             <?php if ($is_audit_active): ?>
                                 <input type="hidden" name="audit_status" value="0">
@@ -231,7 +233,7 @@ include 'controllers/query_audit.php';
                                                         class="btn btn-sm btn-proses-custom fw-bold px-3"
                                                         data-bs-toggle="modal" 
                                                         data-bs-target="#modalAudit"
-                                                        onclick="setAuditData('<?php echo $barcode; ?>', '<?php echo addslashes($detail); ?>', '<?php echo $st_tx; ?>', '<?php echo $st_brg; ?>')">
+                                                        onclick="setAuditData(<?= wh_escape(wh_js(html_entity_decode($barcode, ENT_QUOTES, 'UTF-8'))) ?>, <?= wh_escape(wh_js(html_entity_decode($detail, ENT_QUOTES, 'UTF-8'))) ?>, <?= wh_escape(wh_js(html_entity_decode($st_tx, ENT_QUOTES, 'UTF-8'))) ?>, <?= wh_escape(wh_js(html_entity_decode($st_brg, ENT_QUOTES, 'UTF-8'))) ?>)">
                                                     <i class="bi bi-pencil-square me-1"></i> <?= $lang['btn_change_status'] ?? 'Ubah Status' ?>
                                                 </button>
                                             <?php elseif (!$is_audit_active): ?>
@@ -270,6 +272,7 @@ include 'controllers/query_audit.php';
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form method="POST" action="">
+<?= wh_csrf_field() ?>
                 <input type="hidden" name="action_type" value="update_status">
                 <input type="hidden" name="barcode" id="modal_barcode">
 
@@ -289,7 +292,6 @@ include 'controllers/query_audit.php';
                         <label class="form-label fw-bold small text-secondary"><?= $lang['lbl_status_transaksi'] ?? 'Status Transaksi' ?></label>
                         <select class="form-select" name="status_transaksi" id="modal_status_tx" required>
                             <option value="Available"><?= $lang['opt_available'] ?? 'Available (Siap Dijual / Direquest)' ?></option>
-                            <option value="Sold Out"><?= $lang['opt_sold_out'] ?? 'Sold Out (Sudah Terjual)' ?></option>
                         </select>
                         <div class="form-text small"><?= $lang['help_status_tx'] ?? 'Pilih <b>Available</b> agar barang bisa dipilih kembali pada transaksi baru.' ?></div>
                     </div>
@@ -314,37 +316,9 @@ include 'controllers/query_audit.php';
     </div>
 </div>
 
-<td class="text-center">
-    <?php if ($is_audit_active && $is_inactive_available && isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-        <!-- Tombol Aktif HANYA untuk Admin saat periode dibuka -->
-        <button type="button" 
-                class="btn btn-sm btn-proses-custom fw-bold px-3"
-                data-bs-toggle="modal" 
-                data-bs-target="#modalAudit"
-                onclick="setAuditData('<?php echo $barcode; ?>', '<?php echo addslashes($detail); ?>', '<?php echo $st_tx; ?>', '<?php echo $st_brg; ?>')">
-            <i class="bi bi-pencil-square me-1"></i> <?= $lang['btn_change_status'] ?? 'Ubah Status' ?>
-        </button>
-    <?php elseif (!$is_audit_active): ?>
-        <!-- Saat Periode Ditutup -->
-        <button type="button" 
-                class="btn btn-proses fw-bold px-3" 
-                disabled 
-                title="<?= $lang['title_access_locked'] ?? 'Akses dikunci: Periode sedang ditutup' ?>">
-            <i class="bi bi-lock-fill me-1"></i> <?= $lang['badge_locked'] ?? 'Terkunci' ?>
-        </button>
-    <?php else: ?>
-        <!-- Jika User Biasa atau Status Barang Tidak Perlu Diubah -->
-        <button type="button" 
-                class="btn btn-sm btn-light text-muted fw-bold px-3" 
-                disabled 
-                title="Hanya Administrator yang dapat mengubah status">
-            <i class="bi bi-shield-lock me-1"></i> <?= $lang['badge_compliant'] ?? 'Sesuai' ?>
-        </button>
-    <?php endif; ?>
-</td>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor-ui/jquery/jquery-3.6.0.min.js"></script>
+<script src="assets/vendor-ui/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="assets/js/scripts.js?v=<?= time(); ?>"></script>
 
 </body>
