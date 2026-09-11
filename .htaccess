@@ -1,21 +1,61 @@
 Options -Indexes -MultiViews
 DirectoryIndex index.php
-RewriteEngine On
 
-# Private code, deployment assets, credentials and backups are never web resources.
+RewriteEngine On
+RewriteBase /warehouse-hr/
+
+# =========================================================
+# 1. BLOK FILE / FOLDER PRIVATE
+# =========================================================
+
 RewriteRule (^|/)\. - [F,L]
+
 RewriteRule ^(?:config|includes|services|database|tests|docs|vendor)(?:/|$) - [F,L,NC]
+
 RewriteRule ^(?:composer\.(?:json|lock)|README.*|CHANGELOG.*)$ - [F,L,NC]
+
 RewriteRule \.(?:sql|zip|log|ini|bak|env)$ - [F,L,NC]
+
 RewriteRule ^assets/.*\.(?:php[0-9]?|phtml|phar|cgi|pl)$ - [F,L,NC]
 
-# Canonicalize GET/HEAD only. Redirecting a POST can silently discard its body.
+
+# =========================================================
+# 2. REDIRECT .PHP -> CLEAN URL
+# =========================================================
+# Contoh:
+# /warehouse-hr/login.php
+# menjadi
+# /warehouse-hr/login
+#
+# Gunakan 302 dulu selama development agar browser
+# tidak menyimpan redirect secara permanen.
+# =========================================================
+
 RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
-RewriteCond %{THE_REQUEST} \s/+[^\s?]*\.php(?:[?\s]) [NC]
-RewriteRule ^(.+)\.php$ $1 [R=301,L,NE]
+RewriteCond %{THE_REQUEST} \s/+warehouse-hr/[^\s?]*\.php(?:[?\s]) [NC]
+
+RewriteRule ^(.+)\.php$ /warehouse-hr/$1 [R=302,L,NE]
+
+
+# =========================================================
+# 3. BIARKAN FILE / DIRECTORY FISIK
+# =========================================================
 
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
+
 RewriteRule ^ - [L]
+
+
+# =========================================================
+# 4. CLEAN URL -> FILE PHP
+# =========================================================
+# Contoh:
+# /warehouse-hr/login
+# secara internal menjalankan:
+# /warehouse-hr/login.php
+# =========================================================
+
 RewriteCond %{REQUEST_FILENAME}.php -f
+
 RewriteRule ^(.+?)/?$ $1.php [QSA,L]
