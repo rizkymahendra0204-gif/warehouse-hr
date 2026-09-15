@@ -288,7 +288,8 @@ $account = $stmt->fetch(
 if (!$account) {
     wh_http_error(
         403,
-        'Akun "' . $username . '" belum terdaftar di Warehouse HR.'
+        'Akun "' . $username . '" tidak terdaftar di Warehouse HR.' . "\n" .
+        'Hanya akun HR yang dapat mengakses Warehouse HR.'
     );
 }
 

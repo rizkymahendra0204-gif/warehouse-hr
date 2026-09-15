@@ -188,6 +188,11 @@ try:
         with zipfile.ZipFile(io.BytesIO(body)) as workbook:
             sheets=[workbook.read(name) for name in workbook.namelist() if name.startswith('xl/worksheets/sheet') and name.endswith('.xml')]
             check('request text remains text in XLSX: '+export,all(b'<f>2+3</f>' not in sheet for sheet in sheets))
+    status,headers,body=staff.request('stok_barang?export=excel')
+    disposition=headers.get('Content-Disposition','')
+    check('inventory export is a real XLSX',status==200 and body.startswith(b'PK') and '.xlsx' in disposition.lower())
+    with zipfile.ZipFile(io.BytesIO(body)) as workbook:
+        check('inventory XLSX has workbook structure','xl/workbook.xml' in workbook.namelist())
     if os.environ.get('WH_DOM_TEST')=='1':
         add_request('REQ-UI',top=2)
         dom_env=ENV.copy();dom_env['WH_TEST_URL']=BASE

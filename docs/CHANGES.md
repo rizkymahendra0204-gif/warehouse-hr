@@ -45,3 +45,7 @@ Referensi implementasi: [OWASP Authorization](https://cheatsheetseries.owasp.org
 ## Revisi HTTPS opsional
 
 Sesuai permintaan pengguna, default `APP_REQUIRE_HTTPS` menjadi `false`, termasuk pada production. Pemeriksaan konfigurasi melaporkan pilihan ini sebagai informasi. HSTS hanya diaktifkan saat kewajiban HTTPS aktif; cookie Secure tetap mengikuti koneksi. Panduan menjelaskan konfigurasi instalasi baru dan yang sudah ada.
+
+## Revisi ekspor inventory
+
+Ekspor inventory kini membuat workbook `.xlsx` asli menggunakan PhpSpreadsheet. Implementasi lama yang mengirim tabel HTML dengan ekstensi `.xls` dihapus agar Microsoft Excel tidak lagi menampilkan peringatan ketidaksesuaian format dan ekstensi. Barcode dan nilai teks ditulis sebagai tipe string agar tidak diubah menjadi angka atau formula oleh Excel.

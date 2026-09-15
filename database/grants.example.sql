@@ -1,6 +1,6 @@
 -- Template only. Replace the sample password before executing as a DBA.
 -- These grants assume DB_HOST=127.0.0.1 and database=db_warehouse.
-CREATE USER 'warehouse_app'@'127.0.0.1' IDENTIFIED BY 'Leo@27';
+CREATE USER 'warehouse_app'@'127.0.0.1' IDENTIFIED BY 'GANTI_DENGAN_PASSWORD_ACAK_YANG_KUAT';
 GRANT SELECT, INSERT, UPDATE ON db_warehouse.master_item TO 'warehouse_app'@'127.0.0.1';
 GRANT SELECT, UPDATE ON db_warehouse.request_form TO 'warehouse_app'@'127.0.0.1';
 GRANT SELECT, INSERT ON db_warehouse.transaksi TO 'warehouse_app'@'127.0.0.1';

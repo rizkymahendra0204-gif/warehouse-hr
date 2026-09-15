@@ -1,6 +1,6 @@
 {
-  "passed": 86,
-  "checks": 86,
+  "passed": 87,
+  "checks": 87,
   "results": [
     {
       "name": "migration dry run leaves legacy schema untouched",
@@ -343,11 +343,15 @@
       "passed": true
     },
     {
-      "name": "DOM scanner with real HTTP validation and form submit",
+      "name": "inventory export is a real XLSX",
+      "passed": true
+    },
+    {
+      "name": "inventory XLSX has workbook structure",
       "passed": true
     }
   ],
   "php": "PHP 8.3.6 (cli) (built: Jul 16 2026 18:30:41) (NTS)",
   "real_browser_run": false,
-  "dom_http_run": true
+  "dom_http_run": false
 }

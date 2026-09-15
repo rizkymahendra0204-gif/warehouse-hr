@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/auth_check.php';
 // 1. Panggil koneksi database PDO
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 if (!isset($pdo)) {
     die("Koneksi PDO tidak ditemukan.");
@@ -67,37 +68,55 @@ if ($export === 'excel') {
         $stmt->execute($params);
         $export_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $filename = "Inventory_Stok_" . date('Ymd_His') . ".xls";
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment; filename=\"$filename\"");
-        header("Pragma: no-cache");
-        header("Expires: 0");
-        ?>
-        <table border="1">
-            <thead>
-                <tr style="background-color: #f2f2f2; font-weight: bold;">
-                    <th>NO</th>
-                    <th>BARCODE</th>
-                    <th>DETAIL ITEM</th>
-                    <th>KATEGORI</th>
-                    <th>SIZE</th>
-                    <th>STATUS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($export_items)): $no = 1; foreach ($export_items as $row): ?>
-                    <tr>
-                        <td style="text-align: center;"><?= $no++ ?></td>
-                        <td style="mso-number-format:'\@';">'<?= htmlspecialchars($row['barcode']) ?></td>
-                        <td><?= htmlspecialchars($row['tipe'] . ' SA ' . $row['gender']) ?></td>
-                        <td><?= htmlspecialchars($row['tipe']) ?></td>
-                        <td style="text-align: center;"><?= htmlspecialchars($row['size']) ?></td>
-                        <td style="text-align: center;"><?= htmlspecialchars($row['status_transaksi'] . ' (' . $row['status_barang'] . ')') ?></td>
-                    </tr>
-                <?php endforeach; endif; ?>
-            </tbody>
-        </table>
-        <?php
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet->getProperties()
+            ->setCreator('Warehouse HR')
+            ->setTitle('Inventory Stok');
+
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Inventory Stok');
+        $headings = ['NO', 'BARCODE', 'DETAIL ITEM', 'KATEGORI', 'SIZE', 'STATUS'];
+        $sheet->fromArray($headings, null, 'A1');
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:F1')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FFF2F2F2');
+
+        $rowNumber = 2;
+        foreach ($export_items as $index => $row) {
+            $sheet->setCellValue("A{$rowNumber}", $index + 1);
+            $values = [
+                'B' => (string)$row['barcode'],
+                'C' => (string)$row['tipe'] . ' SA ' . (string)$row['gender'],
+                'D' => (string)$row['tipe'],
+                'E' => (string)$row['size'],
+                'F' => (string)$row['status_transaksi'] . ' (' . (string)$row['status_barang'] . ')',
+            ];
+            foreach ($values as $column => $value) {
+                $sheet->setCellValueExplicit(
+                    "{$column}{$rowNumber}",
+                    $value,
+                    \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+                );
+            }
+            $rowNumber++;
+        }
+
+        $sheet->freezePane('A2');
+        $sheet->setAutoFilter('A1:F' . max(1, $rowNumber - 1));
+        foreach (range('A', 'F') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        $filename = 'Inventory_Stok_' . date('Ymd_His') . '.xlsx';
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0, no-store');
+        header('Pragma: public');
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
         exit;
     } catch (PDOException $e) {
     error_log('[Warehouse HR] ' . $e);

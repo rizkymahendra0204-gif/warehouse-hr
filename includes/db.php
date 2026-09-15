@@ -6,7 +6,7 @@ function wh_db(): PDO {
         $host = (string)wh_config('DB_HOST', '127.0.0.1');
         $port = (int)wh_config('DB_PORT', 3306);
         $database = (string)wh_config('DB_NAME', 'db_warehouse');
-        $username = (string)wh_config('DB_USER', 'root');
+        $username = (string)wh_config('DB_USER', '');
         $password = (string)wh_config('DB_PASSWORD', '');
         if ($username === '' || $password === '' || !preg_match('/^[a-zA-Z0-9_]+$/D', $database)) {
             throw new RuntimeException('Set DB_NAME, DB_USER and DB_PASSWORD in config/local.php or environment.');

@@ -125,6 +125,7 @@ Saat go-live: hentikan writer, ambil backup terbaru, jalankan migrasi pada datab
 - Kartu item baru muncul setelah scan lolos pemeriksaan database. Setelah kartu terakhir dihapus, daftar kembali kosong.
 - Logout dan penggantian bahasa memakai POST dengan CSRF. Koneksi database yang belum dikonfigurasi tidak lagi menggunakan root/password kosong secara otomatis.
 - JS/CSS Bootstrap, ikon, jQuery, dan JsBarcode disediakan lokal agar fungsi utama tidak bergantung pada CDN. Tampilan utama tetap menggunakan stylesheet lama.
+- Ekspor inventory menghasilkan file `.xlsx` asli; peringatan Excel tentang format dan ekstensi yang tidak cocok tidak lagi muncul.
 
 ## 6. Pemulihan dan operasi
 
